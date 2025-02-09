@@ -65,6 +65,30 @@
 	import * as m from '$lib/paraglide/messages.js';
 </script>
 
+<svelte:head>
+	<title>{m.title()}</title>
+	<meta
+		name="description"
+		content={m.description()}
+	/>
+	<meta name="twitter:card" content="summary" />
+	<meta name="twitter:creator" content="@Em1ttt" />
+	<meta property="og:url" content="https://em1t.me" />
+	<meta property="og:title" content="Em1t | Developer & designer" />
+	<meta
+		property="og:description"
+		content={m.description()}
+	/>
+	<!--
+    <meta property="og:image" content="https://em1t.dev/Em1t.png" />
+	<meta property="og:image:secure_url" content="https://em1t.dev/Em1t.png" />
+	<meta property="og:image:type" content="image/png">
+	<meta property="og:image:width" content="840">
+	<meta property="og:image:height" content="590">
+	-->
+</svelte:head>
+
+
 <!--Layout inspired by GD Knots GetHappier-->
 <div class="fixed top-4 left-4 flex flex-col z-40">
 	<a href="#background-wrapper" class="text-sky-500 ibm-plex-mono-regular ibm-plex-mono-bold"
