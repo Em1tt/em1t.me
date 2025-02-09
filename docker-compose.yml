@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  em1t.me:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: em1tme-image
+    ports:
+      - "8097:3000"
+    restart: always
