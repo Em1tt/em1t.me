@@ -63,6 +63,7 @@
 	}
 
 	import * as m from '$lib/paraglide/messages.js';
+	import GetInTouch from '$lib/GetInTouch.svelte';
 </script>
 
 <svelte:head>
@@ -104,12 +105,7 @@
 	<img src="/E1.svg" alt="E1" width="32" />
 </div>
 
-<div class="fixed bottom-4 left-4 z-40 hidden 2xl:block">
-	<p class="text-gray-400 text ibm-plex-mono-regular-italic">// Em1t</p>
-	<a href="/#contact" class="text-gray-200 hover:text-sky-400 text-4xl ibm-plex-mono-regular"
-		>{m.getInTouch()}</a
-	>
-</div>
+<GetInTouch />
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -144,8 +140,8 @@
 		</div>
 		<div class="flex flex-col sm:flex-row gap-4">
 			<img
-				src="/Em1t.png"
-				alt="Em1t logo"
+				src="/me.jpg"
+				alt="Richard"
 				class="w-fit aspect-square sm:w-96 sm:h-96 rounded"
 			/>
 			<div class="flex flex-col gap-4 justify-center">
@@ -625,7 +621,7 @@
 								stroke-linejoin="round"
 							></path>
 						</svg>
-						Email: <span class="text-sky-400">marcincak@&#8203;proton.me</span>
+						Email: <span class="text-sky-400">em1t.dev@&#8203;proton.me</span>
 					</p>
 					<p class="text-slate-200 ibm-plex-mono-semibold flex flex-row gap-1 items-center">
 						<svg
@@ -647,7 +643,7 @@
 								</g>
 							</g>
 						</svg>
-						GitHub: <a href="/" class="text-sky-400 hover:text-slate-200 underline">Em1tt</a>
+						GitHub: <a href="https://github.com/Em1tt" class="text-sky-400 hover:text-slate-200 underline">Em1tt</a>
 					</p>
 				</div>
 			</div>
