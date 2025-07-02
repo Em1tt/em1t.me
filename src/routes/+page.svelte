@@ -4,9 +4,11 @@
 	import Scramble from '$lib/Scramble.svelte';
 	import { Turnstile } from 'svelte-turnstile';
 
-	import toast from 'svelte-5-french-toast'
+	let { data } = $props();
 
-	let loading = "";
+	import { toast } from 'svelte-sonner';
+
+	let loading: string | number = '';
 
 	let background: HTMLDivElement;
 	let animationProgress = new Tween(1.5, {
@@ -64,45 +66,57 @@
 
 	import * as m from '$lib/paraglide/messages.js';
 	import GetInTouch from '$lib/GetInTouch.svelte';
+	import { formatDate } from '$lib/utils';
 </script>
 
 <svelte:head>
-	<title>{m.title()}</title>
-	<meta
-		name="description"
-		content={m.description()}
-	/>
-	<meta name="twitter:card" content="summary" />
-	<meta name="twitter:creator" content="@Em1ttt" />
-	<meta property="og:url" content="https://em1t.me" />
-	<meta property="og:title" content="Em1t | Developer & designer" />
-	<meta
-		property="og:description"
-		content={m.description()}
-	/>
-	<!--
-    <meta property="og:image" content="https://em1t.dev/Em1t.png" />
-	<meta property="og:image:secure_url" content="https://em1t.dev/Em1t.png" />
-	<meta property="og:image:type" content="image/png">
-	<meta property="og:image:width" content="840">
-	<meta property="og:image:height" content="590">
-	-->
+    <title>Richard Em1t | Full-Stack Web Developer & Designer from Slovakia</title>
+    <meta name="description" content="Full-stack web developer and designer from Slovakia specializing in modern web technologies like SvelteKit, React, TypeScript, and responsive design. View my portfolio and projects." />
+    
+    <!-- Keywords -->
+    <meta name="keywords" content="web developer, full-stack developer, Slovakia, SvelteKit, React, TypeScript, JavaScript, web design, portfolio, Richard Em1t" />
+    
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Richard Em1t | Full-Stack Web Developer & Designer" />
+    <meta property="og:description" content="Full-stack web developer and designer from Slovakia specializing in modern web technologies. View my portfolio and projects." />
+    <meta property="og:url" content="https://em1t.me" />
+    <meta property="og:site_name" content="Em1t Portfolio" />
+    <meta property="og:image" content="https://em1t.me/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Richard Em1t - Full-Stack Web Developer Portfolio" />
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@Em1ttt" />
+    <meta name="twitter:creator" content="@Em1ttt" />
+    <meta name="twitter:title" content="Richard Em1t | Full-Stack Web Developer & Designer" />
+    <meta name="twitter:description" content="Full-stack web developer and designer from Slovakia specializing in modern web technologies." />
+    <meta name="twitter:image" content="https://em1t.me/og-image.png" />
 </svelte:head>
 
-
 <!--Layout inspired by GD Knots GetHappier-->
-<div class="fixed top-4 left-4 flex flex-col z-40">
-	<a href="#background-wrapper" class="text-sky-500 ibm-plex-mono-regular ibm-plex-mono-bold"
+<div class="fixed top-4 left-4 z-40 flex flex-col">
+	<a href="#background-wrapper" class="ibm-plex-mono-regular ibm-plex-mono-bold text-sky-500"
 		>-> {m.navHome()}</a
 	>
-	<a href="#about" class="text-gray-400 hover:text-gray-200 ibm-plex-mono-regular">// {m.navAbout()}</a>
-	<a href="#projects" class="text-gray-400 hover:text-gray-200 ibm-plex-mono-regular">// {m.navProjects()}</a
+	<a href="#about" class="ibm-plex-mono-regular text-gray-400 hover:text-gray-200"
+		>// {m.navAbout()}</a
 	>
-	<a href="#contact" class="text-gray-400 hover:text-gray-200 ibm-plex-mono-regular">// {m.navContact()}</a>
+	<a href="#blog" class="ibm-plex-mono-regular text-gray-400 hover:text-gray-200"
+		>// {m.navBlog()}</a
+	>
+	<a href="#projects" class="ibm-plex-mono-regular text-gray-400 hover:text-gray-200"
+		>// {m.navProjects()}</a
+	>
+	<a href="#contact" class="ibm-plex-mono-regular text-gray-400 hover:text-gray-200"
+		>// {m.navContact()}</a
+	>
 </div>
 
 <div class="fixed top-4 right-4 z-40">
-	<img src="/E1.svg" alt="E1" width="32" />
+	<img src="/misc/E1.svg" alt="E1" width="32" height="32" />
 </div>
 
 <GetInTouch />
@@ -113,213 +127,225 @@
 <section
 	onclick={pulse}
 	id="background-wrapper"
-	class="h-screen bg-slate-900 overflow-hidden relative grid place-items-center"
+	class="relative grid h-screen place-items-center overflow-hidden bg-slate-900"
 >
 	<div bind:this={background} id="container">
 		<!--Background-->
 		{#each Array.from({ length: 1600 }, (_, i) => i) as i}
 			<div
-				class="border border-solid border-sky-500/10 duration-1000 hover:duration-0 hover:bg-sky-600"
+				class="border border-solid border-sky-500/10 duration-1000 hover:bg-sky-600 hover:duration-0"
 			></div>
 		{/each}
 	</div>
 	<div id="radialGradient"></div>
 	<div class="z-20">
 		<Scramble>
-			<h1 class="text-white bg-sky-500 ibm-plex-mono-bold text-7xl" data-value="EM1T.ME">
+			<h1 class="ibm-plex-mono-bold bg-sky-500 text-7xl text-white" data-value="EM1T.ME">
 				EM1T.ME
 			</h1>
 		</Scramble>
 		<h2 class="ibm-plex-mono-semibold-italic text-gray-400">{m.hero()}</h2>
 	</div>
 </section>
-<section id="about" class="w-full bg-slate-800 py-8">
-	<div class="w-full max-w-7xl mx-auto px-8 md:px-20 relative">
-		<div class="md:absolute top-10 left-0 md:-rotate-90 mb-4 md:mb-0">
-			<p class="text-gray-400 ibm-plex-mono-regular-italic w-fit">{m.about()}</p>
+<section id="about" class="w-full overflow-x-hidden bg-slate-800 py-8">
+	<div class="relative mx-auto w-full max-w-7xl px-8 md:px-20">
+		<div class="top-10 left-0 mb-4 md:absolute md:mb-0 md:-rotate-90">
+			<p class="ibm-plex-mono-regular-italic w-fit text-gray-400">{m.about()}</p>
 		</div>
-		<div class="flex flex-col sm:flex-row gap-4">
-			<img
-				src="/me.jpg"
-				alt="Richard"
-				class="w-fit aspect-square sm:w-96 sm:h-96 rounded"
-			/>
-			<div class="flex flex-col gap-4 justify-center">
-				<p class="text-white ibm-plex-mono-regular">
+		<div class="flex flex-col gap-4 sm:flex-row">
+			<img src="/misc/me.jpg" alt="Richard" width="384" height="384" class="aspect-square w-fit rounded sm:h-96 sm:w-96" />
+			<div class="flex flex-col justify-center gap-4">
+				<p class="ibm-plex-mono-regular text-white">
 					{m.aboutText()}
 				</p>
-				<div class="xl:grid grid-cols-5 w-full grid-rows-2 gap-4 hidden">
+				<div class="hidden w-full grid-cols-5 grid-rows-2 gap-4 xl:grid">
 					<div
-						class="w-32 flex flex-col items-center justify-center text-center bg-slate-900 aspect-square rounded"
+						class="flex aspect-square w-32 flex-col items-center justify-center rounded bg-slate-900 text-center"
 					>
-						<img src="/HTML5.png" width="64" class="w-20" alt="HTML5" />
-						<p class="text-gray-200 ibm-plex-mono-regular">HTML5</p>
+						<img src="/skills/HTML5.png" width="64" height="64" class="w-20" alt="HTML5" />
+						<p class="ibm-plex-mono-regular text-gray-200">HTML5</p>
 					</div>
 					<div
-						class="w-32 flex flex-col items-center justify-center text-center bg-slate-900 aspect-square rounded"
+						class="flex aspect-square w-32 flex-col items-center justify-center rounded bg-slate-900 text-center"
 					>
-						<img src="/css.svg" width="64" class="w-20" alt="CSS3" />
-						<p class="text-gray-200 ibm-plex-mono-regular">CSS3</p>
+						<img src="/skills/css.svg" width="64" height="64" class="w-20" alt="CSS3" />
+						<p class="ibm-plex-mono-regular text-gray-200">CSS3</p>
 					</div>
 					<div
-						class="w-32 flex flex-col items-center justify-center text-center bg-slate-900 aspect-square rounded"
+						class="flex aspect-square w-32 flex-col items-center justify-center rounded bg-slate-900 text-center"
 					>
-						<img src="/JS.png" width="64" class="w-20" alt="JavaScript" />
-						<p class="text-gray-200 ibm-plex-mono-regular">JavaScript</p>
+						<img src="/skills/JS.png" width="64" height="64" class="w-20" alt="JavaScript" />
+						<p class="ibm-plex-mono-regular text-gray-200">JavaScript</p>
 					</div>
 					<div
-						class="w-32 flex flex-col items-center justify-center text-center bg-slate-900 aspect-square rounded"
+						class="flex aspect-square w-32 flex-col items-center justify-center rounded bg-slate-900 text-center"
 					>
-						<img src="/ts-logo-512.svg" width="64" class="w-20" alt="TypeScript" />
-						<p class="text-gray-200 ibm-plex-mono-regular">TypeScript</p>
+						<img src="/skills/ts-logo-512.svg" width="64" height="64" class="w-20" alt="TypeScript" />
+						<p class="ibm-plex-mono-regular text-gray-200">TypeScript</p>
 					</div>
 					<div
-						class="w-32 flex flex-col items-center justify-center text-center bg-slate-900 aspect-square rounded"
+						class="flex aspect-square w-32 flex-col items-center justify-center rounded bg-slate-900 text-center"
 					>
-						<img src="/python.png" width="64" class="w-20" alt="Python" />
-						<p class="text-gray-200 ibm-plex-mono-regular">Python</p>
+						<img src="/skills/python.png" width="64" height="64" class="w-20" alt="Python" />
+						<p class="ibm-plex-mono-regular text-gray-200">Python</p>
 					</div>
 					<div
-						class="w-32 flex flex-col items-center justify-center text-center bg-slate-900 aspect-square rounded"
+						class="flex aspect-square w-32 flex-col items-center justify-center rounded bg-slate-900 text-center"
 					>
-						<img src="/svelte.png" width="64" class="w-20" alt="Svelte" />
-						<p class="text-gray-200 ibm-plex-mono-regular">Svelte</p>
+						<img src="/skills/svelte.png" width="64" height="64" class="w-20" alt="Svelte" />
+						<p class="ibm-plex-mono-regular text-gray-200">Svelte</p>
 					</div>
 					<div
-						class="w-32 flex flex-col items-center justify-center text-center bg-slate-900 aspect-square rounded"
+						class="flex aspect-square w-32 flex-col items-center justify-center rounded bg-slate-900 text-center"
 					>
-						<img src="/react.png" width="64" class="w-20" alt="React" />
-						<p class="text-gray-200 ibm-plex-mono-regular">React</p>
+						<img src="/skills/react.png" width="64" height="64" class="w-20" alt="React" />
+						<p class="ibm-plex-mono-regular text-gray-200">React</p>
 					</div>
 					<div
-						class="w-32 flex flex-col items-center justify-center text-center bg-slate-900 aspect-square rounded"
+						class="flex aspect-square w-32 flex-col items-center justify-center rounded bg-slate-900 text-center"
 					>
-						<img src="/php.png" width="64" class="w-20" alt="PHP" />
-						<p class="text-gray-200 ibm-plex-mono-regular">PHP</p>
+						<img src="/skills/php.png" width="64" height="64" class="w-20" alt="PHP" />
+						<p class="ibm-plex-mono-regular text-gray-200">PHP</p>
 					</div>
 					<div
-						class="w-32 flex flex-col items-center justify-center text-center bg-slate-900 aspect-square rounded"
+						class="flex aspect-square w-32 flex-col items-center justify-center rounded bg-slate-900 text-center"
 					>
-						<img src="/tailwindcss.svg" width="64" class="w-20" alt="TailwindCSS" />
-						<p class="text-gray-200 ibm-plex-mono-regular">TailwindCSS</p>
+						<img src="/skills/tailwindcss.svg" width="64" height="64" class="w-20" alt="TailwindCSS" />
+						<p class="ibm-plex-mono-regular text-gray-200">TailwindCSS</p>
 					</div>
 					<div
-						class="w-32 flex flex-col items-center justify-center text-center bg-slate-900 aspect-square rounded"
+						class="flex aspect-square w-32 flex-col items-center justify-center rounded bg-slate-900 text-center"
 					>
-						<img src="/docker.png" width="64" class="w-20" alt="Docker" />
-						<p class="text-gray-200 ibm-plex-mono-regular">Docker</p>
+						<img src="/skills/docker.png" width="64" height="64" class="w-20" alt="Docker" />
+						<p class="ibm-plex-mono-regular text-gray-200">Docker</p>
 					</div>
 				</div>
 			</div>
 		</div>
-		<div
-			class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-5 w-full grid-rows-2 gap-4 xl:hidden mt-4"
-		>
-			<div
-				class="flex flex-col items-center justify-center text-center bg-slate-900 aspect-square rounded"
-			>
-				<img src="/HTML5.png" width="64" class="w-20" alt="HTML5" />
-				<p class="text-gray-200 ibm-plex-mono-regular">HTML5</p>
+		
+		<div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+			<div class="flex w-full flex-row items-center gap-2 rounded bg-slate-900 p-2">
+				<img  width="32" height="32" src="/skills/photoshop.jpg" alt="Photoshop" class="h-8 w-8 rounded" />
+				<p class="ibm-plex-mono-regular text-gray-200">Adobe Photoshop</p>
 			</div>
-			<div
-				class="flex flex-col items-center justify-center text-center bg-slate-900 aspect-square rounded"
-			>
-				<img src="/css.svg" width="64" class="w-20" alt="CSS3" />
-				<p class="text-gray-200 ibm-plex-mono-regular">CSS3</p>
+			<div class="flex w-full flex-row items-center gap-2 rounded bg-slate-900 p-2">
+				<img width="32" height="32" src="/skills/illustrator.jpg" alt="Illustrator" class="h-8 w-8 rounded" />
+				<p class="ibm-plex-mono-regular text-gray-200">Adobe Illustrator</p>
 			</div>
-			<div
-				class="flex flex-col items-center justify-center text-center bg-slate-900 aspect-square rounded"
-			>
-				<img src="/JS.png" width="64" class="w-20" alt="JavaScript" />
-				<p class="text-gray-200 ibm-plex-mono-regular">JavaScript</p>
+			<div class="flex w-full flex-row items-center gap-2 rounded bg-slate-900 p-2">
+				<img width="32" height="32" src="/skills/premiere.jpg" alt="Premiere Pro" class="h-8 w-8 rounded" />
+				<p class="ibm-plex-mono-regular text-gray-200">Adobe Premiere Pro</p>
 			</div>
-			<div
-				class="flex flex-col items-center justify-center text-center bg-slate-900 aspect-square rounded"
-			>
-				<img src="/ts-logo-512.svg" width="64" class="w-20" alt="TypeScript" />
-				<p class="text-gray-200 ibm-plex-mono-regular">TypeScript</p>
-			</div>
-			<div
-				class="flex flex-col items-center justify-center text-center bg-slate-900 aspect-square rounded"
-			>
-				<img src="/python.png" width="64" class="w-20" alt="Python" />
-				<p class="text-gray-200 ibm-plex-mono-regular">Python</p>
-			</div>
-			<div
-				class="flex flex-col items-center justify-center text-center bg-slate-900 aspect-square rounded"
-			>
-				<img src="/svelte.png" width="64" class="w-20" alt="Svelte" />
-				<p class="text-gray-200 ibm-plex-mono-regular">Svelte</p>
-			</div>
-			<div
-				class="flex flex-col items-center justify-center text-center bg-slate-900 aspect-square rounded"
-			>
-				<img src="/react.png" width="64" class="w-20" alt="React" />
-				<p class="text-gray-200 ibm-plex-mono-regular">React</p>
-			</div>
-			<div
-				class="flex flex-col items-center justify-center text-center bg-slate-900 aspect-square rounded"
-			>
-				<img src="/php.png" width="64" class="w-20" alt="PHP" />
-				<p class="text-gray-200 ibm-plex-mono-regular">PHP</p>
-			</div>
-			<div
-				class="flex flex-col items-center justify-center text-center bg-slate-900 aspect-square rounded"
-			>
-				<img src="/tailwindcss.svg" width="64" class="w-20" alt="TailwindCSS" />
-				<p class="text-gray-200 ibm-plex-mono-regular">TailwindCSS</p>
-			</div>
-			<div
-				class="flex flex-col items-center justify-center text-center bg-slate-900 aspect-square rounded"
-			>
-				<img src="/docker.png" width="64" class="w-20" alt="Docker" />
-				<p class="text-gray-200 ibm-plex-mono-regular">Docker</p>
-			</div>
-		</div>
-		<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mt-4">
-			<div class="rounded w-full flex flex-row gap-2 items-center p-2 bg-slate-900">
-				<img src="/photoshop.jpg" alt="Photoshop" class="w-8 h-8 rounded" />
-				<p class="text-gray-200 ibm-plex-mono-regular">Adobe Photoshop</p>
-			</div>
-			<div class="rounded w-full flex flex-row gap-2 items-center p-2 bg-slate-900">
-				<img src="/illustrator.jpg" alt="Illustrator" class="w-8 h-8 rounded" />
-				<p class="text-gray-200 ibm-plex-mono-regular">Adobe Illustrator</p>
-			</div>
-			<div class="rounded w-full flex flex-row gap-2 items-center p-2 bg-slate-900">
-				<img src="/premiere.jpg" alt="Premiere Pro" class="w-8 h-8 rounded" />
-				<p class="text-gray-200 ibm-plex-mono-regular">Adobe Premiere Pro</p>
-			</div>
-			<div class="rounded w-full flex flex-row gap-2 items-center p-2 bg-slate-900">
-				<img src="/indesign.jpg" alt="InDesign" class="w-8 h-8 rounded" />
-				<p class="text-gray-200 ibm-plex-mono-regular">Adobe InDesign</p>
+			<div class="flex w-full flex-row items-center gap-2 rounded bg-slate-900 p-2">
+				<img width="32" height="32" src="/skills/indesign.jpg" alt="InDesign" class="h-8 w-8 rounded" />
+				<p class="ibm-plex-mono-regular text-gray-200">Adobe InDesign</p>
 			</div>
 		</div>
 	</div>
 </section>
+<section id="blog" class="w-full bg-slate-900 py-8">
+	<div class="relative mx-auto mt-12 w-full max-w-7xl px-8 md:px-20">
+		<div class="top-10 left-4 mb-4 md:absolute md:mb-0 md:-rotate-90">
+			<p class="ibm-plex-mono-regular-italic w-fit text-gray-400">{m.blog()}</p>
+		</div>
+		<div class="flex flex-col gap-4">
+			<h2 class="text-center text-4xl font-bold text-gray-200">{m.blogHeader()}</h2>
+			<!-- Featured Recent Post -->
+			{#each data.posts.slice(0, 1) as post}
+				<article
+					class="featured-post group relative w-full overflow-hidden rounded border border-slate-600/30 bg-gradient-to-br from-slate-700/80 to-slate-900/90 p-8 transition-all duration-300 hover:border-sky-500/40 hover:shadow-2xl"
+				>
+					<div class="relative z-10">
+						<div class="relative mb-4 inline-flex items-center">
+							<span
+								class="relative z-10 rounded-full bg-gradient-to-r from-sky-500 to-blue-500 px-3.5 py-1.5 text-xs font-semibold tracking-wide text-white uppercase"
+							>
+								Latest Post
+							</span>
+							<div
+								class="badge-glow absolute -inset-0.5 rounded-full bg-gradient-to-r from-sky-500 to-blue-500 opacity-0 blur-sm transition-opacity duration-300 group-hover:opacity-30"
+							></div>
+						</div>
+
+						<h2 class="mb-4 text-3xl leading-tight font-bold">
+							<a
+								href="blog/{post.slug}"
+								class="title-link text-slate-100 transition-all duration-300 hover:text-sky-500"
+							>
+								{post.title}
+							</a>
+						</h2>
+
+						<time class="mb-4 block text-sm font-medium text-slate-400"
+							>{formatDate(post.date)}</time
+						>
+
+						<p class="mb-6 text-lg leading-relaxed text-slate-300">{post.description}</p>
+
+						<div class="mb-8 flex flex-wrap gap-2">
+							{#each post.categories as category}
+								<span
+									class="rounded-md bg-slate-600/40 px-3 py-1.5 text-sm font-medium text-slate-200 transition-colors duration-200 hover:bg-slate-600/60 hover:text-white"
+								>
+									#{category}
+								</span>
+							{/each}
+						</div>
+
+						<div class="flex justify-end">
+							<a
+								href="blog/{post.slug}"
+								class="inline-flex items-center gap-2 py-2 font-semibold text-sky-500 transition-all duration-200 hover:translate-x-1 hover:text-blue-500"
+							>
+								Read Article
+								<svg
+									width="16"
+									height="16"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2"
+								>
+									<path d="m9 18 6-6-6-6" />
+								</svg>
+							</a>
+						</div>
+					</div>
+				</article>
+			{/each}
+			<!--Style a button for other posts-->
+			<a href="/blog"
+				class="ibm-plex-mono-regular w-full text-center py-2 cursor-pointer rounded bg-slate-900 p-1 text-slate-200 hover:bg-slate-800"
+				>{m.blogReadMore()}</a
+			>
+		</div>
+	</div>
+	<div id="radialGradient2"></div>
+</section>
 <section id="projects" class="w-full bg-slate-900 py-8">
-	<div class="w-full max-w-7xl mx-auto px-8 md:px-20 relative">
-		<div class="md:absolute top-10 left-0 md:-rotate-90 mb-4 md:mb-0">
-			<p class="text-gray-400 ibm-plex-mono-regular-italic w-fit">{m.projects()}</p>
+	<div class="relative mx-auto w-full max-w-7xl px-8 md:px-20">
+		<div class="top-10 left-0 mb-4 md:absolute md:mb-0 md:-rotate-90">
+			<p class="ibm-plex-mono-regular-italic w-fit text-gray-400">{m.projects()}</p>
 		</div>
 		<div class="grid grid-cols-1 gap-4">
-			<div class="w-full flex flex-col gap-2 border-l border-sky-400 border-solid py-2 px-4">
-				<div class="flex flex-row w-full items-center gap-2">
-					<img src="/E1.svg" alt="E1" class="w-8 h-8 rounded" />
-					<p class="text-gray-200 ibm-plex-mono-regular">Em1t.me</p>
+			<div class="flex w-full flex-col gap-2 border-l border-solid border-sky-400 px-4 py-2">
+				<div class="flex w-full flex-row items-center gap-2">
+					<img src="/misc/E1.svg" width="32" height="32" alt="E1" class="h-8 w-8 rounded" />
+					<p class="ibm-plex-mono-regular text-gray-200">Em1t.me</p>
 				</div>
-				<p class="text-gray-200 ibm-plex-mono-regular">
+				<p class="ibm-plex-mono-regular text-gray-200">
 					{m.projectsEm1tme()}
 				</p>
 				<div class="flex flex-row gap-4">
 					<a
-						class="text-sky-400 hover:text-gray-200 flex flex-row gap-1 ibm-plex-mono-regular items-center"
+						class="ibm-plex-mono-regular flex flex-row items-center gap-1 text-sky-400 hover:text-gray-200"
 						href="https://github.com/hallify-sk/Hallify"
 						target="_blank"
 						rel="noopener noreferrer"
 					>
 						<svg
 							fill="currentColor"
-							class="w-5 h-5"
+							class="h-5 w-5"
 							viewBox="0 0 48 48"
 							xmlns="http://www.w3.org/2000/svg"
 						>
@@ -341,17 +367,17 @@
 				</div>
 				<p class="ibm-plex-mono-regular-italic text-gray-400">{m.projectsEm1tmeDate()}</p>
 			</div>
-			<div class="w-full flex flex-col gap-2 border-l border-sky-400 border-solid py-2 px-4">
-				<div class="flex flex-row w-full items-center gap-2">
-					<img src="/Hallify.svg" alt="Hallify.sk" class="w-8 h-8 rounded" />
-					<p class="text-gray-200 ibm-plex-mono-regular">Hallify.sk</p>
+			<div class="flex w-full flex-col gap-2 border-l border-solid border-sky-400 px-4 py-2">
+				<div class="flex w-full flex-row items-center gap-2">
+					<img width="32" height="32" src="/projects/Hallify.svg" alt="Hallify.sk" class="h-8 w-8 rounded" />
+					<p class="ibm-plex-mono-regular text-gray-200">Hallify.sk</p>
 				</div>
-				<p class="text-gray-200 ibm-plex-mono-regular">
+				<p class="ibm-plex-mono-regular text-gray-200">
 					{m.projectsHallifysk()}
 				</p>
 				<div class="flex flex-row gap-4">
 					<a
-						class="text-sky-400 hover:text-gray-200 flex flex-row gap-1 ibm-plex-mono-regular items-center"
+						class="ibm-plex-mono-regular flex flex-row items-center gap-1 text-sky-400 hover:text-gray-200"
 						href="https://hallify.sk"
 						target="_blank"
 						rel="noopener noreferrer"
@@ -360,7 +386,7 @@
 							data-slot="icon"
 							aria-hidden="true"
 							fill="none"
-							class="w-5 h-5"
+							class="h-5 w-5"
 							stroke-width="1.5"
 							stroke="currentColor"
 							viewBox="0 0 24 24"
@@ -375,12 +401,12 @@
 						Link</a
 					>
 					<a
-						class="text-sky-400 hover:text-gray-200 flex flex-row gap-1 ibm-plex-mono-regular items-center"
+						class="ibm-plex-mono-regular flex flex-row items-center gap-1 text-sky-400 hover:text-gray-200"
 						href="/"
 					>
 						<svg
 							fill="currentColor"
-							class="w-5 h-5"
+							class="h-5 w-5"
 							viewBox="0 0 48 48"
 							xmlns="http://www.w3.org/2000/svg"
 						>
@@ -402,22 +428,22 @@
 				</div>
 				<p class="ibm-plex-mono-regular-italic text-gray-400">{m.projectsHallifyskDate()}</p>
 			</div>
-			<div class="w-full flex flex-col gap-2 border-l border-sky-400 border-solid py-2 px-4">
-				<div class="flex flex-row w-full items-center gap-2">
-					<img src="/tatrapak.png" alt="Tatrapak" class="h-8 rounded" />
-					<p class="text-gray-200 ibm-plex-mono-regular">{m.projectsTatrapakName()}</p>
+			<div class="flex w-full flex-col gap-2 border-l border-solid border-sky-400 px-4 py-2">
+				<div class="flex w-full flex-row items-center gap-2">
+					<img width="88" height="32" src="/projects/tatrapak.png" alt="Tatrapak" class="h-8 rounded" />
+					<p class="ibm-plex-mono-regular text-gray-200">{m.projectsTatrapakName()}</p>
 				</div>
-				<p class="text-gray-200 ibm-plex-mono-regular">
+				<p class="ibm-plex-mono-regular text-gray-200">
 					{m.projectsTatrapak()}
 				</p>
 				<div class="flex flex-row gap-4">
 					<a
-						class="text-sky-400 hover:text-gray-200 flex flex-row gap-1 ibm-plex-mono-regular items-center"
+						class="ibm-plex-mono-regular flex flex-row items-center gap-1 text-sky-400 hover:text-gray-200"
 						href="https://github.com/Em1tt/tatrapak-portal"
 					>
 						<svg
 							fill="currentColor"
-							class="w-5 h-5"
+							class="h-5 w-5"
 							viewBox="0 0 48 48"
 							xmlns="http://www.w3.org/2000/svg"
 						>
@@ -441,17 +467,17 @@
 					{m.projectsTatrapakDate()}
 				</p>
 			</div>
-			<div class="w-full flex flex-col gap-2 border-l border-sky-400 border-solid py-2 px-4">
-				<div class="flex flex-row w-full items-center gap-2">
-					<img src="/ssosta.chat.png" alt="ssosta.chat" class="h-8 rounded" />
-					<p class="text-gray-200 ibm-plex-mono-regular">ssosta.chat</p>
+			<div class="flex w-full flex-col gap-2 border-l border-solid border-sky-400 px-4 py-2">
+				<div class="flex w-full flex-row items-center gap-2">
+					<img width="32" height="32" src="/projects/ssosta.chat.png" alt="ssosta.chat" class="h-8 rounded" />
+					<p class="ibm-plex-mono-regular text-gray-200">ssosta.chat</p>
 				</div>
-				<p class="text-gray-200 ibm-plex-mono-regular">
+				<p class="ibm-plex-mono-regular text-gray-200">
 					{m.projectsSsostaChat()}
 				</p>
 				<div class="flex flex-row gap-4">
 					<a
-						class="text-sky-400 hover:text-gray-200 flex flex-row gap-1 ibm-plex-mono-regular items-center"
+						class="ibm-plex-mono-regular flex flex-row items-center gap-1 text-sky-400 hover:text-gray-200"
 						href="https://www.instagram.com/ssosta.chat/"
 						target="_blank"
 						rel="noopener noreferrer"
@@ -460,7 +486,7 @@
 							data-slot="icon"
 							aria-hidden="true"
 							fill="none"
-							class="w-5 h-5"
+							class="h-5 w-5"
 							stroke-width="1.5"
 							stroke="currentColor"
 							viewBox="0 0 24 24"
@@ -475,12 +501,12 @@
 						Link</a
 					>
 					<a
-						class="text-sky-400 hover:text-gray-200 flex flex-row gap-1 ibm-plex-mono-regular items-center"
+						class="ibm-plex-mono-regular flex flex-row items-center gap-1 text-sky-400 hover:text-gray-200"
 						href="https://github.com/Em1tt/ssosta.chat"
 					>
 						<svg
 							fill="currentColor"
-							class="w-5 h-5"
+							class="h-5 w-5"
 							viewBox="0 0 48 48"
 							xmlns="http://www.w3.org/2000/svg"
 						>
@@ -507,48 +533,50 @@
 </section>
 <section
 	id="contact"
-	class="w-full bg-slate-950 py-8 pb-20 bg-gradient-to-br from-slate-950 to-slate-900"
+	class="w-full bg-slate-950 bg-gradient-to-br from-slate-950 to-slate-900 py-8 pb-20"
 >
-	<div class="w-full max-w-7xl mx-auto px-8 md:px-20 relative">
-		<div class="md:absolute top-10 left-0 md:-rotate-90 mb-4 md:mb-0">
-			<p class="text-gray-400 ibm-plex-mono-regular-italic w-fit">{m.contact()}</p>
+	<div class="relative mx-auto w-full max-w-7xl px-8 md:px-20">
+		<div class="top-10 left-0 mb-4 md:absolute md:mb-0 md:-rotate-90">
+			<p class="ibm-plex-mono-regular-italic w-fit text-gray-400">{m.contact()}</p>
 		</div>
 		<div class="flex flex-col md:flex-row">
 			<form
 				use:enhance={() => {
 					loading = toast.loading('Sending message...');
-					return async ({result}) => {
+					return async ({ result }) => {
 						toast.dismiss(loading);
-						if(result.type == "success"){
+						if (result.type == 'success') {
 							toast.success('Message sent successfully!');
-						} else if(result.type == "failure") {
-							if(result.data?.validation){
+						} else if (result.type == 'failure') {
+							if (result.data?.validation) {
 								toast.error('Please fill in all fields.');
-							} else if(result.data?.captcha){
+							} else if (result.data?.captcha) {
 								toast.error('Captcha validation failed. Refresh the page and try again.');
 							} else {
 								toast.error('An error occurred while sending the message.');
 							}
 						}
 						console.log(result);
-					}
+					};
 				}}
 				method="post"
 				action="?/contact"
-				class="flex flex-col w-full bg-radial-[at_50%_0%] from-sky-400 to-sky-600 rounded-t md:rounded-tr-none md:rounded-l p-4 gap-5"
+				class="flex w-full flex-col gap-5 rounded-t bg-radial-[at_50%_0%] from-sky-400 to-sky-600 p-4 md:rounded-l md:rounded-tr-none"
 			>
-				<h2 class="ibm-plex-mono-semibold text-xl text-center text-white">{m.contactHeaderMessage()}</h2>
+				<h2 class="ibm-plex-mono-semibold text-center text-xl text-white">
+					{m.contactHeaderMessage()}
+				</h2>
 				<div class="relative">
 					<input
 						type="text"
 						id="name"
 						name="name"
 						placeholder=" "
-						class="peer w-full ibm-plex-mono-regular p-1 border-b border-solid border-b-slate-200/40 text-slate-100 outline-none"
+						class="peer ibm-plex-mono-regular w-full border-b border-solid border-b-slate-200/40 p-1 text-slate-100 outline-none"
 					/>
 					<label
-						for="Name"
-						class="text-sky-300 pointer-events-none peer-focus:text-sky-300 ibm-plex-mono-regular absolute left-1 -top-4 text-sm peer-placeholder-shown:text-slate-200 peer-placeholder-shown:left-2 peer-placeholder-shown:top-1 peer-placeholder-shown:text-base peer-focus:left-1 peer-focus:-top-4 peer-focus:text-sm duration-200 peer-focus:top"
+						for="name"
+						class="ibm-plex-mono-regular peer-focus:top pointer-events-none absolute -top-4 left-1 text-sm text-sky-300 duration-200 peer-placeholder-shown:top-1 peer-placeholder-shown:left-2 peer-placeholder-shown:text-base peer-placeholder-shown:text-slate-200 peer-focus:-top-4 peer-focus:left-1 peer-focus:text-sm peer-focus:text-sky-300"
 						>{m.contactName()}</label
 					>
 				</div>
@@ -558,11 +586,11 @@
 						id="email"
 						name="email"
 						placeholder=" "
-						class="peer w-full ibm-plex-mono-regular p-1 border-b border-solid border-b-slate-200/40 text-slate-100 outline-none"
+						class="peer ibm-plex-mono-regular w-full border-b border-solid border-b-slate-200/40 p-1 text-slate-100 outline-none"
 					/>
 					<label
 						for="email"
-						class="text-sky-300 pointer-events-none peer-focus:text-sky-300 ibm-plex-mono-regular absolute left-1 -top-4 text-sm peer-placeholder-shown:text-slate-200 peer-placeholder-shown:left-2 peer-placeholder-shown:top-1 peer-placeholder-shown:text-base peer-focus:left-1 peer-focus:-top-4 peer-focus:text-sm duration-200 peer-focus:top"
+						class="ibm-plex-mono-regular peer-focus:top pointer-events-none absolute -top-4 left-1 text-sm text-sky-300 duration-200 peer-placeholder-shown:top-1 peer-placeholder-shown:left-2 peer-placeholder-shown:text-base peer-placeholder-shown:text-slate-200 peer-focus:-top-4 peer-focus:left-1 peer-focus:text-sm peer-focus:text-sky-300"
 						>{m.contactEmail()}</label
 					>
 				</div>
@@ -572,11 +600,11 @@
 						id="subject"
 						name="subject"
 						placeholder=" "
-						class="peer w-full ibm-plex-mono-regular p-1 border-b border-solid border-b-slate-200/40 text-slate-100 outline-none"
+						class="peer ibm-plex-mono-regular w-full border-b border-solid border-b-slate-200/40 p-1 text-slate-100 outline-none"
 					/>
 					<label
 						for="subject"
-						class="text-sky-300 pointer-events-none peer-focus:text-sky-300 ibm-plex-mono-regular absolute left-1 -top-4 text-sm peer-placeholder-shown:text-slate-200 peer-placeholder-shown:left-2 peer-placeholder-shown:top-1 peer-placeholder-shown:text-base peer-focus:left-1 peer-focus:-top-4 peer-focus:text-sm duration-200 peer-focus:top"
+						class="ibm-plex-mono-regular peer-focus:top pointer-events-none absolute -top-4 left-1 text-sm text-sky-300 duration-200 peer-placeholder-shown:top-1 peer-placeholder-shown:left-2 peer-placeholder-shown:text-base peer-placeholder-shown:text-slate-200 peer-focus:-top-4 peer-focus:left-1 peer-focus:text-sm peer-focus:text-sky-300"
 						>{m.contactSubject()}</label
 					>
 				</div>
@@ -585,30 +613,32 @@
 						id="content"
 						name="content"
 						placeholder=" "
-						class="peer field-sizing-content max-h-60 min-h-20 w-full ibm-plex-mono-regular p-1 border-b border-solid border-b-slate-200/40 text-slate-100 outline-none"
+						class="peer ibm-plex-mono-regular field-sizing-content max-h-60 min-h-20 w-full border-b border-solid border-b-slate-200/40 p-1 text-slate-100 outline-none"
 					></textarea>
 					<label
 						for="content"
-						class="text-sky-300 pointer-events-none peer-focus:text-sky-300 ibm-plex-mono-regular absolute left-1 -top-4 text-sm peer-placeholder-shown:text-slate-200 peer-placeholder-shown:left-2 peer-placeholder-shown:top-1 peer-placeholder-shown:text-base peer-focus:left-1 peer-focus:-top-4 peer-focus:text-sm duration-200 peer-focus:top"
+						class="ibm-plex-mono-regular peer-focus:top pointer-events-none absolute -top-4 left-1 text-sm text-sky-300 duration-200 peer-placeholder-shown:top-1 peer-placeholder-shown:left-2 peer-placeholder-shown:text-base peer-placeholder-shown:text-slate-200 peer-focus:-top-4 peer-focus:left-1 peer-focus:text-sm peer-focus:text-sky-300"
 						>{m.contactContent()}</label
 					>
 				</div>
 				<Turnstile siteKey={PUBLIC_TURNSTILE_SITE_KEY} size="invisible" />
 				<button
-					class="w-full bg-slate-900 hover:bg-slate-800 text-slate-200 ibm-plex-mono-regular cursor-pointer rounded p-1"
+					class="ibm-plex-mono-regular w-full cursor-pointer rounded bg-slate-900 p-1 text-slate-200 hover:bg-slate-800"
 					>{m.contactSubmit()}</button
 				>
 			</form>
 			<div
-				class="flex flex-col w-full bg-slate-900 rounded-b md:rounded-bl-none md:rounded-r p-4 gap-4"
+				class="flex w-full flex-col gap-4 rounded-b bg-slate-900 p-4 md:rounded-r md:rounded-bl-none"
 			>
-				<h2 class="ibm-plex-mono-semibold text-xl text-center text-white">{m.contactHeaderInformation()}</h2>
+				<h2 class="ibm-plex-mono-semibold text-center text-xl text-white">
+					{m.contactHeaderInformation()}
+				</h2>
 				<div class="flex flex-col justify-center gap-4">
-					<p class="text-slate-200 ibm-plex-mono-semibold flex flex-row gap-1 items-center">
+					<p class="ibm-plex-mono-semibold flex flex-row items-center gap-1 text-slate-200">
 						<svg
 							data-slot="icon"
 							aria-hidden="true"
-							class="w-6 h-6"
+							class="h-6 w-6"
 							fill="none"
 							stroke-width="1.5"
 							stroke="currentColor"
@@ -623,10 +653,10 @@
 						</svg>
 						Email: <span class="text-sky-400">em1t.dev@&#8203;proton.me</span>
 					</p>
-					<p class="text-slate-200 ibm-plex-mono-semibold flex flex-row gap-1 items-center">
+					<p class="ibm-plex-mono-semibold flex flex-row items-center gap-1 text-slate-200">
 						<svg
 							fill="currentColor"
-							class="w-5 h-5"
+							class="h-6 w-6"
 							viewBox="0 0 48 48"
 							xmlns="http://www.w3.org/2000/svg"
 						>
@@ -643,7 +673,10 @@
 								</g>
 							</g>
 						</svg>
-						GitHub: <a href="https://github.com/Em1tt" class="text-sky-400 hover:text-slate-200 underline">Em1tt</a>
+						GitHub:
+						<a href="https://github.com/Em1tt" class="text-sky-400 underline hover:text-slate-200"
+							>Em1tt</a
+						>
 					</p>
 				</div>
 			</div>
@@ -651,8 +684,8 @@
 	</div>
 </section>
 <footer class="w-full bg-black py-12">
-	<div class="w-full max-w-7xl mx-auto px-8 md:px-20 relative">
-		<p class="ibm-plex-mono-regular-italic text-gray-400 text-center">
+	<div class="relative mx-auto w-full max-w-7xl px-8 md:px-20">
+		<p class="ibm-plex-mono-regular-italic text-center text-gray-400">
 			//© {new Date().getFullYear()} Em1t. All rights reserved.
 		</p>
 	</div>
@@ -664,13 +697,13 @@
 	}
 	#container {
 		z-index: 0;
-		@apply aspect-square grid grid-rows-40 grid-cols-40 w-[180rem] absolute -left-[40rem] -top-[30rem];
+		@apply absolute -top-[30rem] -left-[40rem] grid aspect-square w-[180rem] grid-cols-40 grid-rows-40;
 		transform: rotateX(50deg) rotateY(-5deg) rotateZ(20deg);
 	}
 	#container::before {
 		content: ' ';
 		z-index: 1;
-		@apply aspect-square pointer-events-none bg-repeat opacity-10 grid grid-rows-40 grid-cols-40 w-[180rem] absolute -left-[40rem] -top-[30rem];
+		@apply pointer-events-none absolute -top-[30rem] -left-[40rem] grid aspect-square w-[180rem] grid-cols-40 grid-rows-40 bg-repeat opacity-10;
 		background-image: url('https://assets.codepen.io/1468070/plus-pattern-center.png');
 		background-size: 5%;
 		background-position: -8px -24px;
@@ -683,7 +716,23 @@
 		width: 100%;
 		height: 100%;
 	}
-	#about {
+	#radialGradient2 {
+		position: absolute;
+		bottom: 0;
+		z-index: 3;
+		background-image: radial-gradient(
+			ellipse 150% 100% at bottom center,
+			rgba(14, 233, 32, 0.07) 0%,
+			rgba(0, 0, 0, 0) 40%
+		);
+		position: absolute;
+		pointer-events: none;
+		width: 100vw;
+		height: 100vh;
+		z-index: 1;
+	}
+	#about, #blog {
+		position: relative;
 		--dot-bg: oklch(0.129 0.042 264.695);
 		--dot-color: #1d293d;
 		--dot-size: 1px;
@@ -696,8 +745,9 @@
 			var(--dot-color);
 	}
 	#projects {
-		background: linear-gradient(90deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.85) 100%),
-			url('/noise.png'), url('/Art.png');
+		background:
+			linear-gradient(90deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.85) 100%),
+			url('/misc/noise.png'), url('/misc/Art.png');
 		background-size: cover;
 		background-repeat: no-repeat;
 	}

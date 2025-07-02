@@ -1,16 +1,38 @@
 <script lang="ts">
-	import { i18n } from '$lib/i18n';
-	import { ParaglideJS } from '@inlang/paraglide-sveltekit';
 	import '../app.css';
-	import { Toaster } from 'svelte-5-french-toast';
+	import { Toaster } from 'svelte-sonner';
+	import { page } from '$app/state';
+	
 	let { children } = $props();
 </script>
+
+<svelte:head>
+	<!-- Canonical URL -->
+	<link rel="canonical" href="https://em1t.me{page.url.pathname}" />
+	
+	<!-- Robots -->
+	<meta name="robots" content="index, follow" />
+	
+	<!-- Language -->
+	<meta name="language" content="en" />
+	
+	<!-- Author -->
+	<meta name="author" content="Richard Em1t" />
+	
+	<!-- Theme Color -->
+	<meta name="theme-color" content="#0ea5e9" />
+</svelte:head>
+
 <Toaster position="bottom-right" />
-<ParaglideJS {i18n}>
-	{@render children()}
-</ParaglideJS>
+
+{@render children()}
 
 <style lang="postcss">
+	:global(html) {
+		overflow-x: hidden;
+		scroll-behavior: smooth;
+	}
+	
 	:global(.ibm-plex-mono-thin) {
 		font-family: 'IBM Plex Mono', serif;
 		font-weight: 100;
@@ -93,5 +115,29 @@
 		font-family: 'IBM Plex Mono', serif;
 		font-weight: 700;
 		font-style: italic;
+	}
+	:global(.domine-400) {
+		font-family: 'Domine', serif;
+		font-optical-sizing: auto;
+		font-weight: 400;
+		font-style: normal;
+	}
+	:global(.domine-500) {
+		font-family: 'Domine', serif;
+		font-optical-sizing: auto;
+		font-weight: 500;
+		font-style: normal;
+	}
+	:global(.domine-600) {
+		font-family: 'Domine', serif;
+		font-optical-sizing: auto;
+		font-weight: 600;
+		font-style: normal;
+	}
+	:global(.domine-700) {
+		font-family: 'Domine', serif;
+		font-optical-sizing: auto;
+		font-weight: 700;
+		font-style: normal;
 	}
 </style>

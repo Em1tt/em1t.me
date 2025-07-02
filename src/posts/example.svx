@@ -1,0 +1,26 @@
+---
+title: Example with Counter
+description: A comprehensive overview of modern web development practices, tools, and techniques that every developer should know in 2024.
+date: '2024-12-10'
+categories:
+  - web-development
+  - javascript
+  - typescript
+  - react
+  - sveltekit
+  - css
+published: true
+accent1: rgba(246, 59, 59, 0.15)
+accent2: rgba(16, 185, 81, 0.12)
+---
+## Sections
+
+## Test
+
+<script>
+  import Counter from "./Counter.svelte";
+</script>
+
+The counter is rendered inside Markdown.
+
+<Counter />

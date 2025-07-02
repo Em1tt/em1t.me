@@ -27,5 +27,9 @@
 	"contactSubmit": "Odoslať()",
 	"contactHeaderInformation": "Kontaktné informácie",
 	"title": "Em1t | Portfólio",
-	"description": "Em1t.me je moja osobná webová stránka, kde prezentujem svoje projekty, zručnosti a skúsenosti. Neváhaj preskúmať a dozvedieť sa viac o mojej práci."
+	"description": "Em1t.me je moja osobná webová stránka, kde prezentujem svoje projekty, zručnosti a skúsenosti. Neváhaj preskúmať a dozvedieť sa viac o mojej práci.",
+	"blog": "// Blog",
+	"blogReadMore": "VšetkyČlánky()",
+	"blogHeader": "Did you know I have a blog?",
+	"navBlog": "Blog"
 }

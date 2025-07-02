@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://em1t.me/sitemap.xml

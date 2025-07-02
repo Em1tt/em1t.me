@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 1280 1280">
+  <!-- Generator: Adobe Illustrator 29.6.0, SVG Export Plug-In . SVG Version: 2.1.1 Build 207)  -->
+  <defs>
+    <style>
+      .st0 {
+        fill: #ff0068;
+      }
+
+      .st1 {
+        fill: #0086ff;
+      }
+
+      .st2 {
+        fill: #f9f9f9;
+      }
+
+      .st3 {
+        font-family: IBMPlexMono-BoldItalic, 'IBM Plex Mono';
+        font-size: 900px;
+        font-style: italic;
+        font-weight: 700;
+      }
+
+      .st4 {
+        display: none;
+      }
+    </style>
+  </defs>
+  <g id="Layer_1">
+    <g>
+      <path class="st2" d="M39.8,1033L171.55,247h502.24l-22.52,137.38h-337.83l-30.4,182.43h177.84l-22.52,137.38h-178.96l-31.53,191.43h336.7l-22.52,137.38H39.8Z"/>
+      <path class="st1" d="M781.9,384.38l23.66-137.38h374.95l-108.1,650.88h167.79l-22.52,135.13h-545.03l22.52-135.13h210.58l85.4-513.5"/>
+    </g>
+  </g>
+  <g id="Layer_2" class="st4">
+    <polygon class="st0" points="737.91 41.4 703.61 250.65 189.05 250.65 142.74 528.51 413.61 528.51 379.31 737.77 106.73 737.77 58.7 1029.35 571.54 1029.35 537.24 1238.6 736.18 1238.6 770.49 1032.78 1091.23 1032.78 1221.3 250.65 902.58 250.65 938.63 41.4 737.91 41.4"/>
+  </g>
+  <g id="Layer_4" class="st4">
+    <text class="st3" transform="translate(100.01 995.5)"><tspan x="0" y="0">E1</tspan></text>
+  </g>
+  <g id="Layer_5" class="st4">
+    <polygon points="640.91 367.3 622.91 477.1 352.91 477.1 328.61 622.9 476.1 622.9 458.1 732.7 309.71 732.7 284.51 885.7 553.61 885.7 535.61 995.5 682.3 995.5 700.3 887.5 868.6 887.5 938.8 465.4 930.7 465.4 778.6 632.8 699.4 565.3 879.4 367.3 640.91 367.3"/>
+  </g>
+</svg>

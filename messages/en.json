@@ -27,5 +27,9 @@
 	"contactSubmit": "Submit()",
 	"contactHeaderInformation": "Contact Information",
 	"title": "Em1t | Portfolio",
-	"description": "Em1t.me is my personal portfolio website where I showcase my projects, skills, and experiences. Feel free to explore and learn more about my work."
+	"description": "Em1t.me is my personal portfolio website where I showcase my projects, skills, and experiences. Feel free to explore and learn more about my work.",
+	"blog": "// Blog",
+	"blogReadMore": "ReadMore()",
+	"blogHeader": "Did you know I have a blog?",
+	"navBlog": "Blog"
 }
