@@ -1,0 +1,65 @@
+---
+title: Collision detection for beginners (with TypeScript examples) [WIP]
+description: This blog post compiles all the mathematical knowledge you need to implement your very own collision detection from scratch.
+date: '2025-09-11'
+categories:
+  - javascript
+  - typescript
+  - collision detection
+published: true
+accent1: rgba(246, 59, 59, 0.15)
+accent2: rgba(16, 185, 81, 0.12)
+---
+<script>
+  import { onMount } from 'svelte';
+
+  let MyCanvas;
+  // typescript:
+  // let MyCanvas: typeof MyCanvasComponent;
+
+  onMount(async () => {
+    // Dynamically import your canvas component encapsulating all svelte-konva functionality inside onMount()
+    MyCanvas = (await import('./interactive/DistanceTwoPoints.svelte')).default;
+  });
+</script>
+## Sections
+
+## Inspiration
+This resource is heavily inspired by [Thomas Jefferson's Collision Detection](https://www.jeffreythompson.org/collision-detection). I have worked with this resource on my very own project for several years now, and it helped me implement my own collision detection.
+
+## Introduction
+This resource aims to explain the mathematical principles behind 2D and 3D collision detection from the basics, with code examples.  
+If you're interested in seeing collision detection implementations, without all the Maths theory, click [here](#)
+
+## Prerequisites
+Basic understanding of any programming language of your choice. The examples on this site will be written exclusively in **TypeScript**, but I will try to explain the core concepts, so you will have no trouble rewriting the examples in the language of your choice.  
+**You will need to know how functions work and some basic data types to understand the examples in this resource.** If you understand the following example, you should be good to go!
+```js HelloWorld.ts
+function greet(name: string){
+  return `Hello ${name}!`;
+}
+```
+## The Maths (theory) behind
+
+### Analytic Geometry
+Analytic Geometry, also called *coordinate geometry* or *Cartesian geometry*, is the branch of mathematics that studies geometric figures using a coordinate system and algebraic methods. It represents points by ordered pairs (or triples) of numbers, and describes lines, curves, and shapes through equations and inequalities.
+
+<img style="margin-inline: auto" src="/blog/graph.png" alt="Grid illustration" title="Grid illustration">
+
+### Coordinates of a point on a straight line
+
+- The number axis on the line *x* is determined by the choice of unit and the choice of an origin at point O, which divides the line x into two opposite half-lines - the positive and the negative half-axis.
+
+<img style="margin-inline: auto" src="/blog/axis.png" alt="Axis" title="Axis illustration">
+
+### Cartesian coordinate system
+- **in a plane (2D):** consists of two mutually perpendicular number lines, called the x-axis and the y-axis, that intersect at a point called the origin. Every point in the plane can be uniquely represented by an ordered pair of real numbers (𝑥,𝑦), where 𝑥 is the coordinate along the 𝑥-axis and 𝑦 is the coordinate along the 𝑦-axis.
+- **in a space (3D):** consists of three mutually perpendicular number lines, called the x-axis, y-axis, and z-axis, that intersect at a common point called the origin. Every point in space can be uniquely represented by an ordered triple of real numbers (𝑥,𝑦,𝑧), where 𝑥, 𝑦, and 𝑧 are the coordinates along the respective axes.
+
+<img style="margin-inline: auto" src="https://placehold.co/600x200" alt="Placehold" title="2D & 3D representations">
+
+## Distance of two points
+
+Try moving your cursor along this grid to interact with this example  
+
+<svelte:component this={MyCanvas} someProp="SomeString" />

@@ -45,11 +45,13 @@
 		"@bitmachina/highlighter": "^1.0.0-alpha.7",
 		"@inlang/paraglide-js": "^2.0.0",
 		"@lucide/svelte": "^0.522.0",
+		"konva": "^10.0.2",
 		"rehype-code-titles": "^1.2.0",
 		"rehype-slug": "^6.0.0",
 		"remark-table-of-content": "^0.5.2",
 		"remark-toc": "^9.0.0",
 		"shiki": "^3.7.0",
+		"svelte-konva": "^0.3.1",
 		"svelte-sonner": "^1.0.5"
 	}
 }
