@@ -6,8 +6,10 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8097:3000"
+    env_file:
+      - .env
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=production
     # Preserve installs & cache across restarts
     volumes:
       - .:/app

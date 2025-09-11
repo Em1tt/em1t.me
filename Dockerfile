@@ -9,6 +9,9 @@ RUN bun install
 # Copy rest of the source
 COPY . .
 
+# Build the application
+RUN bun run build
+
 EXPOSE 3000
-# Dev server (Vite / SvelteKit) – adjust if you use a different script
-CMD ["bun","run","dev","--","--host","0.0.0.0","--port","3000"]
+
+CMD ["bun", "build/index"]
