@@ -12,14 +12,16 @@ accent2: rgba(16, 185, 81, 0.12)
 ---
 <script>
   import { onMount } from 'svelte';
+  import katex from 'katex';
 
-  let MyCanvas;
-  // typescript:
-  // let MyCanvas: typeof MyCanvasComponent;
+  let distanceTwoPoints = 0;
 
+  let DistanceTwoPointsOneAxis;
+  let DistanceTwoPointsTwoAxes;
+  
   onMount(async () => {
-    // Dynamically import your canvas component encapsulating all svelte-konva functionality inside onMount()
-    MyCanvas = (await import('./interactive/DistanceTwoPoints.svelte')).default;
+    DistanceTwoPointsOneAxis = (await import('./interactive/DistanceTwoPoints.svelte')).default;
+    DistanceTwoPointsTwoAxes = (await import('./interactive/DistanceTwoPoints.svelte')).default;
   });
 </script>
 ## Sections
@@ -48,18 +50,33 @@ Analytic Geometry, also called *coordinate geometry* or *Cartesian geometry*, is
 
 ### Coordinates of a point on a straight line
 
-- The number axis on the line *x* is determined by the choice of unit and the choice of an origin at point O, which divides the line x into two opposite half-lines - the positive and the negative half-axis.
+- The number axis on the line $x$ is determined by the choice of unit and the choice of an origin at point $O$, which divides the line $x$ into two opposite half-lines - the positive and the negative half-axis.
 
 <img style="margin-inline: auto" src="/blog/axis.png" alt="Axis" title="Axis illustration">
 
 ### Cartesian coordinate system
-- **in a plane (2D):** consists of two mutually perpendicular number lines, called the x-axis and the y-axis, that intersect at a point called the origin. Every point in the plane can be uniquely represented by an ordered pair of real numbers (𝑥,𝑦), where 𝑥 is the coordinate along the 𝑥-axis and 𝑦 is the coordinate along the 𝑦-axis.
+- **in a plane (2D):** consists of two mutually perpendicular number lines, called the $x$-axis and the $y$-axis, that intersect at a point called the origin. Every point in the plane can be uniquely represented by an ordered pair of real numbers $(x,y)$, where $x$ is the coordinate along the $x$-axis and $y$ is the coordinate along the $y$-axis.
 - **in a space (3D):** consists of three mutually perpendicular number lines, called the x-axis, y-axis, and z-axis, that intersect at a common point called the origin. Every point in space can be uniquely represented by an ordered triple of real numbers (𝑥,𝑦,𝑧), where 𝑥, 𝑦, and 𝑧 are the coordinates along the respective axes.
 
 <img style="margin-inline: auto" src="https://placehold.co/600x200" alt="Placehold" title="2D & 3D representations">
 
-## Distance of two points
+## Distance between two points
+### Along a line
+The distance between two points $A=[x_{1}]$, $B=[x_{2}]$ on a line is equal to the absolute value of the difference of real numbers $x_{1}$ and $x_{2}$.  
+$$
+|AB| = |x_{1} - x_{2}| = \sqrt{(x_{1} - x_{2})^2}
+$$
 
-Try moving your cursor along this grid to interact with this example  
+*Try moving your cursor along this grid to interact with this example.* 
+<svelte:component this={DistanceTwoPointsOneAxis} oneAxis={true} />
+```ts
+function calculateDistanceTwoPointsLine(x1: number, x2: number) {
+	distance = Math.round(Math.abs(x1 - x2));
+}
+```
 
-<svelte:component this={MyCanvas} someProp="SomeString" />
+### On a plane
+The distance between two points $A=[x_{1},y_{1}]$, $B=[x_{2},y_{2}]$ in the plane is determined as the size of the hypotenuse of a right triangle $ABC$, where:  
+$|AC|=|x_{2}-x_{1}|$, $|BC|=|y_{2}-y_{1}|$,
+
+<svelte:component this={DistanceTwoPointsTwoAxes} oneAxis={false}/>
