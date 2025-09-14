@@ -13,15 +13,18 @@ accent2: rgba(16, 185, 81, 0.12)
 <script>
   import { onMount } from 'svelte';
   import katex from 'katex';
+  import Note from "$lib/Note.svelte";
 
   let distanceTwoPoints = 0;
 
   let DistanceTwoPointsOneAxis;
   let DistanceTwoPointsTwoAxes;
+  let Three;
   
   onMount(async () => {
     DistanceTwoPointsOneAxis = (await import('./interactive/DistanceTwoPoints.svelte')).default;
     DistanceTwoPointsTwoAxes = (await import('./interactive/DistanceTwoPoints.svelte')).default;
+    Three = (await import('./interactive/Three.svelte')).default;
   });
 </script>
 ## Sections
@@ -79,4 +82,40 @@ function calculateDistanceTwoPointsLine(x1: number, x2: number) {
 The distance between two points $A=[x_{1},y_{1}]$, $B=[x_{2},y_{2}]$ in the plane is determined as the size of the hypotenuse of a right triangle $ABC$, where:  
 $|AC|=|x_{2}-x_{1}|$, $|BC|=|y_{2}-y_{1}|$,
 
+$$
+|AB|=\sqrt{(x_{2} - x_{1})^2 + (y_{2} - y_{1})^2}
+$$
 <svelte:component this={DistanceTwoPointsTwoAxes} oneAxis={false}/>
+
+```ts
+function calculateDistanceTwoPointsPlane(x1: number, y1: number, x2: number, y2: number) {
+	distance = Math.round((x2-x1)**2 + (y2-y1)**2);
+}
+```
+
+### In a space
+The distance between two points $A=[x_{1},y_{1},z_{1}]$, $B=[x_{2},y_{2},z_{2}]$ in a space is determined as the size of the hypotenuse of a right triangle $ABC$, using the triangle $ADC$.
+
+We use the triangle $ADC$ to calculate the length of the leg $AC$, needed to calculate the size of the hypotenuse of $ABC$ (the final distance). Make sure to take your time with the example below, in order to understand it completely.  
+$|AD| = |x_{2}-x_{1}|,$  
+$|AC|=\sqrt{(x_{2} - x_{1})^2 + (z_{2} - z_{1})^2},$  
+$|BC| = |y_{2}-y_{1}|$  
+$|DC| = |z_{2}-z_{1}|$
+
+$$
+d^2 = (x_{2} - x_{1})^2 + (z_{2} - z_{1})^2
+$$
+$$
+|AB| = \sqrt{d^2 + (y_{2}-y_{1})^2}
+$$
+$$
+|AB| = \sqrt{(x_{2} - x_{1})^2 + (y_{2}-y_{1})^2 + (z_{2} - z_{1})^2}
+$$
+
+<svelte:component this={Three}/>
+
+```ts
+function calculateDistanceTwoPointsSpace(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number) {
+	distance = Math.round((x2-x1)**2 + (y2-y1)**2 + (z2-z1)**2);
+}
+```

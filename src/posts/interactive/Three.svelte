@@ -21,22 +21,29 @@
     let camera: THREE.PerspectiveCamera;
     let renderer: THREE.WebGLRenderer;
     let animationId: number;
-    let isPaused = false;
+    let isPaused = $state(false);
     let isHovering = false;
     
     // 3D Points
     const pointA = { x: 0, y: 0, z: 0 }; // Origin point
     let pointB = { x: 2, y: 1, z: 1 }; // Moving point
+    let pointC = { x: 0, y: 0, z: 0 }; // Projection point for XY plane
+    let pointD = { x: 0, y: 0, z: 0 }; // Projection point for X axis
     
     // Three.js objects
     let sphereA: THREE.Mesh;
     let sphereB: THREE.Mesh;
+    let sphereC: THREE.Mesh;
+    let sphereD: THREE.Mesh;
     let distanceLine: THREE.Line;
     let projectionLines: THREE.Group;
+    let triangleADB: THREE.Mesh;
     let gridHelper: THREE.GridHelper;
     let axesHelper: THREE.AxesHelper;
     let labelA: THREE.Sprite;
     let labelB: THREE.Sprite;
+    let labelC: THREE.Sprite;
+    let labelD: THREE.Sprite;
 
     function calculateDistance() {
         const dx = pointB.x - pointA.x;
@@ -50,7 +57,7 @@
         z = Math.round(pointB.z * 100);
     }
 
-    function createTextSprite(text: string, color: string = '#ffffff'): THREE.Sprite {
+    function createTextSprite(text: string, color: string = '#ffffff', opacity: number = 1.0): THREE.Sprite {
         const canvas = document.createElement('canvas');
         const context = canvas.getContext('2d')!;
         canvas.width = 128;
@@ -63,17 +70,32 @@
         context.fillText(text, 64, 32);
         
         const texture = new THREE.CanvasTexture(canvas);
-        const material = new THREE.SpriteMaterial({ map: texture });
+        const material = new THREE.SpriteMaterial({ 
+            map: texture,
+            transparent: true,
+            opacity: opacity
+        });
         return new THREE.Sprite(material);
     }
 
     function updateScene() {
         if (!scene) return;
         
-        // Update sphere B position
-        sphereB.position.set(pointB.x, pointB.y, pointB.z);
+        // Update projection points
+        pointC.x = pointB.x;
+        pointC.y = pointA.y; // Same Y as point A (same level as D)
+        pointC.z = pointB.z; // Same Z as point B (underneath B)
         
-        // Update distance line
+        pointD.x = pointB.x;
+        pointD.y = pointA.y; // Same Y as point A
+        pointD.z = pointA.z; // Same Z as point A (X axis projection)
+        
+        // Update sphere positions
+        sphereB.position.set(pointB.x, pointB.y, pointB.z);
+        sphereC.position.set(pointC.x, pointC.y, pointC.z);
+        sphereD.position.set(pointD.x, pointD.y, pointD.z);
+        
+        // Update distance line (main diagonal)
         const points = [
             new THREE.Vector3(pointA.x, pointA.y, pointA.z),
             new THREE.Vector3(pointB.x, pointB.y, pointB.z)
@@ -85,32 +107,59 @@
         // Update projection lines (showing 3D components)
         projectionLines.clear();
         
-        // X component (red)
+        // X component (A to D - red)
         const xLine = new THREE.BufferGeometry().setFromPoints([
             new THREE.Vector3(pointA.x, pointA.y, pointA.z),
-            new THREE.Vector3(pointB.x, pointA.y, pointA.z)
+            new THREE.Vector3(pointD.x, pointD.y, pointD.z)
         ]);
-        const xLineMesh = new THREE.Line(xLine, new THREE.LineBasicMaterial({ color: 0xff0000, opacity: 0.7, transparent: true }));
+        const xLineMesh = new THREE.Line(xLine, new THREE.LineBasicMaterial({ color: 0xff0000, linewidth: 3 }));
         projectionLines.add(xLineMesh);
         
-        // Y component (green)  
-        const yLine = new THREE.BufferGeometry().setFromPoints([
-            new THREE.Vector3(pointB.x, pointA.y, pointA.z),
-            new THREE.Vector3(pointB.x, pointB.y, pointA.z)
-        ]);
-        const yLineMesh = new THREE.Line(yLine, new THREE.LineBasicMaterial({ color: 0x00ff00, opacity: 0.7, transparent: true }));
-        projectionLines.add(yLineMesh);
-        
-        // Z component (blue)
+        // Z component (D to C - blue)  
         const zLine = new THREE.BufferGeometry().setFromPoints([
-            new THREE.Vector3(pointB.x, pointB.y, pointA.z),
+            new THREE.Vector3(pointD.x, pointD.y, pointD.z),
+            new THREE.Vector3(pointC.x, pointC.y, pointC.z)
+        ]);
+        const zLineMesh = new THREE.Line(zLine, new THREE.LineBasicMaterial({ color: 0x0000ff, linewidth: 3 }));
+        projectionLines.add(zLineMesh);
+        
+        // Y component (C to B - green)
+        const yLine = new THREE.BufferGeometry().setFromPoints([
+            new THREE.Vector3(pointC.x, pointC.y, pointC.z),
             new THREE.Vector3(pointB.x, pointB.y, pointB.z)
         ]);
-        const zLineMesh = new THREE.Line(zLine, new THREE.LineBasicMaterial({ color: 0x0000ff, opacity: 0.7, transparent: true }));
-        projectionLines.add(zLineMesh);
+        const yLineMesh = new THREE.Line(yLine, new THREE.LineBasicMaterial({ color: 0x00ff00, linewidth: 3 }));
+        projectionLines.add(yLineMesh);
+        
+        // Update triangle ACB (semi-transparent)
+        if (triangleADB) {
+            scene.remove(triangleADB);
+            triangleADB.geometry.dispose();
+        }
+        
+        const triangleGeometry = new THREE.BufferGeometry();
+        const triangleVertices = new Float32Array([
+            pointA.x, pointA.y, pointA.z,  // A
+            pointC.x, pointC.y, pointC.z,  // C
+            pointB.x, pointB.y, pointB.z   // B
+        ]);
+        triangleGeometry.setAttribute('position', new THREE.BufferAttribute(triangleVertices, 3));
+        
+        // Use MeshBasicMaterial to ignore scene lighting - always lit up
+        const triangleMaterial = new THREE.MeshBasicMaterial({ 
+            color: 0x666666,
+            transparent: true,
+            opacity: 0.9,
+            side: THREE.DoubleSide
+        });
+        
+        triangleADB = new THREE.Mesh(triangleGeometry, triangleMaterial);
+        scene.add(triangleADB);
         
         // Update labels
         labelB.position.set(pointB.x + 0.2, pointB.y + 0.2, pointB.z + 0.2);
+        labelC.position.set(pointC.x + 0.2, pointC.y + 0.2, pointC.z - 0.3);
+        labelD.position.set(pointD.x + 0.2, pointD.y - 0.3, pointD.z + 0.2);
         
         calculateDistance();
     }
@@ -162,15 +211,16 @@
     onMount(() => {
         // Initialize Three.js scene
         scene = new THREE.Scene();
-        scene.background = new THREE.Color(0xf8f9fa);
+        // Transparent background
         
-        // Camera
-        camera = new THREE.PerspectiveCamera(75, 768 / 480, 0.1, 1000);
-        camera.position.set(4, 3, 4);
-        camera.lookAt(0, 0, 0);
+        // Camera - zoomed in for better readability
+        camera = new THREE.PerspectiveCamera(60, 768 / 480, 0.1, 1000);
+        camera.position.set(2.5, 2.8, 4);
+        camera.lookAt(1, 1, 1);
         
-        // Renderer
-        renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+        // Renderer with transparent background
+        renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+        renderer.setClearColor(0x000000, 0); // Transparent background
         renderer.setSize(768, 480);
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -184,8 +234,8 @@
         directionalLight.castShadow = true;
         scene.add(directionalLight);
         
-        // Grid and axes
-        gridHelper = new THREE.GridHelper(6, 12, 0x444444, 0x888888);
+        // Grid and axes with #10182b color
+        gridHelper = new THREE.GridHelper(6, 12, 0x10182b, 0x10182b);
         gridHelper.position.y = -0.1;
         scene.add(gridHelper);
         
@@ -211,11 +261,27 @@
         sphereB.castShadow = true;
         scene.add(sphereB);
         
-        // Distance line
+        // Point C (XY plane projection) - cyan/blue color
+        sphereC = new THREE.Mesh(
+            sphereGeometry,
+            new THREE.MeshLambertMaterial({ color: 0x00bcd4, transparent: true, opacity: 0.5 })
+        );
+        sphereC.castShadow = true;
+        scene.add(sphereC);
+        
+        // Point D (X axis projection) - yellow/orange color
+        sphereD = new THREE.Mesh(
+            sphereGeometry,
+            new THREE.MeshLambertMaterial({ color: 0xffa726, transparent: true, opacity: 0.5 })
+        );
+        sphereD.castShadow = true;
+        scene.add(sphereD);
+        
+        // Distance line - white color
         const lineGeometry = new THREE.BufferGeometry();
         distanceLine = new THREE.Line(
             lineGeometry,
-            new THREE.LineBasicMaterial({ color: 0x333333, linewidth: 2 })
+            new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 2 })
         );
         scene.add(distanceLine);
         
@@ -223,15 +289,23 @@
         projectionLines = new THREE.Group();
         scene.add(projectionLines);
         
-        // Labels
+        // Labels - larger scale for better readability
         labelA = createTextSprite('A', '#ff3b3b');
         labelA.position.set(pointA.x + 0.2, pointA.y + 0.2, pointA.z + 0.2);
-        labelA.scale.set(0.5, 0.25, 1);
+        labelA.scale.set(0.8, 0.4, 1);
         scene.add(labelA);
         
         labelB = createTextSprite('B', '#10b951');
-        labelB.scale.set(0.5, 0.25, 1);
+        labelB.scale.set(0.8, 0.4, 1);
         scene.add(labelB);
+        
+        labelC = createTextSprite('C', '#00bcd4', 0.5);
+        labelC.scale.set(0.8, 0.4, 1);
+        scene.add(labelC);
+        
+        labelD = createTextSprite('D', '#ffa726', 0.5);
+        labelD.scale.set(0.8, 0.4, 1);
+        scene.add(labelD);
         
         // Add mouse controls
         canvas.addEventListener('mousemove', onMouseMove);
@@ -255,6 +329,14 @@
         if (renderer) {
             renderer.dispose();
         }
+        if (triangleADB) {
+            triangleADB.geometry.dispose();
+            if (Array.isArray(triangleADB.material)) {
+                triangleADB.material.forEach(material => material.dispose());
+            } else {
+                triangleADB.material.dispose();
+            }
+        }
     });
 </script>
 
@@ -265,7 +347,7 @@
         <!-- Pause button positioned at top right -->
         <button 
             class="absolute top-2 right-2 px-3 py-1 text-xs font-bold text-white rounded-md transition-colors duration-200 {isPaused ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'}"
-            on:click={togglePause}
+            onclick={togglePause}
         >
             {isPaused ? 'Play' : 'Pause'}
         </button>
@@ -273,12 +355,11 @@
 
     <div class="mt-4 space-y-2 text-sm">
         <p class="!my-0">3D Distance: <span class="font-bold">{distance}</span></p>
-        <div class="flex gap-4 text-xs">
+        <div class="grid grid-cols-2 gap-2 text-xs">
             <p class="!my-0">Point A: <span class="text-red-500 font-mono">(0, 0, 0)</span></p>
             <p class="!my-0">Point B: <span class="text-green-500 font-mono">({x/100}, {y/100}, {z/100})</span></p>
-        </div>
-        <div class="flex gap-4 text-xs opacity-75">
-            <p class="!my-0"><span class="text-red-500">X-component</span> | <span class="text-green-500">Y-component</span> | <span class="text-blue-500">Z-component</span></p>
+            <p class="!my-0">Point C: <span class="text-cyan-400 font-mono">({x/100}, 0, {z/100})</span></p>
+            <p class="!my-0">Point D: <span class="text-orange-400 font-mono">({x/100}, 0, 0)</span></p>
         </div>
     </div>
 </div>

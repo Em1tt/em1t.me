@@ -17,7 +17,7 @@
     let isHovering = false;
     let animationId: number;
     let mouseLeaveTimeout: number;
-    let isPaused = false;
+    let isPaused = $state(false);
 
     function calculateDistance() {
 		if(oneAxis){
@@ -139,7 +139,7 @@
                 }} />
                 <Line config={{
                     points: [390, 120, x, y],
-                    stroke: '#f63b3b',
+                    stroke: '#fff',
                     strokeWidth: 2,
                     lineCap: 'round',
                     lineJoin: 'round',
@@ -157,7 +157,7 @@
     <!-- Pause button positioned at top right of stage -->
     <button 
         class="absolute top-2 right-2 px-3 py-1 text-xs font-bold text-white rounded-md transition-colors duration-200 {isPaused ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'}"
-        on:click={togglePause}
+        onclick={togglePause}
     >
         {isPaused ? 'Play' : 'Pause'}
     </button>
