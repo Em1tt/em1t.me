@@ -119,3 +119,14 @@ function calculateDistanceTwoPointsSpace(x1: number, y1: number, z1: number, x2:
 	distance = Math.round((x2-x1)**2 + (y2-y1)**2 + (z2-z1)**2);
 }
 ```
+
+## Midpoint of a line segment
+
+Point $S$ is a midpoint of a line segment $AB$, if the distance $|AS|$ is equal to the distance $|BS|$.
+
+$$
+x_{S} = \frac{x_{A} + x_{B}}{2}
+$$
+$$
+y_{S} = \frac{y_{A} + y_{B}}{2}
+$$
