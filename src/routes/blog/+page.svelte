@@ -1,6 +1,10 @@
 <script lang="ts">
 	import { formatDate } from '$lib/utils';
+	import Square from '$lib/components/Square.svelte';
+	import GlowText from '$lib/components/GlowText.svelte';
+	import Sparkles from '$lib/icons/Sparkles.svelte';
 	import { ArrowLeft } from '@lucide/svelte';
+	import FolderOpen from '$lib/icons/FolderOpen.svelte';
 
 	let { data } = $props();
 </script>
@@ -27,222 +31,179 @@
 	<meta property="og:image" content="https://em1t.me/blog-og-image.png" />
 </svelte:head>
 
-<div class="polka fixed top-0 left-0 -z-10 h-screen w-screen">
-	<div id="radialGradient"></div>
-	<div id="radialGradient2"></div>
-</div>
+<section class="min-h-screen px-4 py-20 sm:px-6">
+	<div class="mx-auto max-w-7xl">
+		<!-- Section Header -->
+		<div class="mb-12 flex flex-col items-center text-center">
+			<Square>
+				<FolderOpen />
+			</Square>
+			<h1 class="stack-sans-text mt-6 text-3xl text-stone-200 sm:text-4xl lg:text-5xl">
+				My <GlowText>Blog</GlowText>
+			</h1>
+			<p class="mt-3 max-w-lg text-sm text-stone-500 sm:text-base">
+				Thoughts, tutorials, and insights on web development and beyond
+			</p>
+		</div>
 
-<div class="fixed bottom-4 left-4 z-40 hidden 2xl:block">
-	<p class="text ibm-plex-mono-regular-italic text-gray-400">// Finished reading?</p>
-	<a href="/" class="ibm-plex-mono-regular text-4xl text-gray-200 hover:text-sky-400">GoBack()</a>
-</div>
-
-<a
-	href="/"
-	class="back-to-top fixed bottom-4 left-4 z-50 cursor-pointer rounded-md bg-slate-900 p-3 text-sky-500 shadow-lg transition-all duration-300 hover:bg-slate-800 hover:text-white hover:shadow-xl 2xl:hidden"
->
-	<ArrowLeft />
-</a>
-
-<div class="px-20">
-	<div class="mx-auto flex min-h-screen max-w-4xl flex-row justify-center space-x-8">
-		<div class="mt-20">
-			<!-- Featured Recent Post -->
-			{#each data.posts.slice(0, 1) as post}
-				<article
-					class="featured-post group relative mb-12 overflow-hidden rounded-2xl border border-slate-600/30 bg-gradient-to-br from-slate-700/80 to-slate-900/90 p-8 transition-all duration-300 hover:border-sky-500/40 hover:shadow-2xl"
+		{#if data.posts && data.posts.length > 0}
+			<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+				<!-- Featured Post (Latest) -->
+				<a
+					href="/blog/{data.posts[0].slug}"
+					class="group relative overflow-hidden rounded-2xl border border-orange-500/30 bg-gradient-to-br from-stone-900/95 via-stone-900/90 to-stone-950/95 p-6 shadow-lg backdrop-blur-sm transition-all duration-300 hover:border-orange-500/50 hover:shadow-xl hover:shadow-orange-500/5 md:col-span-2 lg:col-span-2 lg:row-span-2 sm:p-8"
+					style="--accent1: {data.posts[0].accent1 || 'rgba(249, 115, 22, 0.15)'}; --accent2: {data.posts[0].accent2 || 'rgba(249, 115, 22, 0.1)'};"
 				>
-					<div class="relative z-10">
-						<div class="relative mb-4 inline-flex items-center">
+					<!-- Gradient accent background -->
+					<div
+						class="pointer-events-none absolute inset-0 opacity-50"
+						style="background: radial-gradient(ellipse at top left, var(--accent1) 0%, transparent 50%), radial-gradient(ellipse at bottom right, var(--accent2) 0%, transparent 50%);"
+					></div>
+
+					<div class="relative z-10 flex h-full flex-col">
+						<div class="mb-4 flex items-center gap-3">
 							<span
-								class="relative z-10 rounded-full bg-gradient-to-r from-sky-500 to-blue-500 px-3.5 py-1.5 text-xs font-semibold tracking-wide text-white uppercase"
+								class="rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-orange-400 sm:text-xs"
 							>
-								Latest Post
+								Latest
 							</span>
-							<div
-								class="badge-glow absolute -inset-0.5 rounded-full bg-gradient-to-r from-sky-500 to-blue-500 opacity-0 blur-sm transition-opacity duration-300 group-hover:opacity-30"
-							></div>
+							<span class="text-xs text-stone-500 sm:text-sm">
+								{formatDate(data.posts[0].date)}
+							</span>
 						</div>
 
-						<h2 class="mb-4 text-3xl leading-tight font-bold">
-							<a
-								href="blog/{post.slug}"
-								class="title-link text-slate-100 transition-all duration-300 hover:text-sky-500"
-							>
-								{post.title}
-							</a>
+						<h2
+							class="stack-sans-text mb-4 text-2xl font-semibold text-stone-100 transition-colors group-hover:text-orange-400 sm:text-3xl lg:text-4xl"
+						>
+							{data.posts[0].title}
 						</h2>
 
-						<time class="mb-4 block text-sm font-medium text-slate-400"
-							>{formatDate(post.date)}</time
-						>
+						<p class="mb-6 flex-grow text-sm leading-relaxed text-stone-400 sm:text-base lg:text-lg">
+							{data.posts[0].description}
+						</p>
 
-						<p class="mb-6 text-lg leading-relaxed text-slate-300">{post.description}</p>
-
-						<div class="mb-8 flex flex-wrap gap-2">
-							{#each post.categories as category}
+						<div class="mt-auto flex flex-wrap gap-2">
+							{#each data.posts[0].categories.slice(0, 4) as category}
 								<span
-									class="rounded-md bg-slate-600/40 px-3 py-1.5 text-sm font-medium text-slate-200 transition-colors duration-200 hover:bg-slate-600/60 hover:text-white"
+									class="rounded-md border border-stone-700/80 bg-stone-800/30 px-2 py-1 text-xs text-stone-400 sm:px-3 sm:text-sm"
 								>
-									#{category}
+									{category}
 								</span>
 							{/each}
 						</div>
 
-						<div class="flex justify-end">
-							<a
-								href="blog/{post.slug}"
-								class="inline-flex items-center gap-2 py-2 font-semibold text-sky-500 transition-all duration-200 hover:translate-x-1 hover:text-blue-500"
-							>
-								Read Article
-								<svg
-									width="16"
-									height="16"
-									viewBox="0 0 24 24"
-									fill="none"
-									stroke="currentColor"
+						<div
+							class="mt-6 flex items-center gap-2 text-sm font-medium text-orange-400 transition-transform group-hover:translate-x-1 sm:text-base"
+						>
+							Read article
+							<svg class="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
 									stroke-width="2"
-								>
-									<path d="m9 18 6-6-6-6" />
-								</svg>
-							</a>
+									d="M17 8l4 4m0 0l-4 4m4-4H3"
+								/>
+							</svg>
 						</div>
 					</div>
-				</article>
-			{/each}
+				</a>
 
-			<!-- Other Posts Grid -->
-			{#if data.posts.length > 1}
-				<section class="mb-8">
-					<h2 class="mb-6 text-2xl font-semibold text-slate-200">More Posts</h2>
-					<div class="grid gap-6 md:grid-cols-2">
-						{#each data.posts.slice(1) as post}
-							<article
-								class="post-card group relative overflow-hidden rounded-xl border border-slate-700/50 bg-gradient-to-br from-slate-800/60 to-slate-900/80 p-6 transition-all duration-300 hover:border-slate-600/60 hover:shadow-lg"
+				<!-- Additional Posts -->
+				{#each data.posts.slice(1) as post, index}
+					<a
+						href="/blog/{post.slug}"
+						class="group relative rounded-xl border border-stone-800/80 bg-gradient-to-br from-stone-900/70 to-stone-900/50 p-5 backdrop-blur-sm transition-all duration-300 hover:border-orange-500/30 hover:shadow-lg sm:p-6"
+						style="--accent1: {post.accent1 || 'rgba(249, 115, 22, 0.1)'}; --accent2: {post.accent2 || 'rgba(249, 115, 22, 0.05)'};"
+					>
+						<!-- Subtle gradient accent -->
+						<div
+							class="pointer-events-none absolute inset-0 rounded-xl opacity-0 transition-opacity duration-300 group-hover:opacity-30"
+							style="background: radial-gradient(ellipse at top left, var(--accent1) 0%, transparent 60%);"
+						></div>
+
+						<div class="relative z-10">
+							<div class="mb-3 text-xs text-stone-500">
+								{formatDate(post.date)}
+							</div>
+
+							<h3
+								class="stack-sans-text mb-3 text-lg font-semibold text-stone-200 transition-colors group-hover:text-orange-400 sm:text-xl"
 							>
-								<div class="relative z-10">
-									<h3 class="mb-3 text-xl leading-tight font-semibold">
-										<a
-											href="blog/{post.slug}"
-											class="post-title-link text-slate-200 transition-colors duration-200 hover:text-sky-400"
-										>
-											{post.title}
-										</a>
-									</h3>
+								{post.title}
+							</h3>
 
-									<time class="mb-3 block text-sm text-slate-400">{formatDate(post.date)}</time>
+							<p class="mb-4 line-clamp-2 text-sm leading-relaxed text-stone-400">
+								{post.description}
+							</p>
 
-									<p class="mb-4 leading-relaxed text-slate-300">{post.description}</p>
+							<div class="flex flex-wrap gap-1.5">
+								{#each post.categories.slice(0, 3) as category}
+									<span
+										class="rounded-md border border-stone-700/80 bg-stone-800/30 px-2 py-0.5 text-[10px] text-stone-500 sm:text-xs"
+									>
+										{category}
+									</span>
+								{/each}
+							</div>
 
-									<div class="mb-4 flex flex-wrap gap-2">
-										{#each post.categories as category}
-											<span
-												class="rounded-md bg-slate-700/50 px-2 py-1 text-xs font-medium text-slate-300"
-											>
-												#{category}
-											</span>
-										{/each}
-									</div>
+							<div
+								class="mt-4 flex items-center gap-1 text-sm font-medium text-orange-400 opacity-0 transition-all group-hover:translate-x-1 group-hover:opacity-100"
+							>
+								Read more
+								<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+									<path
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										stroke-width="2"
+										d="M17 8l4 4m0 0l-4 4m4-4H3"
+									/>
+								</svg>
+							</div>
+						</div>
+					</a>
+				{/each}
 
-									<div class="flex items-center justify-between">
-										<a
-											href="blog/{post.slug}"
-											class="inline-flex items-center gap-1 text-sm font-medium text-sky-500 transition-all duration-200 hover:translate-x-1 hover:text-sky-400"
-										>
-											Read more
-											<svg
-												width="14"
-												height="14"
-												viewBox="0 0 24 24"
-												fill="none"
-												stroke="currentColor"
-												stroke-width="2"
-											>
-												<path d="m9 18 6-6-6-6" />
-											</svg>
-										</a>
-									</div>
-								</div>
-							</article>
-						{/each}
+				<!-- Skeleton placeholders for future posts -->
+				{#each Array(Math.max(0, 6 - data.posts.length)) as _, i}
+					<div
+						class="relative rounded-xl border border-stone-800/50 border-dashed bg-gradient-to-br from-stone-900/30 to-stone-900/20 p-5 sm:p-6"
+					>
+						<div class="animate-pulse">
+							<div class="mb-3 h-3 w-20 rounded bg-stone-800/50"></div>
+							<div class="mb-3 h-6 w-3/4 rounded bg-stone-800/50"></div>
+							<div class="mb-2 h-4 w-full rounded bg-stone-800/30"></div>
+							<div class="mb-4 h-4 w-2/3 rounded bg-stone-800/30"></div>
+							<div class="flex gap-1.5">
+								<div class="h-5 w-12 rounded-md bg-stone-800/40"></div>
+								<div class="h-5 w-16 rounded-md bg-stone-800/40"></div>
+							</div>
+						</div>
+						<div class="absolute inset-0 flex items-center justify-center">
+							<span class="text-xs text-stone-600 font-medium">Coming soon</span>
+						</div>
 					</div>
-				</section>
-			{/if}
-		</div>
+				{/each}
+			</div>
+		{:else}
+			<!-- Empty State -->
+			<div
+				class="flex flex-col items-center justify-center rounded-2xl border border-stone-800/50 bg-stone-900/30 py-16 text-center"
+			>
+				<div class="mb-4 text-4xl">📝</div>
+				<h3 class="stack-sans-text mb-2 text-lg font-semibold text-stone-300">No posts yet</h3>
+				<p class="text-sm text-stone-500">Check back soon for new content!</p>
+			</div>
+		{/if}
 	</div>
-</div>
+</section>
 
 <style lang="postcss">
 	@reference "../../app.css";
-
-	.title-link {
-		background: linear-gradient(90deg, #0ea5e9, #3b82f6);
-		background-size: 0% 2px;
-		background-repeat: no-repeat;
-		background-position: left bottom;
-		text-decoration: none;
-	}
-
-	.title-link:hover {
-		background-size: 100% 2px;
-	}
-
-	.post-title-link {
-		background: linear-gradient(90deg, #0ea5e9, #3b82f6);
-		background-size: 0% 1px;
-		background-repeat: no-repeat;
-		background-position: left bottom;
-		text-decoration: none;
-		transition: all 0.2s ease;
-	}
-
-	.post-title-link:hover {
-		background-size: 100% 1px;
-	}
 
 	:global(#sections) {
 		display: none;
 	}
 	:global(#sections + ul) {
 		display: none;
-	}
-
-	#radialGradient {
-		z-index: 3;
-		background-image: radial-gradient(
-			ellipse 150% 100% at top center,
-			rgba(233, 14, 80, 0.123) 0%,
-			rgba(0, 0, 0, 0.089) 40%
-		);
-		position: absolute;
-		pointer-events: none;
-		width: 100vw;
-		height: 100vh;
-	}
-
-	#radialGradient2 {
-		z-index: 3;
-		background-image: radial-gradient(
-			ellipse 150% 100% at bottom center,
-			rgba(14, 164, 233, 0.123) 0%,
-			rgba(0, 0, 0, 0.089) 40%
-		);
-		position: absolute;
-		pointer-events: none;
-		width: 100vw;
-		height: 100vh;
-	}
-
-	.polka {
-		--dot-bg: oklch(0.129 0.042 264.695);
-		--dot-color: #1d293d;
-		--dot-size: 1px;
-		--dot-space: 22px;
-		background:
-			linear-gradient(90deg, var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%)
-				center / var(--dot-space) var(--dot-space),
-			linear-gradient(var(--dot-bg) calc(var(--dot-space) - var(--dot-size)), transparent 1%)
-				center / var(--dot-space) var(--dot-space),
-			var(--dot-color);
 	}
 </style>

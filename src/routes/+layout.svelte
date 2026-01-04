@@ -32,6 +32,21 @@
 		overflow-x: hidden;
 		scroll-behavior: smooth;
 	}
+
+	:global(.stack-sans-text){
+		font-family: "Stack Sans Text", sans-serif;
+		font-optical-sizing: auto;
+	}
+	
+	:global(.stack-sans-headline){
+		font-family: "Stack Sans Headline", sans-serif;
+		font-optical-sizing: auto;
+	}
+
+	:global(.stack-sans-notch){
+		font-family: "Stack Sans Notch", sans-serif;
+		font-optical-sizing: auto;
+	}
 	
 	:global(.ibm-plex-mono-thin) {
 		font-family: 'IBM Plex Mono', serif;

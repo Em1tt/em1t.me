@@ -39,5 +39,7 @@ export type Post = {
 	description: string
 	date: string
 	categories: Categories[],
-	published: boolean
+	published: boolean,
+	accent1?: string,
+	accent2?: string
 }
