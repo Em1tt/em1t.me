@@ -28,12 +28,12 @@ export const actions: Actions = {
 			});
 
 		const { success, error } = await validateToken(turnstileRes, TURNSTILE_SECRET);
-		/*if (!success)
+		if (!success)
 			return fail(400, {
 				error: error || 'Invalid CAPTCHA',
 				captcha: true
 			});
-*/
+
 		// Map project type to emoji and label
 		const projectTypeMap: Record<string, string> = {
 			website: '🌐 Website',
@@ -86,7 +86,7 @@ export const actions: Actions = {
 						}
 					],
 					footer: {
-						text: 'Sent from em1t.me/new',
+						text: 'Sent from em1t.me',
 						icon_url: 'https://em1t.me/misc/E1.svg'
 					},
 					timestamp: new Date().toISOString()

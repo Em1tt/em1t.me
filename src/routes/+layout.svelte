@@ -28,10 +28,10 @@
 {@render children()}
 
 <style lang="postcss">
-	:global(html) {
-		overflow-x: hidden;
-		scroll-behavior: smooth;
-	}
+:global(html) {
+	overflow-x: hidden;
+	scroll-behavior: smooth;
+}
 
 	:global(.stack-sans-text){
 		font-family: "Stack Sans Text", sans-serif;

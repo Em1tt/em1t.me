@@ -30,9 +30,45 @@
 	import FolderOpen from '$lib/icons/FolderOpen.svelte';
 	import Link from '$lib/icons/Link.svelte';
 	import Header from '$lib/Header.svelte';
+	import Background2 from '$lib/components/Background2.svelte';
+	import GetInTouch from '$lib/GetInTouch.svelte';
 
 	let { data } = $props();
 	let loading: string | number = '';
+
+	import { onMount } from 'svelte';
+
+	let sections: NodeListOf<HTMLElement>;
+	let navLinks: NodeListOf<HTMLAnchorElement>;
+
+	onMount(() => {
+		sections = document.querySelectorAll('section');
+		navLinks = document.querySelectorAll('.fixed.top-4.left-4 a');
+		window.addEventListener('scroll', onScroll);
+		return () => window.removeEventListener('scroll', onScroll);
+	});
+	let current = '';
+
+	function onScroll() {
+		sections.forEach((section) => {
+			const sectionTop = section.offsetTop;
+			if (window.scrollY >= sectionTop - window.innerHeight / 2) {
+				current = section.getAttribute('id') ?? '';
+			}
+		});
+
+		navLinks.forEach((link) => {
+			if (link.getAttribute('href')?.toString().includes(`#${current}`)) {
+				link.classList.add('text-orange-500', 'ibm-plex-mono-bold');
+				link.classList.remove('text-gray-400');
+				link.innerText = link.innerText.replace('//', '-> ');
+			} else {
+				link.classList.remove('text-orange-500', 'ibm-plex-mono-bold');
+				link.classList.add('text-gray-400');
+				link.innerText = link.innerText.replace('->', '// ');
+			}
+		});
+	}
 </script>
 
 
@@ -101,14 +137,51 @@
 	</script>`}
 </svelte:head>
 
-
+<!--
 <Header />
+-->
 
-<section class="grid min-h-screen place-items-center px-4">
-	<div class="z-1 flex w-full max-w-4xl flex-col gap-4 text-center">
+<!-- Vignette overlay for blurred/darkened edges (corners and sides only) -->
+<div class="pointer-events-none fixed inset-0 z-30" aria-hidden="true" style="background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.85) 90%);"></div>
+<!-- Backdrop blur for outer edges matching vignette ellipse -->
+<div 
+	class="pointer-events-none fixed inset-0 z-29 backdrop-blur-md" 
+	aria-hidden="true" 
+	style="-webkit-mask: radial-gradient(ellipse at center, transparent 62%, black 100%); mask: radial-gradient(ellipse at center, transparent 62%, black 100%);"
+></div>
+
+<!--Layout inspired by GD Knots GetHappier-->
+<div class="fixed top-4 left-4 z-40 flex flex-col max-sm:bg-black/60 max-sm:backdrop-blur-md max-sm:rounded-lg max-sm:px-3 max-sm:py-2 max-sm:border max-sm:border-stone-700/50">
+	<a href="#background-wrapper" class="ibm-plex-mono-regular ibm-plex-mono-bold text-orange-500 max-sm:text-sm"
+		>-> Home</a
+	>
+	<a href="#about" class="ibm-plex-mono-regular text-gray-400 hover:text-gray-200 max-sm:text-sm"
+		>// About</a
+	>
+	<a href="#expertise" class="ibm-plex-mono-regular text-gray-400 hover:text-gray-200 max-sm:text-sm"
+		>// Expertise</a
+	>
+	<a href="#blog" class="ibm-plex-mono-regular text-gray-400 hover:text-gray-200 max-sm:text-sm"
+		>// Blog</a
+	>
+	<a href="#contact" class="ibm-plex-mono-regular text-gray-400 hover:text-gray-200 max-sm:text-sm"
+		>// Contact</a
+	>
+</div>
+
+<div class="fixed top-4 right-4 z-40">
+	<img src="/misc/E1.svg" alt="E1" width="32" height="32" />
+</div>
+
+<GetInTouch />
+
+<section class="grid relative min-h-screen place-items-center">
+	<Background2 />
+
+	<div class="z-1 flex max-w-4xl flex-col gap-4 text-center absolute px-4 min-w-80">
 		<Scramble>
 			<h1
-				class="stack-sans-headline text-4xl text-stone-200 sm:text-5xl md:text-6xl lg:text-7xl"
+				class="stack-sans-headline text-6xl text-stone-200 sm:text-7xl md:text-7xl lg:text-8xl"
 				data-value="EM1T.ME"
 			>
 				EM1T.ME
@@ -122,7 +195,14 @@
 			<Anchor type="button" href="#contact">Contact me</Anchor>
 		</div>
 	</div>
-	<Background1 />
+	
+	<!-- Scroll indicator -->
+	<a href="#about" class="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 text-stone-400 hover:text-stone-200 transition-colors animate-bounce">
+		<span class="text-xs ibm-plex-mono-regular uppercase tracking-widest">Scroll</span>
+		<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+			<path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+		</svg>
+	</a>
 </section>
 <div
 	class="absolute z-20 block h-[1px] w-full bg-radial from-orange-500 via-transparent to-transparent"
@@ -432,7 +512,7 @@
 	</div>
 </section>
 
-<section class="about bg-stone-950">
+<section id="about" class="about bg-stone-950">
 	<div class="mx-auto grid max-w-7xl place-items-center px-4 py-12 sm:px-6 sm:py-16 lg:py-20">
 		<Square>
 			<Beaker />
@@ -785,7 +865,7 @@
 					<div
 						class="flex items-center gap-1.5 rounded-md border border-orange-500/25 bg-gradient-to-br from-orange-500/10 to-orange-500/5 px-2.5 py-1.5 text-xs font-medium text-stone-200 transition-all hover:border-orange-500/40 hover:shadow-sm"
 					>
-						<img src="/skills/openai.svg" alt="OpenAI" class="h-3.5 w-3.5 object-contain" />ChatGPT
+						<img src="/skills/openai.svg" alt="OpenAI" class="h-3.5 w-3.5 object-contain" />OpenAI API
 					</div>
 					<div
 						class="flex items-center gap-1.5 rounded-md border border-orange-500/25 bg-gradient-to-br from-orange-500/10 to-orange-500/5 px-2.5 py-1.5 text-xs font-medium text-stone-200 transition-all hover:border-orange-500/40 hover:shadow-sm"
@@ -959,7 +1039,7 @@
 </section>
 
 <!-- Work Experience Section -->
-<section id="experience" class="polka-dot">
+<section id="expertise" class="polka-dot">
 	<div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:py-20">
 		<!-- Section Header -->
 		<div class="mb-8 flex flex-col items-center sm:mb-10 lg:mb-12">
@@ -1157,7 +1237,7 @@
 </section>
 
 <!-- Blog Section -->
-<section class="border-t border-stone-900 bg-stone-950">
+<section id="blog" class="border-t border-stone-900 bg-stone-950">
 	<div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:py-20">
 		<!-- Section Header -->
 		<div class="mb-8 flex flex-col items-center sm:mb-10 lg:mb-12">
@@ -1328,7 +1408,7 @@
 </section>
 
 <!-- Contact Section -->
-<section id="contact" class="border-t border-stone-900 bg-stone-950">
+<section id="contact" class="border-t border-stone-900 relative">
 	<div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 lg:py-20">
 		<!-- Section Header -->
 		<div class="mb-8 flex flex-col items-center sm:mb-10 lg:mb-12">
@@ -1605,16 +1685,17 @@
 			</div>
 		</div>
 	</div>
+	<Background1 />
 </section>
 
 <!-- Footer -->
-<footer class="border-t border-stone-900 bg-stone-950 py-8">
+<footer class="relative z-40 border-t border-stone-900 bg-stone-950 py-8">
 	<div class="mx-auto max-w-7xl px-4 sm:px-6">
 		<div class="flex flex-col items-center justify-between gap-4 sm:flex-row">
 			<div class="flex items-center gap-2">
 				<img src="/misc/E1.svg" width="24" alt="Em1t logo" />
 				<span class="text-sm text-stone-500"
-					>© {new Date().getFullYear()} Em1t. All rights reserved.</span
+					>© {new Date().getFullYear()} Richard Marcinčák. All rights reserved.</span
 				>
 			</div>
 			<div class="flex items-center gap-4">
