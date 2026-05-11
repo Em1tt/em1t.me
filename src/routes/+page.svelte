@@ -33,6 +33,8 @@
 	import Background2 from '$lib/components/Background2.svelte';
 	import GetInTouch from '$lib/GetInTouch.svelte';
 
+	import { track } from '$lib/analytics';
+
 	let { data } = $props();
 	let loading: string | number = '';
 
@@ -1441,6 +1443,7 @@
 						<!-- Email -->
 						<a
 							href="mailto:em1t.dev@proton.me"
+							onclick={() => track('contact_click', { method: 'email', location: 'contact_section' })}
 							class="group flex items-center gap-3 rounded-xl border border-stone-700/80 bg-stone-800/30 p-3 transition-all hover:border-orange-500/30 hover:bg-stone-800/50"
 						>
 							<div
@@ -1469,6 +1472,7 @@
 						<a
 							href="https://github.com/Em1tt"
 							target="_blank"
+							onclick={() => track('contact_click', { method: 'github', location: 'contact_section' })}
 							rel="noopener noreferrer"
 							class="group flex items-center gap-3 rounded-xl border border-stone-700/80 bg-stone-800/30 p-3 transition-all hover:border-orange-500/30 hover:bg-stone-800/50"
 						>
@@ -1496,6 +1500,7 @@
 							href="https://www.linkedin.com/in/richard-marcincak/"
 							target="_blank"
 							rel="noopener noreferrer"
+							onclick={() => track('contact_click', { method: 'linkedin', location: 'contact_section' })}
 							class="group flex items-center gap-3 rounded-xl border border-stone-700/80 bg-stone-800/30 p-3 transition-all hover:border-orange-500/30 hover:bg-stone-800/50"
 						>
 							<div
@@ -1703,6 +1708,7 @@
 					href="https://github.com/Em1tt"
 					target="_blank"
 					rel="noopener noreferrer"
+					onclick={() => track('contact_click', { method: 'github', location: 'footer' })}
 					class="text-stone-500 transition-colors hover:text-orange-400"
 				>
 					<svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
@@ -1713,6 +1719,7 @@
 				</a>
 				<a
 					href="mailto:em1t.dev@proton.me"
+					onclick={() => track('contact_click', { method: 'email', location: 'footer' })}
 					class="text-stone-500 transition-colors hover:text-orange-400"
 				>
 					<svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
