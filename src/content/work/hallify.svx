@@ -1,0 +1,48 @@
+Hallify is a reservation system for social halls, with an editor for the room itself: a venue draws its hall and the tables in it, and the people who book it plan where every guest sits. I started it in November 2023, rebuilt it twice, and after a year's break we rebuilt it once more in 2026, this time as a platform any venue can run under its own name. We're now working toward our first client.
+
+## Four versions
+
+- **November 2023, a prototype.** Plain JavaScript and Konva, and the first commit that mattered was "Add drag & drop functionality".
+- **2024, the first real app.** SvelteKit with PocketBase: a calendar with temporary date holds, bookings with a guest count, event type and add-ons, an admin with graphs, and a template editor with walls, zones, a ruler and round tables whose chairs position themselves. Each booking was offered up to three ready-made layouts that fit its event type and guest count.
+- **Late 2024 to May 2025, a rewrite.** Svelte 5, my own session handling with Argon2, Postgres through Drizzle, undo and redo in the editor, and zones.
+- **2026, the overhaul.** A new codebase from the first commit, rebuilt for many venues instead of one.
+
+![The 2024 editor: a hall with round and long tables, the stage and the entrances](/work/hallify-2024-editor.webp)
+
+The collision checks in the 2024 editor come from the same resource as my [collision detection post](/blog/collision-detection).
+
+## Prizes
+
+With Hallify we won iNOVEum, a competition for new business ideas in the Spiš region, and more than €1,300 in grants with it. We also took first place in the regional round of SOČ (Stredoškolská odborná činnosť), Slovakia's competition for secondary-school projects, and third place in the national round.
+
+![Presenting Hallify at iNOVEum, with the booking form on the screen suggesting three table layouts](/work/hallify-inoveum.webp)
+
+## The editor, now
+
+The editor draws the hall in SVG and works in metres. Venues draw walls, zones and the room's bounds, and then place tables from their own list of table types. Everything snaps: to a grid from a quarter of a metre up to two, and to nearby table centres, table edges and wall corners within 30 cm, with guide lines to show it.
+
+Tables can't overlap each other, the walls or the edge of the room, even when they're rotated, and a table's hitbox grows on each side that has chairs. On round tables, the chair ring moves outward until the chairs are far enough apart.
+
+Guests come in with groups and notes, and each guest can hold one seat across every floor of the building. Automatic seating keeps a group together at the smallest table that fits it, and only splits it when nothing does. The result prints as a numbered seating plan or exports to CSV.
+
+## No double bookings
+
+A hall can hold one event a day, and three layers make sure of it.
+
+1. While someone is booking, the date is held for 15 minutes. The page keeps the hold alive in the background and releases it the moment the tab closes.
+2. The database refuses a second booking for the same hall and day.
+3. If two people still race each other, the loser gets a clear message instead of a broken booking.
+
+Every way into a booking, whether from a customer, a staff member or a staff-created event, goes through the same rule check: opening hours, blocked dates, how far in advance, capacity and the venue's plan.
+
+## A platform, not a single venue
+
+The 2026 version is built for many venues at once.
+
+- **A site for each venue**, at its own `hallify.sk` subdomain or on its own domain with SSL set up automatically, carrying the venue's branding.
+- **Accounts for venue teams**, with owners, admins and members. Customers get accounts that belong to one venue's site.
+- **Plans from free to enterprise**, with the limits enforced in code. Downgrading locks halls instead of deleting them.
+- **Slovak and English**, with the compiler checking that both languages have every string.
+- **Signed webhooks, email notifications and a staff calendar** with month, week, day and agenda views.
+
+![Hallify's landing page in 2026](/work/hallify-2026.webp)

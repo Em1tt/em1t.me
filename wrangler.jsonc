@@ -1,0 +1,22 @@
+{
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	"name": "em1t-me",
+	"compatibility_date": "2026-08-16",
+	"compatibility_flags": ["nodejs_als"],
+	"main": ".svelte-kit/cloudflare/_worker.js",
+	"assets": {
+		"binding": "ASSETS",
+		"directory": ".svelte-kit/cloudflare"
+	},
+	"workers_dev": true,
+	"preview_urls": true,
+	"routes": [
+		{ "pattern": "em1t.me", "custom_domain": true },
+		{ "pattern": "www.em1t.me", "custom_domain": true }
+	],
+	// Public by design (it's in the page). DISCORD_WEBHOOK and TURNSTILE_SECRET are Worker secrets:
+	// npx wrangler secret put <NAME>
+	"vars": {
+		"PUBLIC_TURNSTILE_SITE_KEY": "0x4AAAAAAA8Hbu4b2KXwK6YO"
+	}
+}

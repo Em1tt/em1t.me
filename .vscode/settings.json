@@ -1,5 +1,5 @@
 {
-    "files.associations": {
-        "*.svx": "markdown"
-    }
+	"files.associations": {
+		"*.css": "tailwindcss"
+	}
 }

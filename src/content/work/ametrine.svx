@@ -1,0 +1,42 @@
+We built Ametrine.host before ChatGPT existed. Its last commit landed in June 2022, five months before ChatGPT launched, after more than a year of three of us writing an entire hosting company's back office by hand. It was a fun childhood project, started in March 2021 when it was still called Amethyst.host, and it never launched. The code is still public: the README calls it "a transparent hosting company", open "to further support our transparency claims".
+
+## What we planned to sell
+
+KVM virtual servers on AMD Ryzen 5 3600 machines with NVMe storage, priced from €3 a month for one core, 4 GB of RAM and 60 GB of disk. Each would have come with a choice of five operating system images and an optional dedicated IP. The first landing page promised more: Minecraft hosting, with Rust, Discord bots and websites marked "soon".
+
+## Three people, one process tree
+
+It was a Node and TypeScript project with three of us on it, 953 commits between March 2021 and June 2022.
+
+- **b1tt0** built the skeleton: every part of the system (website, CDN, Discord bot, mail server) runs as its own child process, so one crashing doesn't take the others down, and a small command line can switch them on and off while it runs.
+- **FireMario211** wrote most of the API and the security back end, and moved all the data from SQLite to Redis.
+- **I** did the front end from end to end, and parts of the back end. 452 of the commits are mine, and `git blame` still gives me 12,231 of the 12,239 lines in the billing panel's views.
+
+## The billing panel
+
+Everything a customer or a member of staff would have seen was mine: the landing page (rewritten once, in "Huge landing page rewrite"), sign-in, the two-factor setup, ordering through Stripe Checkout, support tickets with screenshots, and a knowledgebase with likes and tag search.
+
+Behind it sat a staff area: an overview with user graphs, announcements, the ticket queue, a knowledgebase editor, user management and an audit log. Tickets carry a support level, and staff only see tickets at or below their own.
+
+## Security work
+
+The parts of the back end I owned were mostly about who is allowed to do what.
+
+- **Content Security Policy.** When the server runs in production mode, every page gets a nonce-based CSP. My commit adding screenshots to tickets also removed the unused `script-src` directives, including `'unsafe-eval'`, and "Finished CSP security rewrite" followed in January.
+- **Permissions.** "Massive permissions overhaul" in April 2022 set up seven levels, from User through four support levels to Administrator, each with an explicit list of the API routes and pages it may use.
+- **Audit trail.** Middleware records every API call made by staff into Redis, and the staff panel can filter and page through it.
+- **Discord sign-in.** Logging in with Discord, and linking a Discord account to an existing one.
+
+Around those sat FireMario211's work: argon2id passwords with a pepper, refresh tokens bound to a hash of the client's IP, TOTP two-factor with backup codes, and ticket screenshots stored encrypted with AES-256-CTR and decrypted only for the ticket's owner or the right support level.
+
+## Small things
+
+A 404 has a one-in-twenty chance of turning into a game of Pong, signed "Pong by Em1t". The sign-in page picks a random landscape and tints it differently on every visit.
+
+## Why it never launched
+
+We never sold a single server. The machines were going to be rented from Hetzner, and I wasn't 18 yet, so I couldn't rent them. Without servers there was nothing to sell.
+
+The code shows how far the rest had got. Stripe subscriptions were wired up, so a paid subscription would have created a service record and a cancelled one would have suspended it, but the step that actually creates a server was never written: the webhook still ends in `console.log("fulfill order (create VPS)")`. The reviews section on the landing page still holds Lorem Ipsum.
+
+In 2023 I came back to it and started rewriting the client area in SvelteKit with PocketBase: sign-in behind Cloudflare Turnstile, a ticket system where every ticket starts as a draft, a TipTap editor with code highlighting and a 2,000-character limit, and the beginning of an order page. That repository is [billing](https://github.com/Em1tt/billing).

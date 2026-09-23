@@ -1,0 +1,61 @@
+---
+title: 'CyberGame 2026: End of the World, Epilogue I & II'
+description: Two OSINT challenges I wrote for SK-CERT's CyberGame 2026, both asking for the seed of a Minecraft world, and how they're meant to be solved.
+date: '2026-05-11'
+categories:
+  - ctf
+  - osint
+  - write-up
+published: true
+---
+
+<script>
+  import Gallery from '$lib/components/Gallery.svelte';
+</script>
+
+I wrote these two OSINT challenges for CyberGame 2026, hosted by SK-CERT. Both ask for the seed of a Minecraft world, and neither lets you guess: brute-forcing the seed against the platform gets you banned. Below are the briefs as players saw them, and the solutions I had in mind.
+
+## Epilogue part I
+
+> I got lost in the nether. I heard you can find just about anything using these bedrock patterns. Can you find the world seed?
+>
+> The signs have the coordinates of the block they are connected to written on them. The game version is 1.21.3.
+
+500 points, flag format `SK-CERT{seed}`.
+
+<Gallery images={[{ src: '/blog/cybergame-2026/bedrock-floor.webp', alt: 'Bedrock on the Nether floor, with coordinate signs', caption: 'Nether floor' }, { src: '/blog/cybergame-2026/bedrock-roof.webp', alt: 'Bedrock on the Nether roof, with coordinate signs', caption: 'Nether roof' }]} />
+
+Included images show structure and coordinates of naturally generated bedrock blocks.
+You can solve by using this tool: [Nether_Bedrock_Cracker](https://github.com/19MisterX98/Nether_Bedrock_Cracker).
+
+From private testing, it was enough to input a 4x4 block structure from both the floor and rooftop.
+
+If you input the coordinates correctly, you should get a match within a minute after starting search.
+
+`SK-CERT{4766228494133740405}`
+
+## Epilogue part II
+
+> I was looking for the ender dragon, and I got completely lost. Can you find the seed of the world I'm on right now?
+>
+> The seed range for this task is [5250000000, 5400000000].
+
+The challenge includes three screenshots.
+
+<Gallery images={[{ src: '/blog/cybergame-2026/eye-throw-1.webp', alt: 'First eye of ender throw, with the debug screen showing position and angle', caption: 'Screenshot 1' }, { src: '/blog/cybergame-2026/eye-throw-2.webp', alt: 'Second eye of ender throw, with the debug screen showing position and angle', caption: 'Screenshot 2' }]} />
+
+### Ender eye
+
+Use a stronghold calculator, for instance [stronghold-calculator.pages.dev](https://stronghold-calculator.pages.dev), to get a coordinate approximation of where the stronghold can be located. You can get these values from the first two screenshots.
+
+### Seed cracking app
+
+Use [cubiomes-viewer](https://github.com/cubitect/cubiomes-viewer) to quickly iterate through. When adding landmarks/biomes, try to draw a bounding box of where the specific feature could be contained, for instance if your stronghold is at `X` `Z`, then do `X1: X - 50` `Z1: Z - 50` `X2: X + 50` `Z2: Z + 50`.
+
+### Narrowing down the search
+
+<Gallery images={[{ src: '/blog/cybergame-2026/mineshaft.webp', alt: 'The third screenshot, taken inside an abandoned mineshaft', caption: 'Screenshot 3, inside an abandoned mineshaft' }]} />
+
+From all the screenshots provided, you can see the biome, and in case of the third one, you can also see that the screenshot was taken in an abandoned mineshaft. Inputting all this information into cubiomes-viewer is enough to get the right seed in the specified seed range.
+
+`SK-CERT{5293851048}`
