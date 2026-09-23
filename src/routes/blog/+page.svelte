@@ -1,19 +1,20 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import SectionLabel from '$lib/components/SectionLabel.svelte';
+	import Seo from '$lib/components/Seo.svelte';
 	import { formatDate } from '$lib/posts';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
 </script>
 
-<svelte:head>
-	<title>Blog · em1t.me</title>
-	<meta
-		name="description"
-		content="Posts by Richard Marcinčák: the maths behind games, and CTF challenges with their intended solutions."
-	/>
-</svelte:head>
+<Seo
+	title="Blog · em1t.me"
+	heading="Blog by Richard Marcinčák"
+	description="Posts by Richard Marcinčák: the maths behind games, and CTF challenges with their intended solutions."
+	image="/og/blog.jpg"
+	imageAlt="Blog by Richard Marcinčák, on dithered red maze art"
+/>
 
 <div class="min-h-dvh bg-[#05030f] text-slate-200">
 	<header

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import SectionLabel from '$lib/components/SectionLabel.svelte';
+	import Seo from '$lib/components/Seo.svelte';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -18,10 +19,14 @@
 	);
 </script>
 
-<svelte:head>
-	<title>{data.project.name} · em1t.me</title>
-	<meta name="description" content={data.project.summary} />
-</svelte:head>
+<Seo
+	title="{data.project.name} case study · em1t.me"
+	heading="{data.project.name} case study"
+	description={data.project.summary}
+	image="/og/work/{data.project.slug}.jpg"
+	imageAlt="{data.project.name} logo on its case study card"
+	type="article"
+/>
 
 <div class="min-h-dvh bg-[#05030f] text-slate-200">
 	<header
