@@ -2,12 +2,25 @@
 	import 'katex/dist/katex.min.css';
 	import { resolve } from '$app/paths';
 	import SectionLabel from '$lib/components/SectionLabel.svelte';
+	import Seo from '$lib/components/Seo.svelte';
 	import { formatDate, splitTitle } from '$lib/posts';
+	import { SITE } from '$lib/site';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
 
 	const [title, subtitle] = $derived(splitTitle(data.meta.title));
+	const card = $derived(`/og/blog/${data.meta.slug}.jpg`);
+	const structured = $derived({
+		'@context': 'https://schema.org',
+		'@type': 'BlogPosting',
+		headline: data.meta.title,
+		description: data.meta.description,
+		datePublished: data.meta.date,
+		image: SITE.url + card,
+		url: `${SITE.url}/blog/${data.meta.slug}`,
+		author: { '@type': 'Person', name: SITE.author, url: SITE.url }
+	});
 
 	let article: HTMLElement;
 	let sections = $state<{ id: string; text: string; sub: boolean }[]>([]);
@@ -23,10 +36,16 @@
 	});
 </script>
 
-<svelte:head>
-	<title>{data.meta.title} · em1t.me</title>
-	<meta name="description" content={data.meta.description} />
-</svelte:head>
+<Seo
+	title="{data.meta.title} · em1t.me"
+	heading={data.meta.title}
+	description={data.meta.description}
+	image={card}
+	imageAlt="{data.meta.title}, a post by Richard Marcinčák"
+	type="article"
+	published={data.meta.date}
+	jsonLd={structured}
+/>
 
 <div class="min-h-dvh bg-[#05030f] text-slate-200">
 	<header

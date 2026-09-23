@@ -1,16 +1,36 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import type { Attachment } from 'svelte/attachments';
+	import Seo from '$lib/components/Seo.svelte';
 	import Contact from '$lib/components/sections/Contact.svelte';
 	import WhatIDo from '$lib/components/sections/WhatIDo.svelte';
 	import Work from '$lib/components/sections/Work.svelte';
 	import Writing from '$lib/components/sections/Writing.svelte';
+	import { SITE } from '$lib/site';
 	import { pageByWheel } from '$lib/wheelPaging';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
 
 	onMount(() => pageByWheel());
+
+	const person = {
+		'@type': 'Person',
+		'@id': `${SITE.url}/#person`,
+		name: SITE.author,
+		alternateName: 'Em1t',
+		url: SITE.url,
+		jobTitle: SITE.jobTitle,
+		image: `${SITE.url}/apple-touch-icon.png`,
+		sameAs: SITE.sameAs
+	};
+	const structured = {
+		'@context': 'https://schema.org',
+		'@graph': [
+			person,
+			{ '@type': 'WebSite', name: SITE.name, url: SITE.url, author: { '@id': person['@id'] } }
+		]
+	};
 
 	const stats = [
 		{ value: '7+', label: 'years of experience' },
@@ -40,6 +60,12 @@
 		return () => controller.abort();
 	};
 </script>
+
+<Seo
+	title="Richard Marcinčák · Full-stack developer & designer"
+	description="Full-stack developer and designer from Slovakia, studying at Masaryk University in Brno. Case studies, a blog on game maths and CTF challenges, and how to reach me."
+	jsonLd={structured}
+/>
 
 <div class="relative grid h-dvh w-full snap-start place-items-center">
 	<div class="absolute top-4 left-4">
