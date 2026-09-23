@@ -17,6 +17,11 @@ The four highlight covers and the profile picture are cut, in order, from one 25
 
 <BoostlyProfileKit />
 
+<figure class="flex flex-wrap items-end gap-x-8 gap-y-3">
+	<img src="/work/boostly/instagram-profile.webp" alt="Boostly's Instagram profile, with the profile picture, the four highlight covers, and the carousel's first slide pinned at the top of the grid" width="400" height="585" loading="lazy" class="w-full max-w-[360px] border border-slate-400/20" />
+	<figcaption class="google-sans-code-400 max-w-[34ch] text-xs leading-relaxed text-slate-400">On the profile: the covers in the highlight row, and the carousel's first slide pinned to the grid.</figcaption>
+</figure>
+
 ## A banner for ABAU
 
 ABAU, one of Boostly's clients, builds houses. Their banner is made for a crowd barrier: the headline, three promises under it, and the phone number and web address in orange along the bottom, with the logo beside them.
