@@ -1,11 +1,15 @@
 <!--
 	Two halftone spheres you can drag into each other, from the collision-detection post.
 	Idle, the small one orbits the big one so they collide on their own.
-	Fills its positioned parent.
+	Fills its positioned parent; bind `reading` to show the distance test beside it.
 -->
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { fitCanvas, groundDots, halftoneDisc, INKS } from '$lib/halftone';
+
+	type Reading = { distance: number; reach: number; hit: boolean };
+
+	let { reading = $bindable() }: { reading?: Reading } = $props();
 
 	let canvas: HTMLCanvasElement;
 
@@ -55,7 +59,10 @@
 			if (!view || !ground) return;
 			const { ctx, width, height } = view;
 			const [a, b] = bodies;
-			const hit = Math.hypot(b.x - a.x, b.y - a.y) < a.r + b.r;
+			const distance = Math.hypot(b.x - a.x, b.y - a.y);
+			const hit = distance <= a.r + b.r;
+			const next = { distance: Math.round(distance), reach: Math.round(a.r + b.r), hit };
+			if (next.distance !== reading?.distance || next.reach !== reading.reach) reading = next;
 
 			ctx.clearRect(0, 0, width, height);
 			ctx.drawImage(ground, 0, 0, width, height);
