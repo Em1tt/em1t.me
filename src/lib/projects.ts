@@ -15,8 +15,6 @@ export type Project = {
 	years?: string;
 	/** Case studies get a plate and a page at /work/[slug], with the body in src/content/work/[slug].svx. */
 	caseStudy: boolean;
-	/** A page at /work/[slug] without a plate, linked from the "Also" line instead. */
-	page?: boolean;
 	/** The project being worked on now: its plate gets a "Now" tag. */
 	current?: boolean;
 	/** Where the "Also" line links to, for projects without a case study. */
@@ -63,6 +61,25 @@ export const projects: Project[] = [
 			stack: 'First site: SvelteKit, Prisma, PostgreSQL',
 			team: 'App MVP: five people',
 			link: 'https://pumplo.com'
+		}
+	},
+	{
+		slug: 'boostly',
+		name: 'Boostly.sk',
+		type: 'Social & print graphics',
+		summary:
+			'Three months of graphics for a Slovak social media agency: its own Instagram, and a banner for one of its clients.',
+		short: 'graphics, 3 months',
+		cover: '/covers/boostly.webp',
+		logo: '/logos/boostly.png',
+		brand: '#2749ff',
+		years: '2025–26',
+		caseStudy: true,
+		facts: {
+			role: 'Freelance graphic designer',
+			year: '2025–26, three months',
+			stack: 'Illustrator, Affinity',
+			team: 'Tomáš and Marek Bekeš, Boostly'
 		}
 	},
 	{
@@ -141,25 +158,6 @@ export const projects: Project[] = [
 		years: '2023',
 		caseStudy: false,
 		href: 'https://github.com/Em1tt/Video-Generator'
-	},
-	{
-		slug: 'boostly',
-		name: 'Boostly.sk',
-		type: 'Social & print graphics',
-		summary:
-			'Three months of graphics for a Slovak social media agency: its own Instagram, and a banner for one of its clients.',
-		short: 'graphics, 3 months',
-		logo: '/logos/boostly.png',
-		brand: '#2749ff',
-		years: '2025–26',
-		caseStudy: false,
-		page: true,
-		facts: {
-			role: 'Freelance graphic designer',
-			year: '2025–26, three months',
-			stack: 'Illustrator, Affinity',
-			team: 'Tomáš and Marek Bekeš, Boostly'
-		}
 	},
 	{
 		slug: 'terapias-de-priscos',

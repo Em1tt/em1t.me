@@ -43,11 +43,7 @@
 			/>
 		{/if}
 		<div class="flex flex-col items-start gap-3.5 self-end lg:order-1">
-			<SectionLabel
-				>{data.position
-					? `Case study · ${data.position} of ${data.total}`
-					: data.project.type}</SectionLabel
-			>
+			<SectionLabel>Case study · {data.position} of {data.total}</SectionLabel>
 			<h1
 				class="google-sans-700 mt-[0.1em] text-[clamp(56px,8vw,150px)] leading-[0.98] tracking-[-0.05em]"
 			>
