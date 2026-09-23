@@ -1,4 +1,6 @@
-import type { Handle } from '@sveltejs/kit';
+import { redirect, type Handle } from '@sveltejs/kit';
+import { sequence } from '@sveltejs/kit/hooks';
+import { getTextDirection } from '$lib/paraglide/runtime';
 import { paraglideMiddleware } from '$lib/paraglide/server';
 
 const handleParaglide: Handle = ({ event, resolve }) =>
@@ -6,8 +8,20 @@ const handleParaglide: Handle = ({ event, resolve }) =>
 		event.request = request;
 
 		return resolve(event, {
-			transformPageChunk: ({ html }) => html.replace('%paraglide.lang%', locale)
+			transformPageChunk: ({ html }) =>
+				html
+					.replace('%paraglide.lang%', locale)
+					.replace('%paraglide.dir%', getTextDirection(locale))
 		});
 	});
 
-export const handle: Handle = handleParaglide;
+// On the live domain, www and plain http both go to https://em1t.me.
+const handleCanonical: Handle = ({ event, resolve }) => {
+	const { hostname, protocol, pathname, search } = event.url;
+	if (hostname === 'www.em1t.me' || (hostname === 'em1t.me' && protocol === 'http:')) {
+		redirect(308, `https://em1t.me${pathname}${search}`);
+	}
+	return resolve(event);
+};
+
+export const handle: Handle = sequence(handleCanonical, handleParaglide);

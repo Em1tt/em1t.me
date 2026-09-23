@@ -1,0 +1,26 @@
+<script>
+	import Gallery from '$lib/components/Gallery.svelte';
+	import BoostlyProfileKit from '$lib/components/work/BoostlyProfileKit.svelte';
+</script>
+
+For three months, from late 2025 into 2026, I designed graphics for Boostly, a Slovak agency that runs social media, short-form video and paid ads for brands. Here is some of it: Boostly's own Instagram, and a banner for one of its clients.
+
+## An introduction in six slides
+
+A carousel that introduces the agency: the problem, what Boostly does, why it works, the two people behind it, and an invitation to get in touch. Every slide is 1080 × 1350, Instagram's portrait size, and follows the same grid: the logo top left, a condensed headline whose last words turn blue, and an arrow in the bottom corner that leads to the next slide. The last slide swaps the arrow for a button.
+
+<Gallery columns={3} images={[{ src: '/work/boostly/carousel-1.webp', alt: 'Slide 1: the headline over a blue gradient, a rocket, and a man holding up a phone with the Boostly logo', caption: '1 · Content without strategy is just noise.' }, { src: '/work/boostly/carousel-2.webp', alt: 'Slide 2: three crossed-out points and a man filming with a gimbal', caption: '2 · Pretty content isn’t enough.' }, { src: '/work/boostly/carousel-3.webp', alt: 'Slide 3: three services, each with an icon', caption: '3 · What we do at Boostly' }, { src: '/work/boostly/carousel-4.webp', alt: 'Slide 4: three reasons, each with an icon', caption: '4 · Why our strategy works' }, { src: '/work/boostly/carousel-5.webp', alt: 'Slide 5: portraits of Tomáš and Marek Bekeš with their roles', caption: '5 · The team behind brands’ growth' }, { src: '/work/boostly/carousel-6.webp', alt: 'Slide 6: a button that reads Napíš nám správu', caption: '6 · Ready to take your brand higher?' }]} />
+
+## One gradient, five covers
+
+The four highlight covers and the profile picture are cut, in order, from one 2560 × 512 gradient. Each circle gets its own part of the blue, and placed in that order, the highlights carry one band of it across the row.
+
+<BoostlyProfileKit />
+
+## A banner for ABAU
+
+ABAU, one of Boostly's clients, builds houses. Their banner is made for a crowd barrier: the headline, three promises under it, and the phone number and web address in orange along the bottom, with the logo beside them.
+
+<Gallery images={[{ src: '/work/boostly/abau-banner.webp', alt: 'The ABAU banner: a new single-storey house on a lawn, the headline Váš vysnívaný dom začína s nami, and the phone number and web address', caption: 'Your dream house starts with us.' }]} />
+
+<Gallery columns={3} images={[{ src: '/work/boostly/abau-mockup-2.webp', alt: 'Mockup of the banner on a crowd barrier, front on' }, { src: '/work/boostly/abau-mockup-1.webp', alt: 'Mockup of the banner on a crowd barrier, at an angle' }, { src: '/work/boostly/abau-mockup-3.webp', alt: 'Mockup of the banner on a crowd barrier, seen slightly from the side' }]} />

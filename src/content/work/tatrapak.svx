@@ -1,0 +1,44 @@
+<script>
+	import OrderLifecycle from '$lib/components/work/OrderLifecycle.svelte';
+</script>
+
+Tatrapak's production orders lived on paper. In November 2024 I built an information system to replace that: sales enters an order, the office sends each line to a production department, and each department ticks off its own work until the order ships.
+
+## Four roles
+
+Everyone signs in, and what they see depends on who they are.
+
+- **Obchodník** (sales) creates orders and sees only their own, under "Moje objednávky".
+- **Administratívny pracovník** (office) sees every order and routes it to production.
+- **Výroba** (production) belongs to one department and sees only that department's work.
+- **Správca** (administrator) does everything the office does, and manages the user accounts.
+
+## From order to dispatch
+
+An order moves through three statuses, and the system decides most of the moves itself.
+
+<OrderLifecycle />
+
+## One order, many departments
+
+An order's products are stored as a list, and every line carries its own department and its own "done" flag. When someone from production saves, the server merges their ticks back into the order line by line, and the moment every line is done, the order becomes Expedovaná on its own.
+
+## Search that understands dates
+
+The orders table searches everything, including the customer, whoever created the order, and every product on it. Numbers large enough to be timestamps are turned into dates, which can then be searched in Slovak, English and Czech, so typing "November" finds every order with a date in November. The cut-off (above 1262304000) is there so that order IDs are never mistaken for dates.
+
+## Forms that point at the problem
+
+When the server rejects a form, it sends back the IDs of the fields that were wrong. The browser marks exactly those fields invalid, so they turn red, and clears each one as soon as it's edited. Read-only fields still submit their values, so production staff can save a ticked line without the server losing the rest of the order.
+
+## Built with
+
+SvelteKit 2 and Svelte 5, MySQL through the Sequelize 7 alpha with decorator-based models, Argon2id passwords with hashed session tokens, and Docker for deployment. The whole thing is 38 commits over three weeks, from "Init project" on 5 November to "Finish and submit to bug testing" on the 24th. The Sequelize alpha put up a fight: the log runs "Fix associations", "Attempt at fixing getters/setters", then "Fixed the associations", with the commit body "yay!".
+
+The README still has a section for the jury, with a demo account for each role.
+
+## Ňamli
+
+The same month, Marko Kušnirák and I built a one-page promo site for Ňamli, a wafer biscuit our team came up with. It's plain HTML and CSS, from the header to the SEO tags in a single day, and converting the product photos to WebP took the images from about 7.4 MB to 0.85 MB.
+
+![The Ňamli promo site: the hero with the biscuit, and the start of the section on why to choose Ňamli](/work/tatrapak-namli.webp)

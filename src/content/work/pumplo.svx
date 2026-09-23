@@ -1,0 +1,31 @@
+<script>
+	import PumploPalette from '$lib/components/work/PumploPalette.svelte';
+</script>
+
+Pumplo is a gym app, "a digital trainer in your pocket", and it's live: it's in use in Olomouc today, and the app screenshots on pumplo.com show it at Eurogym Olomouc. I was on the team from its first landing page in September 2025 until around May 2026. I worked on the design language, built the app MVP in a team of five, handling both the UI/UX and the front end, and contributed a lot to the new design language Pumplo still uses on its website and social media.
+
+## Where it started
+
+Before there was an app, there was a concept and a waitlist. The first landing page was in Czech and made the case in three moves. First the problem: up to half of new gym members leave within six months, left without guidance or results, and small gyms can't match the digital tools of the chains. Then the solution: a short questionnaire, a plan built from it, and instructions for each machine. Last, what set it apart, with machines recognised from a photo instead of QR codes or NFC tags, and the app free for gyms.
+
+## Two design languages
+
+The first palette started soft and got louder. The original is the one in `colorPalette.png`; a commit called "Color changes" five days later pushed every accent to full saturation. Type was Rubik throughout, cards took a tint of one brand colour, and the calls to action ran on a gradient from sandy orange to periwinkle.
+
+<PumploPalette />
+
+The mascots set the tone: Pumpík, a bear with a headband and a dumbbell, greeted you in the hero, and the lemur explained the solution. Each came in several colourways, with the Illustrator sources in the repository.
+
+Pumplo has since moved to a new design language, the one on pumplo.com and across its social media today, and I contributed a lot of it.
+
+![pumplo.com today, with the app open on Eurogym Olomouc](/work/pumplo-live.webp)
+
+## The waitlist
+
+Behind the first page sat a SvelteKit form action writing to PostgreSQL through Prisma, with Zod checking names and emails and rejecting any address already on the list. There were two forms, one in the hero and one at the bottom, both using the same action. The bottom one kept its own result, so signing up there didn't jump the page back to the top.
+
+The first full version had the English page at `/` and the Czech one at `/2`. The Czech page won, and the server messages were translated to match. That repository is 11 commits, from 26 September to 1 October 2025.
+
+## The app
+
+The MVP was built by a team of five, and I handled both the UI/UX and the front end. It's now on the App Store and Google Play.

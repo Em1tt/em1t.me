@@ -1,0 +1,145 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/typography';
+
+.lato-thin {
+	font-family: 'Lato', sans-serif;
+	font-weight: 100;
+	font-style: normal;
+}
+
+.lato-light {
+	font-family: 'Lato', sans-serif;
+	font-weight: 300;
+	font-style: normal;
+}
+
+.lato-regular {
+	font-family: 'Lato', sans-serif;
+	font-weight: 400;
+	font-style: normal;
+}
+
+.lato-bold {
+	font-family: 'Lato', sans-serif;
+	font-weight: 700;
+	font-style: normal;
+}
+
+.lato-black {
+	font-family: 'Lato', sans-serif;
+	font-weight: 900;
+	font-style: normal;
+}
+
+.lato-thin-italic {
+	font-family: 'Lato', sans-serif;
+	font-weight: 100;
+	font-style: italic;
+}
+
+.lato-light-italic {
+	font-family: 'Lato', sans-serif;
+	font-weight: 300;
+	font-style: italic;
+}
+
+.lato-regular-italic {
+	font-family: 'Lato', sans-serif;
+	font-weight: 400;
+	font-style: italic;
+}
+
+.lato-bold-italic {
+	font-family: 'Lato', sans-serif;
+	font-weight: 700;
+	font-style: italic;
+}
+
+.lato-black-italic {
+	font-family: 'Lato', sans-serif;
+	font-weight: 900;
+	font-style: italic;
+}
+
+.noto-sans-500 {
+	font-family: 'Noto Sans', sans-serif;
+	font-optical-sizing: auto;
+	font-weight: 500;
+	font-style: normal;
+	font-variation-settings: 'wdth' 100;
+}
+
+.google-sans-500 {
+	font-family: 'Google Sans', sans-serif;
+	font-optical-sizing: auto;
+	font-weight: 500;
+	font-style: normal;
+	font-variation-settings: 'GRAD' 0;
+}
+
+.google-sans-400 {
+	font-family: 'Google Sans', sans-serif;
+	font-optical-sizing: auto;
+	font-weight: 400;
+	font-style: normal;
+	font-variation-settings: 'GRAD' 0;
+}
+
+.google-sans-600 {
+	font-family: 'Google Sans', sans-serif;
+	font-optical-sizing: auto;
+	font-weight: 600;
+	font-style: normal;
+	font-variation-settings: 'GRAD' 0;
+}
+
+.google-sans-700 {
+	font-family: 'Google Sans', sans-serif;
+	font-optical-sizing: auto;
+	font-weight: 700;
+	font-style: normal;
+	font-variation-settings: 'GRAD' 0;
+}
+
+.google-sans-code-400 {
+	font-family: 'Google Sans Code', monospace;
+	font-weight: 400;
+	font-style: normal;
+}
+
+.google-sans-code-500 {
+	font-family: 'Google Sans Code', monospace;
+	font-weight: 500;
+	font-style: normal;
+}
+
+.google-sans-code-600 {
+	font-family: 'Google Sans Code', monospace;
+	font-weight: 600;
+	font-style: normal;
+}
+
+/* "To come": a fact only Richard can fill in. */
+.tk {
+	font-family: 'Google Sans Code', monospace;
+	font-weight: 600;
+	font-size: 0.72em;
+	letter-spacing: 0.06em;
+	color: #ff5640;
+	border-bottom: 1px dotted #ff5640;
+	white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	html {
+		scroll-behavior: auto;
+	}
+}
+
+/* Home sections lock to the screen only on desktops: a mouse or trackpad, and a window big enough
+   for every section to fit. Phones and tablets scroll freely. Keep in step with src/lib/wheelPaging.ts. */
+@media (min-width: 1024px) and (min-height: 641px) and (pointer: fine) {
+	html {
+		scroll-snap-type: y mandatory;
+	}
+}
