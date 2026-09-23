@@ -5,7 +5,8 @@
 -->
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { fitCanvas, halftoneDisc, INKS } from '$lib/halftone';
+	import { fitCanvas, INKS } from '$lib/halftone';
+	import { dot } from './draw';
 
 	let { mode = 'plane' }: { mode?: 'line' | 'plane' } = $props();
 
@@ -66,15 +67,15 @@
 			ctx.lineTo(b.x, b.y);
 			ctx.stroke();
 
-			halftoneDisc(ctx, a.x, a.y, 10, INKS.ember, 4);
-			halftoneDisc(ctx, b.x, b.y, 10, '#45d16b', 4);
+			dot(ctx, a.x, a.y, 7, INKS.ember);
+			dot(ctx, b.x, b.y, 7, '#45d16b');
 			ctx.font = 'italic 600 18px KaTeX_Math, Georgia, serif';
 			ctx.fillStyle = INKS.ember;
 			ctx.fillText('A', a.x - 6, a.y + 32);
 			ctx.fillStyle = '#45d16b';
 			ctx.fillText('B', b.x - 6, b.y + (b.y > height - 40 ? -18 : 32));
 			if (mode === 'plane') {
-				halftoneDisc(ctx, b.x, a.y, 7, INKS.orange, 4);
+				dot(ctx, b.x, a.y, 5, INKS.orange);
 				ctx.fillStyle = INKS.orange;
 				ctx.fillText('C', b.x + 12, a.y + 6);
 				readout = `|AC| = ${Math.abs(Math.round(dx))} · |BC| = ${Math.abs(Math.round(dy))} · |AB| = √(${Math.abs(Math.round(dx))}² + ${Math.abs(Math.round(dy))}²) = ${Math.round(ab)}`;

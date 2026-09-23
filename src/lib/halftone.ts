@@ -55,16 +55,6 @@ export function halftoneDisc(
 ) {
 	ctx.fillStyle = color;
 	ctx.beginPath();
-	for (const dot of halftoneDots(x, y, radius, pitch)) {
-		ctx.moveTo(dot.cx + dot.r, dot.cy);
-		ctx.arc(dot.cx, dot.cy, dot.r, 0, Math.PI * 2);
-	}
-	ctx.fill();
-}
-
-/** The dots of a halftone sphere, for drawing it in SVG as well as on a canvas. */
-export function halftoneDots(x: number, y: number, radius: number, pitch: number) {
-	const dots: { cx: number; cy: number; r: number }[] = [];
 	const x0 = Math.floor((x - radius) / pitch) * pitch;
 	const y0 = Math.floor((y - radius) / pitch) * pitch;
 	for (let gy = y0; gy <= y + radius; gy += pitch) {
@@ -79,8 +69,10 @@ export function halftoneDots(x: number, y: number, radius: number, pitch: number
 				1,
 				Math.max(0.1, 0.3 - dx * 0.35 - dy * 0.45 + Math.sqrt(1 - d2) * 0.65)
 			);
-			dots.push({ cx, cy, r: pitch * 0.5 * Math.sqrt(light) * 1.04 });
+			const r = pitch * 0.5 * Math.sqrt(light) * 1.04;
+			ctx.moveTo(cx + r, cy);
+			ctx.arc(cx, cy, r, 0, Math.PI * 2);
 		}
 	}
-	return dots;
+	ctx.fill();
 }
