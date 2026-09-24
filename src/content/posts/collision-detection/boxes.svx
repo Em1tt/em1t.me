@@ -1,0 +1,220 @@
+---
+title: Boxes
+description: Axis-aligned boxes as three intervals, and the tests that follow, point vs box, box vs box and sphere vs box.
+part: 3D
+order: 103
+published: true
+---
+
+<script>
+  import CodeGroup from '$lib/components/CodeGroup.svelte';
+  import Complexity from '$lib/components/Complexity.svelte';
+  import BoxTest from '$lib/components/posts/space/BoxTest.svelte';
+</script>
+
+The rectangles of Part I had their sides along the axes. A box whose edges run along the $x$-, $y$- and $z$-axis is the same idea in space, an **axis-aligned bounding box**, or AABB, and it's the shape games reach for first. Its tests use `overlap` and `clamp` from the [chapter on rectangles](/blog/collision-detection/rectangles), unchanged:
+
+<CodeGroup>
+
+```ts
+function overlap(a1: number, a2: number, b1: number, b2: number): boolean {
+	return a1 <= b2 && b1 <= a2;
+}
+
+function clamp(value: number, min: number, max: number): number {
+	return Math.max(min, Math.min(max, value));
+}
+```
+
+```js
+function overlap(a1, a2, b1, b2) {
+	return a1 <= b2 && b1 <= a2;
+}
+
+function clamp(value, min, max) {
+	return Math.max(min, Math.min(max, value));
+}
+```
+
+```py
+def overlap(a1: float, a2: float, b1: float, b2: float) -> bool:
+    return a1 <= b2 and b1 <= a2
+
+
+def clamp(value: float, low: float, high: float) -> float:
+    return max(low, min(high, value))
+```
+
+</CodeGroup>
+
+<Complexity items={[{'name': 'overlap', 'time': 'O(1)', 'space': 'O(1)'}, {'name': 'clamp', 'time': 'O(1)', 'space': 'O(1)'}]} />
+
+## Boxes as three intervals
+
+Take the box's corner with the smallest coordinates, $(x, y, z)$, and its width $w$ along the $x$-axis, height $h$ along the $y$-axis and depth $d$ along the $z$-axis. Then the box is nothing more than three intervals:
+
+$$
+[x,\ x + w], \quad [y,\ y + h], \quad [z,\ z + d]
+$$
+
+Every point whose coordinates all fall inside them is in the box.
+
+## Point vs box
+
+That's the test for a point, one axis at a time: $P$ is inside when each of its coordinates is inside that axis's interval.
+
+<BoxTest against="point" />
+
+<CodeGroup>
+
+```ts
+type Box = { x: number; y: number; z: number; w: number; h: number; d: number };
+
+function pointInBox(p: Vec3, box: Box): boolean {
+	return (
+		box.x <= p.x && p.x <= box.x + box.w &&
+		box.y <= p.y && p.y <= box.y + box.h &&
+		box.z <= p.z && p.z <= box.z + box.d
+	);
+}
+```
+
+```js
+// A box is an object like { x: 0, y: 0, z: 0, w: 2, h: 1, d: 3 }.
+function pointInBox(p, box) {
+	return (
+		box.x <= p.x && p.x <= box.x + box.w &&
+		box.y <= p.y && p.y <= box.y + box.h &&
+		box.z <= p.z && p.z <= box.z + box.d
+	);
+}
+```
+
+```py
+@dataclass
+class Box:
+    x: float
+    y: float
+    z: float
+    w: float
+    h: float
+    d: float
+
+
+def point_in_box(p: Vec3, box: Box) -> bool:
+    return (
+        box.x <= p.x <= box.x + box.w
+        and box.y <= p.y <= box.y + box.h
+        and box.z <= p.z <= box.z + box.d
+    )
+```
+
+</CodeGroup>
+
+<Complexity items={[{'name': 'pointInBox', 'time': 'O(1)', 'space': 'O(1)'}]} />
+
+## Box vs box
+
+Two boxes collide when their intervals overlap on the $x$-axis, on the $y$-axis **and** on the $z$-axis. If there's a gap on even one axis, a flat wall fits between the boxes, the way a straight line fitted between two rectangles.
+
+The figure draws each box's three intervals on the axes. Drag the boxes until they overlap on two axes but not the third, then turn the view: from some angles they look like they touch, and the gap on the third axis says they don't.
+
+<BoxTest against="box" />
+
+<CodeGroup>
+
+```ts
+function boxesCollide(a: Box, b: Box): boolean {
+	return (
+		overlap(a.x, a.x + a.w, b.x, b.x + b.w) &&
+		overlap(a.y, a.y + a.h, b.y, b.y + b.h) &&
+		overlap(a.z, a.z + a.d, b.z, b.z + b.d)
+	);
+}
+```
+
+```js
+function boxesCollide(a, b) {
+	return (
+		overlap(a.x, a.x + a.w, b.x, b.x + b.w) &&
+		overlap(a.y, a.y + a.h, b.y, b.y + b.h) &&
+		overlap(a.z, a.z + a.d, b.z, b.z + b.d)
+	);
+}
+```
+
+```py
+def boxes_collide(a: Box, b: Box) -> bool:
+    return (
+        overlap(a.x, a.x + a.w, b.x, b.x + b.w)
+        and overlap(a.y, a.y + a.h, b.y, b.y + b.h)
+        and overlap(a.z, a.z + a.d, b.z, b.z + b.d)
+    )
+```
+
+</CodeGroup>
+
+<Complexity items={[{'name': 'boxesCollide', 'time': 'O(1)', 'space': 'O(1)'}]} />
+
+This is the workhorse of 3D collision detection. Engines keep an AABB around every object, and like bounding spheres, only the pairs whose boxes overlap get tested exactly. When an object turns, its box is simply rebuilt around it.
+
+## Sphere vs box
+
+Clamping works in space just as it did in the plane: clamp each coordinate of the sphere's centre $S$ into the box's interval on that axis, and you get $Q$, the point of the box closest to $S$. Then it's point vs sphere.
+
+$$
+Q = \big(\operatorname{clamp}(x_{S},\, x,\, x + w),\ \operatorname{clamp}(y_{S},\, y,\, y + h),\ \operatorname{clamp}(z_{S},\, z,\, z + d)\big)
+$$
+
+Watch where $Q$ goes as you move the sphere: onto a face when the centre is off one face, onto an edge when it's off two, and onto a corner when it's off three. When the centre is inside the box, $Q$ is the centre itself, and the test rightly says they collide.
+
+<BoxTest against="sphere" />
+
+<CodeGroup>
+
+```ts
+function closestPointInBox(p: Vec3, box: Box): Vec3 {
+	return {
+		x: clamp(p.x, box.x, box.x + box.w),
+		y: clamp(p.y, box.y, box.y + box.h),
+		z: clamp(p.z, box.z, box.z + box.d)
+	};
+}
+
+function sphereBoxCollide(s: Sphere, box: Box): boolean {
+	return pointInSphere(closestPointInBox(s, box), s);
+}
+```
+
+```js
+function closestPointInBox(p, box) {
+	return {
+		x: clamp(p.x, box.x, box.x + box.w),
+		y: clamp(p.y, box.y, box.y + box.h),
+		z: clamp(p.z, box.z, box.z + box.d)
+	};
+}
+
+function sphereBoxCollide(s, box) {
+	return pointInSphere(closestPointInBox(s, box), s);
+}
+```
+
+```py
+def closest_point_in_box(p: Vec3, box: Box) -> Vec3:
+    return Vec3(
+        clamp(p.x, box.x, box.x + box.w),
+        clamp(p.y, box.y, box.y + box.h),
+        clamp(p.z, box.z, box.z + box.d),
+    )
+
+
+def sphere_box_collide(s: Sphere, box: Box) -> bool:
+    return point_in_sphere(closest_point_in_box(s, box), s)
+```
+
+</CodeGroup>
+
+<Complexity items={[{'name': 'closestPointInBox', 'time': 'O(1)', 'space': 'O(1)'}, {'name': 'sphereBoxCollide', 'time': 'O(1)', 'space': 'O(1)'}]} />
+
+The centre of a box is the midpoint of its two opposite corners, $(x + \frac{w}{2},\ y + \frac{h}{2},\ z + \frac{d}{2})$. The next chapter needs it, to test a box against a plane.

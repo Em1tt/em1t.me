@@ -10,7 +10,7 @@ categories:
 status: work in progress
 featured: true
 published: true
-coming: Part II · 3D follows once the 2D part is finished.
+coming: 'Still to come in Part II: triangles, the separating axis test in 3D, and all the functions in one file.'
 ---
 
 <script>
@@ -25,9 +25,9 @@ This resource is heavily inspired by [Jeff Thompson's Collision Detection](https
 
 Collision detection answers one question: do two shapes share at least one point? A program can't answer that by looking. To a program, a ball and a wall are just numbers. Analytic geometry is the part of maths that turns shapes into numbers and equations, so the question becomes arithmetic that takes a computer a handful of operations.
 
-This is a small book. Each chapter builds on the one before it: coordinates first, then distances, then shapes as equations, and every idea ends in a collision test with a demo you can play with. Part I works in the plane (2D). Part II takes the same ideas into space (3D), once Part I is finished.
+This is a small book. Each chapter builds on the one before it: coordinates first, then distances, then shapes as equations, and every idea ends in a collision test with a demo you can play with. Part I works in the plane (2D), and Part II takes the same ideas into space (3D).
 
-If you're only after the code, jump to [all the functions](/blog/collision-detection/all-functions).
+If you're only after the code, jump to [all the functions](/blog/collision-detection/all-functions) of Part I.
 
 ## Prerequisites
 

@@ -94,6 +94,51 @@
 	max-width: none;
 	margin: 1.6em 0 2em;
 }
+
+/* Lettering and draggable shapes in the book's figures (posts/geometry/Stage, posts/space/Scene). */
+figure.demo svg .math {
+	font:
+		italic 600 20px KaTeX_Math,
+		Georgia,
+		serif;
+}
+/* Numbers inside a maths label, upright like KaTeX prints them. */
+figure.demo svg .num {
+	font:
+		400 18px 'Google Sans',
+		sans-serif;
+}
+figure.demo svg .mono {
+	font:
+		400 14px 'Google Sans Code',
+		monospace;
+	fill: #94a3b8;
+}
+/* On phones a figure shrinks to about half, so its lettering grows to stay readable. */
+@media (max-width: 640px) {
+	figure.demo svg .math {
+		font-size: 25px;
+	}
+	figure.demo svg .num {
+		font-size: 22px;
+	}
+	figure.demo svg .mono {
+		font-size: 19px;
+	}
+}
+figure.demo svg .handle {
+	cursor: grab;
+	touch-action: none;
+	outline: none;
+}
+figure.demo svg .handle:active {
+	cursor: grabbing;
+}
+figure.demo svg .handle:focus-visible {
+	stroke: #ff5640;
+	stroke-width: 2;
+	stroke-dasharray: 4 4;
+}
 .post-body table {
 	display: block;
 	max-width: 100%;

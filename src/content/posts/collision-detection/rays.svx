@@ -1,0 +1,436 @@
+---
+title: Rays and segments
+description: Lines in space written with a parameter, the closest point of a segment, sphere vs segment and capsules, segment vs plane, and rays against planes, spheres and boxes.
+part: 3D
+order: 105
+published: true
+---
+
+<script>
+  import CodeGroup from '$lib/components/CodeGroup.svelte';
+  import Complexity from '$lib/components/Complexity.svelte';
+  import SegmentTest from '$lib/components/posts/space/SegmentTest.svelte';
+  import RayTest from '$lib/components/posts/space/RayTest.svelte';
+</script>
+
+In the plane, a line had an equation. In space, one equation in $x$, $y$ and $z$ describes a whole plane, so lines are written another way: as a starting point and a direction. This chapter uses the functions and types from the chapters before it, and `clamp` from the chapter on boxes.
+
+## Lines, segments and rays
+
+Start at a point $A$ and take $t$ steps of a direction vector $\mathbf{d}$:
+
+$$
+P(t) = A + t\,\mathbf{d}
+$$
+
+Which values of $t$ you allow decides what you get.
+
+- Any $t$ at all gives a **line**, endless both ways.
+- $t$ from $0$ to $1$, with $\mathbf{d} = B - A$, gives the **segment** from $A$ to $B$: $t = 0$ is $A$, $t = 1$ is $B$.
+- $t \ge 0$ gives a **ray**, which starts at $A$ and goes on for ever in one direction: a laser, a bullet's path, or the line of sight from the camera through the mouse cursor, which is how a game knows what you clicked.
+
+<CodeGroup>
+
+```ts
+// The point t steps of `direction` away from `origin`.
+function along(origin: Vec3, direction: Vec3, t: number): Vec3 {
+	return {
+		x: origin.x + t * direction.x,
+		y: origin.y + t * direction.y,
+		z: origin.z + t * direction.z
+	};
+}
+```
+
+```js
+// The point t steps of `direction` away from `origin`.
+function along(origin, direction, t) {
+	return {
+		x: origin.x + t * direction.x,
+		y: origin.y + t * direction.y,
+		z: origin.z + t * direction.z
+	};
+}
+```
+
+```py
+def along(origin: Vec3, direction: Vec3, t: float) -> Vec3:
+    """The point t steps of `direction` away from `origin`."""
+    return Vec3(
+        origin.x + t * direction.x,
+        origin.y + t * direction.y,
+        origin.z + t * direction.z,
+    )
+```
+
+</CodeGroup>
+
+<Complexity items={[{'name': 'along', 'time': 'O(1)', 'space': 'O(1)'}]} />
+
+## Sphere vs segment
+
+The closest point of a segment to a point works exactly as it did in the [chapter on line segments](/blog/collision-detection/line-segments), with one more coordinate. Project $S$ onto the line, $t = \frac{(S - A) \cdot \mathbf{d}}{\mathbf{d} \cdot \mathbf{d}}$, clamp $t$ into $[0, 1]$ to stay on the segment, and you have $Q$. Then it's point vs sphere.
+
+<SegmentTest against="sphere" />
+
+<CodeGroup>
+
+```ts
+function closestPointOnSegment(p: Vec3, a: Vec3, b: Vec3): Vec3 {
+	const d = subtract(b, a);
+	const lengthSquared = dot(d, d);
+	if (lengthSquared === 0) return a; // A and B are the same point
+	const t = clamp(dot(subtract(p, a), d) / lengthSquared, 0, 1);
+	return along(a, d, t);
+}
+
+function sphereSegmentCollide(s: Sphere, a: Vec3, b: Vec3): boolean {
+	return pointInSphere(closestPointOnSegment(s, a, b), s);
+}
+```
+
+```js
+function closestPointOnSegment(p, a, b) {
+	const d = subtract(b, a);
+	const lengthSquared = dot(d, d);
+	if (lengthSquared === 0) return a; // A and B are the same point
+	const t = clamp(dot(subtract(p, a), d) / lengthSquared, 0, 1);
+	return along(a, d, t);
+}
+
+function sphereSegmentCollide(s, a, b) {
+	return pointInSphere(closestPointOnSegment(s, a, b), s);
+}
+```
+
+```py
+def closest_point_on_segment(p: Vec3, a: Vec3, b: Vec3) -> Vec3:
+    d = subtract(b, a)
+    length_squared = dot(d, d)
+    if length_squared == 0:  # A and B are the same point
+        return a
+    t = clamp(dot(subtract(p, a), d) / length_squared, 0, 1)
+    return along(a, d, t)
+
+
+def sphere_segment_collide(s: Sphere, a: Vec3, b: Vec3) -> bool:
+    return point_in_sphere(closest_point_on_segment(s, a, b), s)
+```
+
+</CodeGroup>
+
+<Complexity items={[{'name': 'closestPointOnSegment', 'time': 'O(1)', 'space': 'O(1)'}, {'name': 'sphereSegmentCollide', 'time': 'O(1)', 'space': 'O(1)'}]} />
+
+### Capsules
+
+Take every point within $r$ of a segment, and you get a **capsule**: a cylinder with half a sphere on each end. It's the shape most engines give a character, because it's round everywhere, slides over steps and bumps, and has the cheapest test there is after the sphere. Capsule vs sphere is sphere vs segment with the two radii added:
+
+<CodeGroup>
+
+```ts
+type Capsule = { a: Vec3; b: Vec3; r: number };
+
+function capsuleSphereCollide(c: Capsule, s: Sphere): boolean {
+	return distanceSquared(closestPointOnSegment(s, c.a, c.b), s) <= (c.r + s.r) ** 2;
+}
+```
+
+```js
+// A capsule is an object like { a: { x: 0, y: 0, z: 0 }, b: { x: 0, y: 2, z: 0 }, r: 0.5 }.
+function capsuleSphereCollide(c, s) {
+	return distanceSquared(closestPointOnSegment(s, c.a, c.b), s) <= (c.r + s.r) ** 2;
+}
+```
+
+```py
+@dataclass
+class Capsule:
+    a: Vec3
+    b: Vec3
+    r: float
+
+
+def capsule_sphere_collide(c: Capsule, s: Sphere) -> bool:
+    return distance_squared(closest_point_on_segment(s, c.a, c.b), s) <= (c.r + s.r) ** 2
+```
+
+</CodeGroup>
+
+<Complexity items={[{'name': 'capsuleSphereCollide', 'time': 'O(1)', 'space': 'O(1)'}]} />
+
+## Segment vs plane
+
+A segment crosses a plane when its ends are on opposite sides, so when their side values have opposite signs, or one of them is $0$. Where exactly? The side value changes steadily along the segment, from $\operatorname{side}(A)$ at $t = 0$ to $\operatorname{side}(B)$ at $t = 1$, so it reaches $0$ at
+
+$$
+t = \frac{\operatorname{side}(A)}{\operatorname{side}(A) - \operatorname{side}(B)}
+$$
+
+It's the same formula that found where two segments cross in Part I. In the figure, each end is green on the side $\mathbf{n}$ points to and orange on the other, and the part of the segment behind the plane, as you look at it, is dashed.
+
+<SegmentTest against="plane" />
+
+<CodeGroup>
+
+```ts
+// Where the segment from a to b crosses the plane, or null if it doesn't.
+function segmentPlane(a: Vec3, b: Vec3, plane: Plane): Vec3 | null {
+	const sa = side(a, plane);
+	const sb = side(b, plane);
+	if (sa * sb > 0) return null; // both ends on the same side
+	// sa and sb are equal only when both are 0: the segment lies in the plane.
+	const t = sa === sb ? 0 : sa / (sa - sb);
+	return along(a, subtract(b, a), t);
+}
+```
+
+```js
+// Where the segment from a to b crosses the plane, or null if it doesn't.
+function segmentPlane(a, b, plane) {
+	const sa = side(a, plane);
+	const sb = side(b, plane);
+	if (sa * sb > 0) return null; // both ends on the same side
+	// sa and sb are equal only when both are 0: the segment lies in the plane.
+	const t = sa === sb ? 0 : sa / (sa - sb);
+	return along(a, subtract(b, a), t);
+}
+```
+
+```py
+def segment_plane(a: Vec3, b: Vec3, plane: Plane) -> Vec3 | None:
+    """Where the segment from a to b crosses the plane, or None if it doesn't."""
+    sa = side(a, plane)
+    sb = side(b, plane)
+    if sa * sb > 0:  # both ends on the same side
+        return None
+    # sa and sb are equal only when both are 0: the segment lies in the plane.
+    t = 0 if sa == sb else sa / (sa - sb)
+    return along(a, subtract(b, a), t)
+```
+
+</CodeGroup>
+
+<Complexity items={[{'name': 'segmentPlane', 'time': 'O(1)', 'space': 'O(1)'}]} />
+
+This is also the cure for fast objects that pass through thin walls between two frames. A bullet might be in front of a wall in one frame and behind it in the next, without ever touching it. Test the segment from where it was to where it is, and the crossing shows up.
+
+## Ray vs plane
+
+For a ray from $O$ with direction $\mathbf{d}$, put $P(t)$ into the plane's equation. The side value of $O + t\,\mathbf{d}$ is $\operatorname{side}(O) + t\,(\mathbf{n} \cdot \mathbf{d})$, and it's $0$ where the ray meets the plane:
+
+$$
+t = -\frac{\operatorname{side}(O)}{\mathbf{n} \cdot \mathbf{d}}
+$$
+
+Two things can go wrong. When $\mathbf{n} \cdot \mathbf{d} = 0$, the ray runs parallel to the plane and never meets it. And when $t < 0$, the line meets the plane behind $O$, where the ray doesn't go.
+
+In these figures the ray starts at $O$ and aims through $T$, so $\mathbf{d} = T - O$ and $T$ is at $t = 1$. The ray is solid up to the first thing it hits.
+
+<RayTest against="plane" />
+
+<CodeGroup>
+
+```ts
+// How many steps of `direction` the ray takes to reach the plane, or null if it never does.
+function rayPlane(origin: Vec3, direction: Vec3, plane: Plane): number | null {
+	const facing = plane.a * direction.x + plane.b * direction.y + plane.c * direction.z;
+	if (facing === 0) return null; // parallel to the plane
+	const t = -side(origin, plane) / facing;
+	return t >= 0 ? t : null; // the plane is behind the ray when t < 0
+}
+```
+
+```js
+// How many steps of `direction` the ray takes to reach the plane, or null if it never does.
+function rayPlane(origin, direction, plane) {
+	const facing = plane.a * direction.x + plane.b * direction.y + plane.c * direction.z;
+	if (facing === 0) return null; // parallel to the plane
+	const t = -side(origin, plane) / facing;
+	return t >= 0 ? t : null; // the plane is behind the ray when t < 0
+}
+```
+
+```py
+def ray_plane(origin: Vec3, direction: Vec3, plane: Plane) -> float | None:
+    """How many steps of `direction` the ray takes to reach the plane, or None if it never does."""
+    facing = plane.a * direction.x + plane.b * direction.y + plane.c * direction.z
+    if facing == 0:  # parallel to the plane
+        return None
+    t = -side(origin, plane) / facing
+    return t if t >= 0 else None  # the plane is behind the ray when t < 0
+```
+
+</CodeGroup>
+
+<Complexity items={[{'name': 'rayPlane', 'time': 'O(1)', 'space': 'O(1)'}]} />
+
+The ray functions return $t$ rather than the point, because $t$ is what you compare to find the nearest of several hits. The point itself is `along(origin, direction, t)`.
+
+## Ray vs sphere
+
+Put $P(t)$ into the sphere's equation instead: $|O + t\,\mathbf{d} - S|^2 = r^2$. Write $\mathbf{m} = O - S$ and multiply it out, and you get a quadratic equation in $t$:
+
+$$
+(\mathbf{d} \cdot \mathbf{d})\,t^2 + 2(\mathbf{m} \cdot \mathbf{d})\,t + (\mathbf{m} \cdot \mathbf{m} - r^2) = 0
+$$
+
+Call the three brackets $a$, $b$ and $c$, so it reads $at^2 + 2bt + c = 0$. The quadratic formula, with the $2$s cancelled out, gives
+
+$$
+t = \frac{-b \pm \sqrt{b^2 - ac}}{a}
+$$
+
+Each part of that has a meaning.
+
+- If $b^2 - ac < 0$, there's no root to take: the whole line misses the sphere.
+- Otherwise the smaller root is where the line enters the sphere, and the larger where it leaves.
+- $c$ is the squared distance from $O$ to the centre, minus $r^2$. When $c > 0$, $O$ is outside the sphere, and if $b > 0$ as well, the ray points away from it and both roots are behind $O$.
+- When $c \le 0$, $O$ is inside the sphere, and the ray hits it at once, at $t = 0$.
+
+<RayTest against="sphere" />
+
+<CodeGroup>
+
+```ts
+function raySphere(origin: Vec3, direction: Vec3, s: Sphere): number | null {
+	const m = subtract(origin, s);
+	const a = dot(direction, direction);
+	const b = dot(m, direction);
+	const c = dot(m, m) - s.r ** 2;
+	if (c > 0 && b > 0) return null; // outside, and pointing away
+	const discriminant = b * b - a * c;
+	if (discriminant < 0) return null; // the line misses the sphere
+	return Math.max((-b - Math.sqrt(discriminant)) / a, 0); // 0 when it starts inside
+}
+```
+
+```js
+function raySphere(origin, direction, s) {
+	const m = subtract(origin, s);
+	const a = dot(direction, direction);
+	const b = dot(m, direction);
+	const c = dot(m, m) - s.r ** 2;
+	if (c > 0 && b > 0) return null; // outside, and pointing away
+	const discriminant = b * b - a * c;
+	if (discriminant < 0) return null; // the line misses the sphere
+	return Math.max((-b - Math.sqrt(discriminant)) / a, 0); // 0 when it starts inside
+}
+```
+
+```py
+def ray_sphere(origin: Vec3, direction: Vec3, s: Sphere) -> float | None:
+    m = subtract(origin, s)
+    a = dot(direction, direction)
+    b = dot(m, direction)
+    c = dot(m, m) - s.r ** 2
+    if c > 0 and b > 0:  # outside, and pointing away
+        return None
+    discriminant = b * b - a * c
+    if discriminant < 0:  # the line misses the sphere
+        return None
+    return max((-b - math.sqrt(discriminant)) / a, 0)  # 0 when it starts inside
+```
+
+</CodeGroup>
+
+<Complexity items={[{'name': 'raySphere', 'time': 'O(1)', 'space': 'O(1)'}]} />
+
+The direction doesn't need to be of length $1$. If it is, $a = 1$ and the division goes away.
+
+## Ray vs box: the slab method
+
+A box is where three **slabs** overlap: the space between its two faces across the $x$-axis, between the two across the $y$-axis, and between the two across the $z$-axis. A ray is inside the $x$-slab while its $x$-coordinate is between $x$ and $x + w$, which is for $t$ between
+
+$$
+t_{1} = \frac{x - x_{O}}{d_{x}} \quad \text{and} \quad t_{2} = \frac{x + w - x_{O}}{d_{x}}
+$$
+
+whichever of the two is smaller first. The same goes for the other two slabs. The ray is inside the box only while it's inside all three, so the three intervals have to overlap, like the intervals of two boxes did in the chapter on boxes. It enters the box at the latest of the three starts, and leaves at the earliest of the three ends. If it would leave before it enters, it misses.
+
+The chart at the top of the figure shows the three intervals along $t$, and the part they share in red.
+
+<RayTest against="box" />
+
+<CodeGroup>
+
+```ts
+function rayBox(origin: Vec3, direction: Vec3, box: Box): number | null {
+	let near = 0; // the ray starts at t = 0
+	let far = Infinity;
+	const slabs = [
+		[origin.x, direction.x, box.x, box.x + box.w],
+		[origin.y, direction.y, box.y, box.y + box.h],
+		[origin.z, direction.z, box.z, box.z + box.d]
+	];
+	for (const [o, d, min, max] of slabs) {
+		if (d === 0) {
+			// Parallel to this slab: inside it all along, or never.
+			if (o < min || o > max) return null;
+			continue;
+		}
+		const t1 = (min - o) / d;
+		const t2 = (max - o) / d;
+		near = Math.max(near, Math.min(t1, t2));
+		far = Math.min(far, Math.max(t1, t2));
+		if (near > far) return null; // it leaves one slab before it enters another
+	}
+	return near;
+}
+```
+
+```js
+function rayBox(origin, direction, box) {
+	let near = 0; // the ray starts at t = 0
+	let far = Infinity;
+	const slabs = [
+		[origin.x, direction.x, box.x, box.x + box.w],
+		[origin.y, direction.y, box.y, box.y + box.h],
+		[origin.z, direction.z, box.z, box.z + box.d]
+	];
+	for (const [o, d, min, max] of slabs) {
+		if (d === 0) {
+			// Parallel to this slab: inside it all along, or never.
+			if (o < min || o > max) return null;
+			continue;
+		}
+		const t1 = (min - o) / d;
+		const t2 = (max - o) / d;
+		near = Math.max(near, Math.min(t1, t2));
+		far = Math.min(far, Math.max(t1, t2));
+		if (near > far) return null; // it leaves one slab before it enters another
+	}
+	return near;
+}
+```
+
+```py
+def ray_box(origin: Vec3, direction: Vec3, box: Box) -> float | None:
+    near = 0.0  # the ray starts at t = 0
+    far = math.inf
+    slabs = [
+        (origin.x, direction.x, box.x, box.x + box.w),
+        (origin.y, direction.y, box.y, box.y + box.h),
+        (origin.z, direction.z, box.z, box.z + box.d),
+    ]
+    for o, d, low, high in slabs:
+        if d == 0:
+            # Parallel to this slab: inside it all along, or never.
+            if o < low or o > high:
+                return None
+            continue
+        t1 = (low - o) / d
+        t2 = (high - o) / d
+        near = max(near, min(t1, t2))
+        far = min(far, max(t1, t2))
+        if near > far:  # it leaves one slab before it enters another
+            return None
+    return near
+```
+
+</CodeGroup>
+
+<Complexity items={[{'name': 'rayBox', 'time': 'O(1)', 'space': 'O(1)'}]} />
+
+Starting `near` at $0$ instead of $-\infty$ is what makes it a ray: a box behind the origin makes `far` negative, and the test fails. A ray that starts inside the box gets $t = 0$.
+
+That's as far as Part II goes for now. Triangles, the separating axis test in 3D, and all of Part II's functions in one file come next.
