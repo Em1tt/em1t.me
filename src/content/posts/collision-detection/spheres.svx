@@ -1,0 +1,171 @@
+---
+title: Spheres
+description: The equation of a sphere, and the two collision tests that come with it, point vs sphere and sphere vs sphere.
+part: 3D
+order: 102
+published: true
+---
+
+<script>
+  import CodeGroup from '$lib/components/CodeGroup.svelte';
+  import Complexity from '$lib/components/Complexity.svelte';
+  import SphereTest from '$lib/components/posts/space/SphereTest.svelte';
+</script>
+
+A sphere is a circle with one more dimension, and its tests are [the circle tests](/blog/collision-detection/circles) with one more coordinate. Both compare squared distances, with `distanceSquared` from the previous chapter:
+
+<CodeGroup>
+
+```ts
+type Vec3 = { x: number; y: number; z: number };
+
+function subtract(a: Vec3, b: Vec3): Vec3 {
+	return { x: a.x - b.x, y: a.y - b.y, z: a.z - b.z };
+}
+
+function dot(u: Vec3, v: Vec3): number {
+	return u.x * v.x + u.y * v.y + u.z * v.z;
+}
+
+function distanceSquared(a: Vec3, b: Vec3): number {
+	const step = subtract(b, a);
+	return dot(step, step);
+}
+```
+
+```js
+function subtract(a, b) {
+	return { x: a.x - b.x, y: a.y - b.y, z: a.z - b.z };
+}
+
+function dot(u, v) {
+	return u.x * v.x + u.y * v.y + u.z * v.z;
+}
+
+function distanceSquared(a, b) {
+	const step = subtract(b, a);
+	return dot(step, step);
+}
+```
+
+```py
+import math
+from dataclasses import dataclass
+
+
+@dataclass
+class Vec3:
+    x: float
+    y: float
+    z: float
+
+
+def subtract(a: Vec3, b: Vec3) -> Vec3:
+    return Vec3(a.x - b.x, a.y - b.y, a.z - b.z)
+
+
+def dot(u: Vec3, v: Vec3) -> float:
+    return u.x * v.x + u.y * v.y + u.z * v.z
+
+
+def distance_squared(a: Vec3, b: Vec3) -> float:
+    step = subtract(b, a)
+    return dot(step, step)
+```
+
+</CodeGroup>
+
+<Complexity items={[{'name': 'distanceSquared', 'time': 'O(1)', 'space': 'O(1)'}]} />
+
+## The equation of a sphere
+
+A sphere is the set of all points at the same distance $r$ from its centre $S(a, b, c)$. Write that with the distance formula and square both sides, just like the circle's equation:
+
+$$
+(x - a)^2 + (y - b)^2 + (z - c)^2 = r^2
+$$
+
+Points **inside** the sphere are closer to the centre than $r$, so they satisfy
+
+$$
+(x - a)^2 + (y - b)^2 + (z - c)^2 \le r^2
+$$
+
+## Point vs sphere
+
+That inequality is the test. Did a bullet hit a round enemy? Is the player close enough to pick up a coin? Turn the view while you drag $P$ around: a point can look like it's on the sphere from one side and be well behind it from another.
+
+<SphereTest against="point" />
+
+<CodeGroup>
+
+```ts
+type Sphere = { x: number; y: number; z: number; r: number };
+
+function pointInSphere(p: Vec3, s: Sphere): boolean {
+	return distanceSquared(p, s) <= s.r ** 2;
+}
+```
+
+```js
+// A sphere is an object like { x: 0, y: 1, z: 0, r: 2 }.
+function pointInSphere(p, s) {
+	return distanceSquared(p, s) <= s.r ** 2;
+}
+```
+
+```py
+@dataclass
+class Sphere:
+    x: float
+    y: float
+    z: float
+    r: float
+
+
+def point_in_sphere(p: Vec3, s: Sphere) -> bool:
+    return distance_squared(p, s) <= s.r ** 2
+```
+
+</CodeGroup>
+
+<Complexity items={[{'name': 'pointInSphere', 'time': 'O(1)', 'space': 'O(1)'}]} />
+
+A sphere has an $x$, a $y$ and a $z$ like a point, so `distanceSquared` takes it as it is.
+
+## Sphere vs sphere
+
+Two spheres touch when the distance between their centres is at most the sum of their radii:
+
+$$
+|S_{1}S_{2}| \le r_{1} + r_{2}
+$$
+
+Grow one sphere by the other's radius and shrink the other to a point, and it's point vs sphere again.
+
+<SphereTest against="sphere" />
+
+<CodeGroup>
+
+```ts
+function spheresCollide(a: Sphere, b: Sphere): boolean {
+	return distanceSquared(a, b) <= (a.r + b.r) ** 2;
+}
+```
+
+```js
+function spheresCollide(a, b) {
+	return distanceSquared(a, b) <= (a.r + b.r) ** 2;
+}
+```
+
+```py
+def spheres_collide(a: Sphere, b: Sphere) -> bool:
+    return distance_squared(a, b) <= (a.r + b.r) ** 2
+```
+
+</CodeGroup>
+
+<Complexity items={[{'name': 'spheresCollide', 'time': 'O(1)', 'space': 'O(1)'}]} />
+
+A sphere looks the same from every direction, so turning an object never changes the sphere around it. That's why engines wrap models in **bounding spheres** and test those first: most pairs of objects in a scene are nowhere near each other, and this throws them out with a handful of multiplications. Only the pairs whose spheres touch get the exact, expensive test.

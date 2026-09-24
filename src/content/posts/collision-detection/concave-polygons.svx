@@ -240,9 +240,6 @@ In practice, the two often end up side by side. Physics engines first run a chea
 
 ## What's next
 
-That covers every shape in Part I. Two things are left before the 2D part is complete:
+That covers every shape in Part I. The next chapter puts all of its functions in one file, and then Part II takes all of this into 3D.
 
-- **Collision response.** Knowing that two things touch is half the job; the other half is pushing them apart. The separating axis test can report the axis with the smallest overlap, which says which way, and the size of that overlap says how far.
-- **Fast objects.** A bullet can move far enough in one frame to skip straight through a thin wall without ever overlapping it. Testing the path it swept, instead of where it ends up, fixes that.
-
-After that, Part II takes all of this into 3D.
+One problem shows up in 2D and 3D alike: a fast object, like a bullet, can move far enough in one frame to skip straight through a thin wall without ever overlapping it. Testing the path it swept, instead of where it ends up, fixes that, and the chapter on rays and segments shows how.

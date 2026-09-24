@@ -1,0 +1,312 @@
+---
+title: Planes
+description: The cross product, the equation of a plane, which side of a plane a point is on and how far away it is, and sphere vs plane and box vs plane.
+part: 3D
+order: 104
+published: true
+---
+
+<script>
+  import CodeGroup from '$lib/components/CodeGroup.svelte';
+  import Complexity from '$lib/components/Complexity.svelte';
+  import PlaneThrough from '$lib/components/posts/space/PlaneThrough.svelte';
+  import PlaneTest from '$lib/components/posts/space/PlaneTest.svelte';
+</script>
+
+A floor, a wall, a ramp: in space, the flat surface that goes on for ever is the **plane**, and it plays the part the line played in Part I. It even has the same kind of equation. This chapter uses `Vec3`, `subtract` and `dot` from the chapter on coordinates in space, and the `Sphere` and `Box` types from the two chapters before it.
+
+## The equation of a plane
+
+A line in the plane was $ax + by + c = 0$. A plane in space takes one more term:
+
+$$
+ax + by + cz + d = 0
+$$
+
+The vector $\mathbf{n} = (a, b, c)$ is the plane's **normal vector**. It points straight out of the plane, at right angles to every direction within it, just like $(a, b)$ did for a line. If you know one point $P_{0}$ of the plane and its normal, $d$ follows, because $P_{0}$ has to satisfy the equation:
+
+$$
+d = -\mathbf{n} \cdot P_{0} = -(ax_{0} + by_{0} + cz_{0})
+$$
+
+The floor in these figures, for example, goes through the origin with normal $(0, 1, 0)$: $0x + 1y + 0z + 0 = 0$, or simply $y = 0$.
+
+<CodeGroup>
+
+```ts
+type Plane = { a: number; b: number; c: number; d: number };
+
+// The plane through `point`, at right angles to `normal`.
+function planeAt(point: Vec3, normal: Vec3): Plane {
+	return { a: normal.x, b: normal.y, c: normal.z, d: -dot(normal, point) };
+}
+```
+
+```js
+// A plane is an object like { a: 0, b: 1, c: 0, d: 0 }, for y = 0.
+// The plane through `point`, at right angles to `normal`.
+function planeAt(point, normal) {
+	return { a: normal.x, b: normal.y, c: normal.z, d: -dot(normal, point) };
+}
+```
+
+```py
+@dataclass
+class Plane:
+    a: float
+    b: float
+    c: float
+    d: float
+
+
+def plane_at(point: Vec3, normal: Vec3) -> Plane:
+    """The plane through `point`, at right angles to `normal`."""
+    return Plane(normal.x, normal.y, normal.z, -dot(normal, point))
+```
+
+</CodeGroup>
+
+<Complexity items={[{'name': 'planeAt', 'time': 'O(1)', 'space': 'O(1)'}]} />
+
+## The cross product
+
+Often you don't know the normal, only three points of the plane, like the corners of a triangle in a 3D model. Then you need a vector at right angles to two directions within the plane, and there's an operation that makes exactly that, the **cross product**:
+
+$$
+\mathbf{u} \times \mathbf{v} = (u_{y}v_{z} - u_{z}v_{y},\ \ u_{z}v_{x} - u_{x}v_{z},\ \ u_{x}v_{y} - u_{y}v_{x})
+$$
+
+Unlike the dot product, it gives a vector, not a number, and it only exists in 3D.
+
+- It's **perpendicular** to both $\mathbf{u}$ and $\mathbf{v}$. Dot it with either one and you get $0$.
+- Its length is $|\mathbf{u}|\,|\mathbf{v}| \sin\theta$, the area of the parallelogram the two vectors span, so it's the zero vector when $\mathbf{u}$ and $\mathbf{v}$ are parallel.
+- **Order matters**: $\mathbf{v} \times \mathbf{u}$ points the opposite way. With the axes in this book, curl the fingers of your right hand from $\mathbf{u}$ towards $\mathbf{v}$, and your thumb points along $\mathbf{u} \times \mathbf{v}$. With Unity's axes, it's your left hand.
+
+<CodeGroup>
+
+```ts
+function cross(u: Vec3, v: Vec3): Vec3 {
+	return {
+		x: u.y * v.z - u.z * v.y,
+		y: u.z * v.x - u.x * v.z,
+		z: u.x * v.y - u.y * v.x
+	};
+}
+```
+
+```js
+function cross(u, v) {
+	return {
+		x: u.y * v.z - u.z * v.y,
+		y: u.z * v.x - u.x * v.z,
+		z: u.x * v.y - u.y * v.x
+	};
+}
+```
+
+```py
+def cross(u: Vec3, v: Vec3) -> Vec3:
+    return Vec3(
+        u.y * v.z - u.z * v.y,
+        u.z * v.x - u.x * v.z,
+        u.x * v.y - u.y * v.x,
+    )
+```
+
+</CodeGroup>
+
+<Complexity items={[{'name': 'cross', 'time': 'O(1)', 'space': 'O(1)'}]} />
+
+## A plane through three points
+
+With three points $A$, $B$ and $C$, the vectors $\overrightarrow{AB}$ and $\overrightarrow{AC}$ both lie in the plane, so their cross product is its normal, and $A$ is a point on it:
+
+$$
+\mathbf{n} = \overrightarrow{AB} \times \overrightarrow{AC}, \qquad d = -\mathbf{n} \cdot A
+$$
+
+Drag the points below and watch $\mathbf{n}$ stay at right angles to both arrows. Swap $B$ and $C$ around and $\mathbf{n}$ flips to the other side. Then line all three points up: the arrows become parallel, $\mathbf{n}$ shrinks to nothing, and there's no plane left, because three points on one line don't pick out a single plane.
+
+<PlaneThrough />
+
+<CodeGroup>
+
+```ts
+function planeThrough(a: Vec3, b: Vec3, c: Vec3): Plane {
+	return planeAt(a, cross(subtract(b, a), subtract(c, a)));
+}
+```
+
+```js
+function planeThrough(a, b, c) {
+	return planeAt(a, cross(subtract(b, a), subtract(c, a)));
+}
+```
+
+```py
+def plane_through(a: Vec3, b: Vec3, c: Vec3) -> Plane:
+    return plane_at(a, cross(subtract(b, a), subtract(c, a)))
+```
+
+</CodeGroup>
+
+<Complexity items={[{'name': 'planeThrough', 'time': 'O(1)', 'space': 'O(1)'}]} />
+
+## Which side of a plane a point is on
+
+It works just like it did for a line. Put a point $P(x_{0}, y_{0}, z_{0})$ into the left-hand side of the equation, and you get $0$ on the plane, a positive number on the side $\mathbf{n}$ points to, and a negative number on the other side. In the figure above, $P$ turns green on the side $\mathbf{n}$ points to and red on the other.
+
+<CodeGroup>
+
+```ts
+// ax + by + cz + d for the point: 0 on the plane, and its sign says which side.
+function side(p: Vec3, plane: Plane): number {
+	return plane.a * p.x + plane.b * p.y + plane.c * p.z + plane.d;
+}
+```
+
+```js
+// ax + by + cz + d for the point: 0 on the plane, and its sign says which side.
+function side(p, plane) {
+	return plane.a * p.x + plane.b * p.y + plane.c * p.z + plane.d;
+}
+```
+
+```py
+def side(p: Vec3, plane: Plane) -> float:
+    """ax + by + cz + d for the point: 0 on the plane, and its sign says which side."""
+    return plane.a * p.x + plane.b * p.y + plane.c * p.z + plane.d
+```
+
+</CodeGroup>
+
+<Complexity items={[{'name': 'side', 'time': 'O(1)', 'space': 'O(1)'}]} />
+
+## Distance from a point to a plane
+
+As with a line, the side value grows with the distance from the plane, times the length of the normal vector. Divide that out, and you have the distance:
+
+$$
+\text{distance} = \frac{|ax_{0} + by_{0} + cz_{0} + d|}{\sqrt{a^2 + b^2 + c^2}}
+$$
+
+In the figure above, it's the length of the dashed line from $P$, which meets the plane at a right angle.
+
+<CodeGroup>
+
+```ts
+function distanceToPlane(p: Vec3, plane: Plane): number {
+	return Math.abs(side(p, plane)) / Math.hypot(plane.a, plane.b, plane.c);
+}
+```
+
+```js
+function distanceToPlane(p, plane) {
+	return Math.abs(side(p, plane)) / Math.hypot(plane.a, plane.b, plane.c);
+}
+```
+
+```py
+def distance_to_plane(p: Vec3, plane: Plane) -> float:
+    return abs(side(p, plane)) / math.hypot(plane.a, plane.b, plane.c)
+```
+
+</CodeGroup>
+
+<Complexity items={[{'name': 'distanceToPlane', 'time': 'O(1)', 'space': 'O(1)'}]} />
+
+If you keep the normal at length $1$, the side value **is** the distance, with a sign, and there's nothing to divide.
+
+## Sphere vs plane
+
+A sphere touches a plane when its centre is at most $r$ away from it. Square both sides to skip the root and the division, just like circle vs line:
+
+$$
+(ax_{S} + by_{S} + cz_{S} + d)^2 \le r^2(a^2 + b^2 + c^2)
+$$
+
+<PlaneTest against="sphere" />
+
+<CodeGroup>
+
+```ts
+function spherePlaneCollide(s: Sphere, plane: Plane): boolean {
+	return side(s, plane) ** 2 <= s.r ** 2 * (plane.a ** 2 + plane.b ** 2 + plane.c ** 2);
+}
+```
+
+```js
+function spherePlaneCollide(s, plane) {
+	return side(s, plane) ** 2 <= s.r ** 2 * (plane.a ** 2 + plane.b ** 2 + plane.c ** 2);
+}
+```
+
+```py
+def sphere_plane_collide(s: Sphere, plane: Plane) -> bool:
+    return side(s, plane) ** 2 <= s.r ** 2 * (plane.a ** 2 + plane.b ** 2 + plane.c ** 2)
+```
+
+</CodeGroup>
+
+<Complexity items={[{'name': 'spherePlaneCollide', 'time': 'O(1)', 'space': 'O(1)'}]} />
+
+For the floor, $y = 0$, it boils down to $|y_{S}| \le r$. A floor or a wall usually has only one side that matters, though: a ball that ends up below the floor has gone through it, and that should count as a hit too. For that, drop the square and the absolute value, and test $\operatorname{side}(S) \le r\sqrt{a^2 + b^2 + c^2}$, and everything behind the plane counts as a hit.
+
+## Box vs plane
+
+Project the box onto the normal, the way Part I projected polygons onto an axis for the separating axis test. The centre $C$ of the box lands at $\operatorname{side}(C)$, and the corners spread out around it by at most
+
+$$
+\text{reach} = \frac{w}{2}|a| + \frac{h}{2}|b| + \frac{d}{2}|c|
+$$
+
+Each half-size of the box counts as much as the normal leans along that axis, and the absolute values make every one of them count outwards. The box touches the plane when the plane is within its reach:
+
+$$
+|\operatorname{side}(C)| \le \text{reach}
+$$
+
+In the figure, the bar through the centre is the box's reach along $\mathbf{n}$, and the white dot is the corner that reaches the plane first. The box touches the plane just as the bar does.
+
+<PlaneTest against="box" />
+
+<CodeGroup>
+
+```ts
+function boxPlaneCollide(box: Box, plane: Plane): boolean {
+	const centre = { x: box.x + box.w / 2, y: box.y + box.h / 2, z: box.z + box.d / 2 };
+	const reach =
+		(box.w / 2) * Math.abs(plane.a) +
+		(box.h / 2) * Math.abs(plane.b) +
+		(box.d / 2) * Math.abs(plane.c);
+	return Math.abs(side(centre, plane)) <= reach;
+}
+```
+
+```js
+function boxPlaneCollide(box, plane) {
+	const centre = { x: box.x + box.w / 2, y: box.y + box.h / 2, z: box.z + box.d / 2 };
+	const reach =
+		(box.w / 2) * Math.abs(plane.a) +
+		(box.h / 2) * Math.abs(plane.b) +
+		(box.d / 2) * Math.abs(plane.c);
+	return Math.abs(side(centre, plane)) <= reach;
+}
+```
+
+```py
+def box_plane_collide(box: Box, plane: Plane) -> bool:
+    centre = Vec3(box.x + box.w / 2, box.y + box.h / 2, box.z + box.d / 2)
+    reach = (
+        box.w / 2 * abs(plane.a)
+        + box.h / 2 * abs(plane.b)
+        + box.d / 2 * abs(plane.c)
+    )
+    return abs(side(centre, plane)) <= reach
+```
+
+</CodeGroup>
+
+<Complexity items={[{'name': 'boxPlaneCollide', 'time': 'O(1)', 'space': 'O(1)'}]} />
+
+This is the separating axis test with a single axis, the normal: a plane is flat, so its own shadow on the normal is a single point, $0$, and the box either covers it or it doesn't.
