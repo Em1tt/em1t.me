@@ -433,4 +433,4 @@ def ray_box(origin: Vec3, direction: Vec3, box: Box) -> float | None:
 
 Starting `near` at $0$ instead of $-\infty$ is what makes it a ray: a box behind the origin makes `far` negative, and the test fails. A ray that starts inside the box gets $t = 0$.
 
-That's as far as Part II goes for now. Triangles, the separating axis test in 3D, and all of Part II's functions in one file come next.
+Next: triangles, the shape everything in 3D is made of.

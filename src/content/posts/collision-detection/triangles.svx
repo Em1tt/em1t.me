@@ -1,0 +1,276 @@
+---
+title: Triangles
+description: Why everything in 3D is made of triangles, their normal and area, which way they face, and a point, a ray and a sphere against a triangle.
+part: 3D
+order: 106
+published: true
+---
+
+<script>
+  import CodeGroup from '$lib/components/CodeGroup.svelte';
+  import Complexity from '$lib/components/Complexity.svelte';
+  import TriangleTest from '$lib/components/posts/space/TriangleTest.svelte';
+</script>
+
+Everything a graphics card draws is made of triangles, and so is most collision geometry: a character, a rock, the ground they stand on. There's a good reason. Three points that aren't on one line always lie in exactly one plane, so a triangle is always flat, wherever its corners go. Four points usually aren't in one plane, which is why a square in a 3D model is two triangles.
+
+This chapter uses functions from all the chapters of Part II before it.
+
+## A triangle's normal and area
+
+A triangle with corners $A$, $B$ and $C$ lies in the plane through them, from the chapter on planes, and its normal is the cross product
+
+$$
+\mathbf{n} = \overrightarrow{AB} \times \overrightarrow{AC}
+$$
+
+The length of $\mathbf{n}$ is the area of the parallelogram that $\overrightarrow{AB}$ and $\overrightarrow{AC}$ span, and the triangle is exactly half of it:
+
+$$
+\text{area} = \frac{|\overrightarrow{AB} \times \overrightarrow{AC}|}{2}
+$$
+
+Which way $\mathbf{n}$ points depends on the order of the corners: swap $B$ and $C$, and it flips. List the corners counterclockwise as you look at the side you want to be the front, and $\mathbf{n}$ points towards you. This is the triangle's **winding order**, and engines rely on it: a triangle whose normal points away from the camera is showing its back, and usually isn't drawn at all. Unity, with its left-handed axes, has it the other way round: there, clockwise is the front.
+
+<CodeGroup>
+
+```ts
+type Triangle = { a: Vec3; b: Vec3; c: Vec3 };
+
+function triangleNormal(tri: Triangle): Vec3 {
+	return cross(subtract(tri.b, tri.a), subtract(tri.c, tri.a));
+}
+
+function triangleArea(tri: Triangle): number {
+	const n = triangleNormal(tri);
+	return Math.hypot(n.x, n.y, n.z) / 2;
+}
+```
+
+```js
+// A triangle is an object like { a: { x: 0, y: 0, z: 0 }, b: { x: 1, y: 0, z: 0 }, c: { x: 0, y: 1, z: 0 } }.
+function triangleNormal(tri) {
+	return cross(subtract(tri.b, tri.a), subtract(tri.c, tri.a));
+}
+
+function triangleArea(tri) {
+	const n = triangleNormal(tri);
+	return Math.hypot(n.x, n.y, n.z) / 2;
+}
+```
+
+```py
+@dataclass
+class Triangle:
+    a: Vec3
+    b: Vec3
+    c: Vec3
+
+
+def triangle_normal(tri: Triangle) -> Vec3:
+    return cross(subtract(tri.b, tri.a), subtract(tri.c, tri.a))
+
+
+def triangle_area(tri: Triangle) -> float:
+    n = triangle_normal(tri)
+    return math.hypot(n.x, n.y, n.z) / 2
+```
+
+</CodeGroup>
+
+<Complexity items={[{'name': 'triangleNormal', 'time': 'O(1)', 'space': 'O(1)'}, {'name': 'triangleArea', 'time': 'O(1)', 'space': 'O(1)'}]} />
+
+## Point in triangle
+
+A point is inside a triangle when it's on the inner side of all three edges. That's the [convex polygon test](/blog/collision-detection/convex-polygons) from Part I, where the sign of `side` told the two sides of an edge apart. In space, an edge has no left or right of its own, but the cross product gives it one. For the edge from $A$ to $B$, the vector $\overrightarrow{AB} \times \overrightarrow{AP}$ points the same way as $\mathbf{n}$ when $P$ is on the inner side of the edge, and the opposite way when $P$ is on the outer side. Its dot product with $\mathbf{n}$ says which:
+
+$$
+(\overrightarrow{AB} \times \overrightarrow{AP}) \cdot \mathbf{n} \ge 0
+$$
+
+The same goes for the edges $BC$ and $CA$, going round the triangle in the same order.
+
+If $P$ isn't in the triangle's plane at all, the test still works. It answers for $Q$, the point straight below or above $P$ in the plane, because moving $P$ along $\mathbf{n}$ doesn't change any of the three values. So it also tells you whether a point is over or under a triangle, like whether a character is standing above this piece of floor.
+
+<TriangleTest against="point" />
+
+<CodeGroup>
+
+```ts
+function pointInTriangle(p: Vec3, tri: Triangle): boolean {
+	const n = triangleNormal(tri);
+	return (
+		dot(cross(subtract(tri.b, tri.a), subtract(p, tri.a)), n) >= 0 &&
+		dot(cross(subtract(tri.c, tri.b), subtract(p, tri.b)), n) >= 0 &&
+		dot(cross(subtract(tri.a, tri.c), subtract(p, tri.c)), n) >= 0
+	);
+}
+```
+
+```js
+function pointInTriangle(p, tri) {
+	const n = triangleNormal(tri);
+	return (
+		dot(cross(subtract(tri.b, tri.a), subtract(p, tri.a)), n) >= 0 &&
+		dot(cross(subtract(tri.c, tri.b), subtract(p, tri.b)), n) >= 0 &&
+		dot(cross(subtract(tri.a, tri.c), subtract(p, tri.c)), n) >= 0
+	);
+}
+```
+
+```py
+def point_in_triangle(p: Vec3, tri: Triangle) -> bool:
+    n = triangle_normal(tri)
+    return (
+        dot(cross(subtract(tri.b, tri.a), subtract(p, tri.a)), n) >= 0
+        and dot(cross(subtract(tri.c, tri.b), subtract(p, tri.b)), n) >= 0
+        and dot(cross(subtract(tri.a, tri.c), subtract(p, tri.c)), n) >= 0
+    )
+```
+
+</CodeGroup>
+
+<Complexity items={[{'name': 'pointInTriangle', 'time': 'O(1)', 'space': 'O(1)'}]} />
+
+One catch: a triangle whose corners are on one line has no area and a zero normal, so all three values are $0$, and every point passes. Leave such triangles out, or check `triangleArea` first.
+
+## Ray vs triangle
+
+Put the last two chapters together: find where the ray meets the triangle's plane, then check whether that point is inside the triangle.
+
+<TriangleTest against="ray" />
+
+<CodeGroup>
+
+```ts
+function rayTriangle(origin: Vec3, direction: Vec3, tri: Triangle): number | null {
+	const t = rayPlane(origin, direction, planeThrough(tri.a, tri.b, tri.c));
+	if (t === null) return null;
+	return pointInTriangle(along(origin, direction, t), tri) ? t : null;
+}
+```
+
+```js
+function rayTriangle(origin, direction, tri) {
+	const t = rayPlane(origin, direction, planeThrough(tri.a, tri.b, tri.c));
+	if (t === null) return null;
+	return pointInTriangle(along(origin, direction, t), tri) ? t : null;
+}
+```
+
+```py
+def ray_triangle(origin: Vec3, direction: Vec3, tri: Triangle) -> float | None:
+    t = ray_plane(origin, direction, plane_through(tri.a, tri.b, tri.c))
+    if t is None:
+        return None
+    return t if point_in_triangle(along(origin, direction, t), tri) else None
+```
+
+</CodeGroup>
+
+<Complexity items={[{'name': 'rayTriangle', 'time': 'O(1)', 'space': 'O(1)'}]} />
+
+This is how clicking on a 3D model works: cast a ray from the camera through the mouse cursor, test it against the model's triangles, and the smallest $t$ is what you clicked. Engines often use the **Möller–Trumbore algorithm** for it, which gets the same answer with fewer operations, by working out $t$ and the position within the triangle in one go.
+
+## Closest point on a triangle
+
+Drop the point $P$ straight onto the triangle's plane. If it lands inside the triangle, that's the closest point, because the straight line down is the shortest way to the plane. If it lands outside, the closest point is on the triangle's outline, so it's the nearest of the closest points on its three edges, from `closestPointOnSegment` in the chapter on rays and segments.
+
+Dropping $P$ onto the plane is a move along the normal. Moving $P$ by one whole $\mathbf{n}$ changes $\operatorname{side}(P)$ by $\mathbf{n} \cdot \mathbf{n}$, so it takes $\frac{\operatorname{side}(P)}{\mathbf{n} \cdot \mathbf{n}}$ of them, backwards, to bring the side value to $0$:
+
+$$
+Q = P - \frac{\operatorname{side}(P)}{\mathbf{n} \cdot \mathbf{n}}\,\mathbf{n}
+$$
+
+<CodeGroup>
+
+```ts
+function closestPointOnTriangle(p: Vec3, tri: Triangle): Vec3 {
+	const n = triangleNormal(tri);
+	const lengthSquared = dot(n, n);
+	if (lengthSquared > 0) {
+		// Straight down onto the triangle's plane.
+		const onPlane = along(p, n, -side(p, planeAt(tri.a, n)) / lengthSquared);
+		if (pointInTriangle(onPlane, tri)) return onPlane;
+	}
+	// Otherwise, the nearest point of the three edges.
+	const edges = [
+		closestPointOnSegment(p, tri.a, tri.b),
+		closestPointOnSegment(p, tri.b, tri.c),
+		closestPointOnSegment(p, tri.c, tri.a)
+	];
+	return edges.reduce((best, q) => (distanceSquared(p, q) < distanceSquared(p, best) ? q : best));
+}
+```
+
+```js
+function closestPointOnTriangle(p, tri) {
+	const n = triangleNormal(tri);
+	const lengthSquared = dot(n, n);
+	if (lengthSquared > 0) {
+		// Straight down onto the triangle's plane.
+		const onPlane = along(p, n, -side(p, planeAt(tri.a, n)) / lengthSquared);
+		if (pointInTriangle(onPlane, tri)) return onPlane;
+	}
+	// Otherwise, the nearest point of the three edges.
+	const edges = [
+		closestPointOnSegment(p, tri.a, tri.b),
+		closestPointOnSegment(p, tri.b, tri.c),
+		closestPointOnSegment(p, tri.c, tri.a)
+	];
+	return edges.reduce((best, q) => (distanceSquared(p, q) < distanceSquared(p, best) ? q : best));
+}
+```
+
+```py
+def closest_point_on_triangle(p: Vec3, tri: Triangle) -> Vec3:
+    n = triangle_normal(tri)
+    length_squared = dot(n, n)
+    if length_squared > 0:
+        # Straight down onto the triangle's plane.
+        on_plane = along(p, n, -side(p, plane_at(tri.a, n)) / length_squared)
+        if point_in_triangle(on_plane, tri):
+            return on_plane
+    # Otherwise, the nearest point of the three edges.
+    edges = [
+        closest_point_on_segment(p, tri.a, tri.b),
+        closest_point_on_segment(p, tri.b, tri.c),
+        closest_point_on_segment(p, tri.c, tri.a),
+    ]
+    return min(edges, key=lambda q: distance_squared(p, q))
+```
+
+</CodeGroup>
+
+<Complexity items={[{'name': 'closestPointOnTriangle', 'time': 'O(1)', 'space': 'O(1)'}]} />
+
+## Sphere vs triangle
+
+With the closest point, it's point vs sphere once more. Move the sphere around the triangle below and watch $Q$ slide over the face, along the edges and into the corners.
+
+<TriangleTest against="sphere" />
+
+<CodeGroup>
+
+```ts
+function sphereTriangleCollide(s: Sphere, tri: Triangle): boolean {
+	return pointInSphere(closestPointOnTriangle(s, tri), s);
+}
+```
+
+```js
+function sphereTriangleCollide(s, tri) {
+	return pointInSphere(closestPointOnTriangle(s, tri), s);
+}
+```
+
+```py
+def sphere_triangle_collide(s: Sphere, tri: Triangle) -> bool:
+    return point_in_sphere(closest_point_on_triangle(s, tri), s)
+```
+
+</CodeGroup>
+
+<Complexity items={[{'name': 'sphereTriangleCollide', 'time': 'O(1)', 'space': 'O(1)'}]} />
+
+Test a sphere against every triangle of a mesh, and it can roll over uneven ground or bump into walls of any shape. Most of those shapes don't arrive as triangles, though. They arrive as polygons with more corners, and the next chapter splits them up.

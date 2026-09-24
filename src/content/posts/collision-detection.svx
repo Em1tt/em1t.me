@@ -10,7 +10,6 @@ categories:
 status: work in progress
 featured: true
 published: true
-coming: 'Still to come in Part II: triangles, the separating axis test in 3D, and all the functions in one file.'
 ---
 
 <script>

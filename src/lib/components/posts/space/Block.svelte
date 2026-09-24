@@ -1,27 +1,39 @@
 <!--
 	A box in a 3D figure, as in a textbook: the faces turned towards you shaded, the edges hidden
-	behind the box dashed, and its footprint on the floor below it.
+	behind the box dashed, and, for a box along the axes, its footprint on the floor below it.
+	Give it `box` for an axis-aligned box, or `oriented` for a turned one.
 -->
 <script lang="ts">
-	import type { Box, Vec3 } from './space';
+	import { add, scale, type Box, type OrientedBox, type Vec3 } from './space';
 	import type { View } from './view';
 
-	type Props = { view: View; box: Box; color: string; shadow?: boolean };
-	let { view, box, color, shadow = true }: Props = $props();
+	type Props = { view: View; box?: Box; oriented?: OrientedBox; color: string; shadow?: boolean };
+	let { view, box, oriented, color, shadow = true }: Props = $props();
 
-	// Corner i has bit 1 set for the far end along x, 2 along y, 4 along z.
-	const corners = $derived(
-		Array.from({ length: 8 }, (_, i) => ({
-			x: box.x + (i & 1 ? box.w : 0),
-			y: box.y + (i & 2 ? box.h : 0),
-			z: box.z + (i & 4 ? box.d : 0)
-		}))
+	const X = { x: 1, y: 0, z: 0 };
+	const Y = { x: 0, y: 1, z: 0 };
+	const Z = { x: 0, y: 0, z: 1 };
+	// Both kinds as a centre, three axes and half-sizes.
+	const frame = $derived(
+		oriented ??
+			({
+				centre: { x: box!.x + box!.w / 2, y: box!.y + box!.h / 2, z: box!.z + box!.d / 2 },
+				axes: [X, Y, Z],
+				half: [box!.w / 2, box!.h / 2, box!.d / 2]
+			} satisfies OrientedBox)
 	);
-	const normal = (bit: number, far: boolean): Vec3 => ({
-		x: bit === 1 ? (far ? 1 : -1) : 0,
-		y: bit === 2 ? (far ? 1 : -1) : 0,
-		z: bit === 4 ? (far ? 1 : -1) : 0
-	});
+	// Corner i is on the far side along the box's first axis when bit 1 is set, second axis for
+	// bit 2, third for bit 4.
+	const corners = $derived(
+		Array.from({ length: 8 }, (_, i) =>
+			[1, 2, 4].reduce(
+				(p, bit, k) => add(p, scale(frame.axes[k], (i & bit ? 1 : -1) * frame.half[k])),
+				frame.centre
+			)
+		)
+	);
+	const normal = (bit: number, far: boolean): Vec3 =>
+		scale(frame.axes[[1, 2, 4].indexOf(bit)], far ? 1 : -1);
 	const FACES = [
 		{ bit: 1, far: false, corners: [0, 4, 6, 2] },
 		{ bit: 1, far: true, corners: [1, 3, 7, 5] },
@@ -49,7 +61,7 @@
 				face.corners.map((i) => corners[i]),
 				true
 			),
-			top: face.bit === 2 && face.far
+			top: normal(face.bit, face.far).y > 0.7
 		}))
 	);
 	const edges = $derived(
@@ -59,18 +71,27 @@
 		}))
 	);
 	const footprint = $derived(
-		view.path(
-			[0, 1, 5, 4].map((i) => ({ ...corners[i], y: 0 })),
-			true
-		)
+		box
+			? view.path(
+					[0, 1, 5, 4].map((i) => ({ ...corners[i], y: 0 })),
+					true
+				)
+			: ''
 	);
 </script>
 
-{#if shadow && box.y > 0.02}
+{#if shadow && box && box.y > 0.02}
 	<path
 		d={footprint}
 		fill="rgb(148 163 184 / 0.07)"
 		stroke="rgb(148 163 184 / 0.3)"
+		stroke-dasharray="4 4"
+		pointer-events="none"
+	/>
+{:else if shadow && oriented && oriented.centre.y > 0.02}
+	<path
+		d={view.path([oriented.centre, { ...oriented.centre, y: 0 }])}
+		stroke="rgb(148 163 184 / 0.45)"
 		stroke-dasharray="4 4"
 		pointer-events="none"
 	/>

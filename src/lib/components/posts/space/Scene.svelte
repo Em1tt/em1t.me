@@ -19,6 +19,10 @@
 		floor?: number;
 		/** How far up the y-axis goes. */
 		height?: number;
+		/** The figure's own buttons, in its top left corner. */
+		controls?: Snippet;
+		/** Sliders and such, in a row under the figure. */
+		settings?: Snippet;
 		children: Snippet;
 	};
 
@@ -30,6 +34,8 @@
 		readout,
 		floor = 3,
 		height = 3.4,
+		controls,
+		settings,
 		children
 	}: Props = $props();
 
@@ -137,6 +143,13 @@
 			{/if}
 			{@render children()}
 		</svg>
+		{#if controls}
+			<div
+				class="google-sans-code-400 absolute top-2 left-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-slate-300"
+			>
+				{@render controls()}
+			</div>
+		{/if}
 		<div class="absolute top-2 right-2 flex gap-1">
 			<button
 				type="button"
@@ -154,6 +167,13 @@
 			>
 		</div>
 	</div>
+	{#if settings}
+		<div
+			class="google-sans-code-400 mt-2 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-slate-300"
+		>
+			{@render settings()}
+		</div>
+	{/if}
 	{#if caption || readout}
 		<figcaption class="google-sans-code-400 mt-2 text-xs leading-relaxed text-slate-400">
 			{caption}
