@@ -8,6 +8,7 @@ published: true
 
 <script>
   import CodeGroup from '$lib/components/CodeGroup.svelte';
+  import Complexity from '$lib/components/Complexity.svelte';
   import Midpoint from '$lib/components/posts/geometry/Midpoint.svelte';
 </script>
 
@@ -41,6 +42,8 @@ def midpoint(a: Point, b: Point) -> Point:
 ```
 
 </CodeGroup>
+
+<Complexity items={[{'name': 'midpoint', 'time': 'O(1)', 'space': 'O(1)'}]} />
 
 ## Where it's useful
 

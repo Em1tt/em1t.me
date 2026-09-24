@@ -94,3 +94,45 @@
 	max-width: none;
 	margin: 1.6em 0 2em;
 }
+.post-body table {
+	display: block;
+	max-width: 100%;
+	margin: 0.4em 0 1.6em;
+	overflow-x: auto;
+	border-collapse: collapse;
+	font-size: 0.86em;
+	line-height: 1.55;
+}
+.post-body th,
+.post-body td {
+	min-width: 9em;
+	padding: 0.65em 0.85em;
+	border: 1px solid rgb(148 163 184 / 0.28);
+	text-align: left;
+	vertical-align: top;
+}
+.post-body thead th {
+	background: #0c0a1a;
+	font-family: 'Google Sans Code', monospace;
+	font-weight: 500;
+	font-size: 12px;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: #e2e8f0;
+}
+/* The first column names each row, like a header. */
+.post-body tbody td:first-child {
+	background: #0c0a1a;
+	font-family: 'Google Sans Code', monospace;
+	font-size: 12px;
+	letter-spacing: 0.04em;
+	color: #94a3b8;
+}
+.post-body tbody tr:nth-child(even) td:not(:first-child) {
+	background: rgb(148 163 184 / 0.04);
+}
+/* A code example with its complexity list underneath reads as one box. */
+.post-body .code-group:has(+ .complexity),
+.post-body figure.code:has(+ .complexity) {
+	margin-bottom: 0;
+}

@@ -1,5 +1,5 @@
 ---
-title: Collision detection for beginners (with TypeScript examples)
+title: Collision detection for beginners (with code examples)
 description: A short book on collision detection, built on analytic geometry. Each chapter turns one idea into a collision test, with demos and code in TypeScript, JavaScript and Python.
 date: '2025-09-11'
 categories:
@@ -54,3 +54,9 @@ def greet(name: str) -> str:
 ```
 
 </CodeGroup>
+
+## Time and space complexity
+
+Every function in this book comes with its **time** and **space complexity**, in big-O notation. Time complexity says how the number of steps grows as the input grows, and space complexity how much extra memory a function needs on top of its input.
+
+$O(1)$ means it doesn't grow at all: comparing two circles takes the same handful of steps however big they are, or however far apart. The polygon chapters count vertices: with $n$ of them, $O(n)$ grows in step with $n$, and $O(n^2)$ with its square, so twice the vertices means four times the work.

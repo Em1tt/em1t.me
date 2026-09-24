@@ -1,0 +1,368 @@
+---
+title: Convex polygons
+description: Convex polygons against a point, a line, another polygon, a rectangle, a segment and a circle, with the separating axis theorem at the centre.
+part: 2D
+order: 8
+published: true
+---
+
+<script>
+  import CodeGroup from '$lib/components/CodeGroup.svelte';
+  import Complexity from '$lib/components/Complexity.svelte';
+  import ConvexTest from '$lib/components/posts/geometry/ConvexTest.svelte';
+</script>
+
+## Convex polygons
+
+A polygon is a list of corner points, its **vertices**, in order around its outline. It's **convex** when it has no dents: a segment between any two of its points stays inside it, and walking around the outline, you always turn the same way. Rectangles, triangles and regular hexagons are convex; a star or an L-shape isn't. Every test in this chapter relies on that. The next chapter is about polygons with dents.
+
+In this chapter's complexity notes, $n$ is the number of vertices of the polygon, and $m$ the number of vertices of the other shape.
+
+A polygon's **edges** are the segments between neighbouring vertices, with the last vertex joining back to the first:
+
+<CodeGroup>
+
+```ts
+type Polygon = Point[]; // vertices in order around the outline
+
+// Each edge as a pair of vertices; the last vertex joins back to the first.
+function edges(polygon: Polygon): [Point, Point][] {
+	return polygon.map((a, i) => [a, polygon[(i + 1) % polygon.length]]);
+}
+```
+
+```js
+// A polygon is an array of points, its vertices in order around the outline.
+
+// Each edge as a pair of vertices; the last vertex joins back to the first.
+function edges(polygon) {
+	return polygon.map((a, i) => [a, polygon[(i + 1) % polygon.length]]);
+}
+```
+
+```py
+Polygon = list[Point]  # vertices in order around the outline
+
+
+def edges(polygon: Polygon) -> list[tuple[Point, Point]]:
+    """Each edge as a pair of vertices; the last vertex joins back to the first."""
+    return list(zip(polygon, polygon[1:] + polygon[:1]))
+```
+
+</CodeGroup>
+
+<Complexity items={[{'name': 'edges', 'time': 'O(n)', 'space': 'O(n)', 'note': 'a list with one pair per edge'}]} />
+
+## Polygon vs point
+
+In a convex polygon, the whole polygon lies on one side of every edge's line. So a point is inside when it's on the polygon's side of every edge. We don't even need to know which side that is: the point is inside exactly when the side values from the lines chapter **agree in sign** for every edge. A $0$ means the point is on an edge, which counts as inside. And it doesn't matter which way round the vertices go.
+
+<ConvexTest against="point" />
+
+<CodeGroup>
+
+```ts
+function pointInConvexPolygon(p: Point, polygon: Polygon): boolean {
+	const values = edges(polygon).map(([a, b]) => side(p, lineThrough(a, b)));
+	// Inside when the signs agree; zeros, on an edge, count as inside.
+	return !(values.some((v) => v > 0) && values.some((v) => v < 0));
+}
+```
+
+```js
+function pointInConvexPolygon(p, polygon) {
+	const values = edges(polygon).map(([a, b]) => side(p, lineThrough(a, b)));
+	// Inside when the signs agree; zeros, on an edge, count as inside.
+	return !(values.some((v) => v > 0) && values.some((v) => v < 0));
+}
+```
+
+```py
+def point_in_convex_polygon(p: Point, polygon: Polygon) -> bool:
+    values = [side(p, line_through(a, b)) for a, b in edges(polygon)]
+    # Inside when the signs agree; zeros, on an edge, count as inside.
+    return not (any(v > 0 for v in values) and any(v < 0 for v in values))
+```
+
+</CodeGroup>
+
+<Complexity items={[{'name': 'pointInConvexPolygon', 'time': 'O(n)', 'space': 'O(n)', 'note': 'it keeps one side value per edge; a loop with two flags needs only O(1) space'}]} />
+
+## Polygon vs line
+
+A line misses a polygon when every vertex is on the same side of it. As soon as there are vertices on both sides, the outline has to cross the line somewhere between them. This test doesn't even need the polygon to be convex.
+
+<ConvexTest against="line" />
+
+<CodeGroup>
+
+```ts
+function polygonLineCollide(polygon: Polygon, line: Line): boolean {
+	const values = polygon.map((vertex) => side(vertex, line));
+	return Math.min(...values) <= 0 && Math.max(...values) >= 0;
+}
+```
+
+```js
+function polygonLineCollide(polygon, line) {
+	const values = polygon.map((vertex) => side(vertex, line));
+	return Math.min(...values) <= 0 && Math.max(...values) >= 0;
+}
+```
+
+```py
+def polygon_line_collide(polygon: Polygon, line: Line) -> bool:
+    values = [side(vertex, line) for vertex in polygon]
+    return min(values) <= 0 <= max(values)
+```
+
+</CodeGroup>
+
+<Complexity items={[{'name': 'polygonLineCollide', 'time': 'O(n)', 'space': 'O(n)', 'note': 'one value per vertex; a running minimum and maximum need only O(1) space'}]} />
+
+## The separating axis theorem
+
+The rectangle test checked the $x$-axis and the $y$-axis, and said the rectangles were apart when either axis showed a gap. That idea works for any two convex shapes, at any angle:
+
+> Two convex shapes don't touch exactly when there's a line you can slide between them.
+
+Look along that gap and turn it into an axis perpendicular to it: each shape casts an interval onto the axis, its shadow, and the two shadows don't overlap. That axis is a **separating axis**. For two convex polygons you don't have to search every direction, either. It's enough to try the axes perpendicular to their edges, the **edge normals**, the same $(a, b)$ as in the lines chapter. If every one of those axes shows the shadows overlapping, the polygons collide.
+
+A polygon's shadow on an axis runs from its smallest to its largest dot product with the axis: project every vertex, and keep the extremes. The axis doesn't even need length $1$, because both polygons are measured with the same one.
+
+<ConvexTest against="polygon" />
+
+<CodeGroup>
+
+```ts
+// One axis per edge: the edge's normal, like (a, b) in the lines chapter.
+function axes(polygon: Polygon): Point[] {
+	return edges(polygon).map(([p1, p2]) => ({ x: p2.y - p1.y, y: p1.x - p2.x }));
+}
+
+// The polygon's shadow on an axis, as an interval.
+function project(polygon: Polygon, axis: Point): [number, number] {
+	const values = polygon.map((vertex) => dot(vertex, axis));
+	return [Math.min(...values), Math.max(...values)];
+}
+
+function convexPolygonsCollide(a: Polygon, b: Polygon): boolean {
+	for (const axis of [...axes(a), ...axes(b)]) {
+		const [aMin, aMax] = project(a, axis);
+		const [bMin, bMax] = project(b, axis);
+		if (!overlap(aMin, aMax, bMin, bMax)) return false; // a gap: they're apart
+	}
+	return true;
+}
+```
+
+```js
+// One axis per edge: the edge's normal, like (a, b) in the lines chapter.
+function axes(polygon) {
+	return edges(polygon).map(([p1, p2]) => ({ x: p2.y - p1.y, y: p1.x - p2.x }));
+}
+
+// The polygon's shadow on an axis, as an interval.
+function project(polygon, axis) {
+	const values = polygon.map((vertex) => dot(vertex, axis));
+	return [Math.min(...values), Math.max(...values)];
+}
+
+function convexPolygonsCollide(a, b) {
+	for (const axis of [...axes(a), ...axes(b)]) {
+		const [aMin, aMax] = project(a, axis);
+		const [bMin, bMax] = project(b, axis);
+		if (!overlap(aMin, aMax, bMin, bMax)) return false; // a gap: they're apart
+	}
+	return true;
+}
+```
+
+```py
+def axes(polygon: Polygon) -> list[Point]:
+    """One axis per edge: the edge's normal, like (a, b) in the lines chapter."""
+    return [Point(p2.y - p1.y, p1.x - p2.x) for p1, p2 in edges(polygon)]
+
+
+def project(polygon: Polygon, axis: Point) -> tuple[float, float]:
+    """The polygon's shadow on an axis, as an interval."""
+    values = [dot(vertex, axis) for vertex in polygon]
+    return min(values), max(values)
+
+
+def convex_polygons_collide(a: Polygon, b: Polygon) -> bool:
+    for axis in axes(a) + axes(b):
+        a_min, a_max = project(a, axis)
+        b_min, b_max = project(b, axis)
+        if not overlap(a_min, a_max, b_min, b_max):
+            return False  # a gap: they're apart
+    return True
+```
+
+</CodeGroup>
+
+<Complexity items={[{'name': 'axes', 'time': 'O(n)', 'space': 'O(n)'}, {'name': 'project', 'time': 'O(n)', 'space': 'O(n)', 'note': 'the list of values; tracking the minimum and maximum as you go needs only O(1) space'}, {'name': 'convexPolygonsCollide', 'time': 'O((n + m)²)', 'space': 'O(n + m)', 'note': 'n + m axes, each projecting all n + m vertices; shapes that are apart usually stop at an early axis'}]} />
+
+A rectangle has four edges but only two different normals, so the loop tests some axes twice. That's harmless; skip the duplicates once it matters.
+
+## Polygon vs rectangle
+
+A rectangle is a polygon with four vertices, so turn it into one and run the same test. If the polygon is an axis-aligned rectangle as well, the rectangle test from chapter 5 is quicker.
+
+<ConvexTest against="rect" />
+
+<CodeGroup>
+
+```ts
+function rectToPolygon(rect: Rect): Polygon {
+	return [
+		{ x: rect.x, y: rect.y },
+		{ x: rect.x + rect.w, y: rect.y },
+		{ x: rect.x + rect.w, y: rect.y + rect.h },
+		{ x: rect.x, y: rect.y + rect.h }
+	];
+}
+
+function convexPolygonRectCollide(polygon: Polygon, rect: Rect): boolean {
+	return convexPolygonsCollide(polygon, rectToPolygon(rect));
+}
+```
+
+```js
+function rectToPolygon(rect) {
+	return [
+		{ x: rect.x, y: rect.y },
+		{ x: rect.x + rect.w, y: rect.y },
+		{ x: rect.x + rect.w, y: rect.y + rect.h },
+		{ x: rect.x, y: rect.y + rect.h }
+	];
+}
+
+function convexPolygonRectCollide(polygon, rect) {
+	return convexPolygonsCollide(polygon, rectToPolygon(rect));
+}
+```
+
+```py
+def rect_to_polygon(rect: Rect) -> Polygon:
+    return [
+        Point(rect.x, rect.y),
+        Point(rect.x + rect.w, rect.y),
+        Point(rect.x + rect.w, rect.y + rect.h),
+        Point(rect.x, rect.y + rect.h),
+    ]
+
+
+def convex_polygon_rect_collide(polygon: Polygon, rect: Rect) -> bool:
+    return convex_polygons_collide(polygon, rect_to_polygon(rect))
+```
+
+</CodeGroup>
+
+<Complexity items={[{'name': 'rectToPolygon', 'time': 'O(1)', 'space': 'O(1)'}, {'name': 'convexPolygonRectCollide', 'time': 'O(n²)', 'space': 'O(n)', 'note': 'the separating axis test with m = 4'}]} />
+
+## Polygon vs line segment
+
+A segment is a polygon with just two vertices, and the separating axis test takes it as it is. Its two "edges" are the segment there and back again, and between them they add the segment's normal to the axes, which is the one extra axis a segment needs.
+
+<ConvexTest against="segment" />
+
+<CodeGroup>
+
+```ts
+function convexPolygonSegmentCollide(polygon: Polygon, a: Point, b: Point): boolean {
+	return convexPolygonsCollide(polygon, [a, b]); // a segment is a polygon with two vertices
+}
+```
+
+```js
+function convexPolygonSegmentCollide(polygon, a, b) {
+	return convexPolygonsCollide(polygon, [a, b]); // a segment is a polygon with two vertices
+}
+```
+
+```py
+def convex_polygon_segment_collide(polygon: Polygon, a: Point, b: Point) -> bool:
+    return convex_polygons_collide(polygon, [a, b])  # a segment is a polygon with two vertices
+```
+
+</CodeGroup>
+
+<Complexity items={[{'name': 'convexPolygonSegmentCollide', 'time': 'O(n²)', 'space': 'O(n)', 'note': 'the separating axis test with m = 2'}]} />
+
+## Polygon vs circle
+
+A circle has no edges, so it needs an axis of its own. The one that matters runs from the circle's centre to the polygon's **nearest vertex**. When a circle sits just off a corner of the polygon, every edge normal can show the shadows overlapping even though there's a gap, and that axis is the one that finds it.
+
+A circle's shadow on any axis is its centre's shadow, plus and minus the radius. That only works when the axis has **length 1**, so that $r$ is measured in the same units as the shadow; otherwise the polygon's shadow is scaled by the axis's length and the circle's isn't. So this test normalises its axes first: it divides each one by its length.
+
+<ConvexTest against="circle" />
+
+<CodeGroup>
+
+```ts
+function normalize(v: Point): Point {
+	const length = Math.hypot(v.x, v.y);
+	return { x: v.x / length, y: v.y / length };
+}
+
+function convexPolygonCircleCollide(polygon: Polygon, c: Circle): boolean {
+	const nearest = polygon.reduce((best, v) =>
+		distanceSquared(v, c) < distanceSquared(best, c) ? v : best
+	);
+	if (distanceSquared(nearest, c) === 0) return true; // the centre sits on a vertex
+	// The polygon's edge normals, plus the circle's own axis towards the nearest vertex.
+	for (const axis of [...axes(polygon), subtract(nearest, c)].map(normalize)) {
+		const [min, max] = project(polygon, axis);
+		const centre = dot(c, axis);
+		if (!overlap(min, max, centre - c.r, centre + c.r)) return false;
+	}
+	return true;
+}
+```
+
+```js
+function normalize(v) {
+	const length = Math.hypot(v.x, v.y);
+	return { x: v.x / length, y: v.y / length };
+}
+
+function convexPolygonCircleCollide(polygon, c) {
+	const nearest = polygon.reduce((best, v) =>
+		distanceSquared(v, c) < distanceSquared(best, c) ? v : best
+	);
+	if (distanceSquared(nearest, c) === 0) return true; // the centre sits on a vertex
+	// The polygon's edge normals, plus the circle's own axis towards the nearest vertex.
+	for (const axis of [...axes(polygon), subtract(nearest, c)].map(normalize)) {
+		const [min, max] = project(polygon, axis);
+		const centre = dot(c, axis);
+		if (!overlap(min, max, centre - c.r, centre + c.r)) return false;
+	}
+	return true;
+}
+```
+
+```py
+def normalize(v: Point) -> Point:
+    length = math.hypot(v.x, v.y)
+    return Point(v.x / length, v.y / length)
+
+
+def convex_polygon_circle_collide(polygon: Polygon, c: Circle) -> bool:
+    nearest = min(polygon, key=lambda v: distance_squared(v, c))
+    if distance_squared(nearest, c) == 0:  # the centre sits on a vertex
+        return True
+    # The polygon's edge normals, plus the circle's own axis towards the nearest vertex.
+    for axis in map(normalize, axes(polygon) + [subtract(nearest, c)]):
+        low, high = project(polygon, axis)
+        centre = dot(c, axis)
+        if not overlap(low, high, centre - c.r, centre + c.r):
+            return False
+    return True
+```
+
+</CodeGroup>
+
+<Complexity items={[{'name': 'normalize', 'time': 'O(1)', 'space': 'O(1)'}, {'name': 'convexPolygonCircleCollide', 'time': 'O(n²)', 'space': 'O(n)', 'note': 'O(n) to find the nearest vertex, then n + 1 axes, each projecting all n vertices'}]} />
+
+Every test here has leaned on the polygon being convex. The next chapter shows what goes wrong when it isn't, and what to use instead.

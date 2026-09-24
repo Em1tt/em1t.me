@@ -1,6 +1,6 @@
 ---
 title: Line segments
-description: Vectors and the dot product, projecting a point onto a segment, and circle vs line segment, the test behind walls and platforms.
+description: Vectors and the dot product, projecting a point onto a segment, circle vs segment, line vs segment and segment vs segment, the tests behind walls, platforms and polygon edges.
 part: 2D
 order: 7
 published: true
@@ -8,7 +8,10 @@ published: true
 
 <script>
   import CodeGroup from '$lib/components/CodeGroup.svelte';
+  import Complexity from '$lib/components/Complexity.svelte';
+  import ProjectOntoSegment from '$lib/components/posts/geometry/ProjectOntoSegment.svelte';
   import CircleSegment from '$lib/components/posts/geometry/CircleSegment.svelte';
+  import SegmentSegment from '$lib/components/posts/geometry/SegmentSegment.svelte';
 </script>
 
 A wall in a game isn't an endless line. It starts somewhere and ends somewhere: it's a **line segment**. To test against one, we need one new tool, the dot product.
@@ -68,6 +71,8 @@ def dot(u: Point, v: Point) -> float:
 
 </CodeGroup>
 
+<Complexity items={[{'name': 'subtract', 'time': 'O(1)', 'space': 'O(1)'}, {'name': 'dot', 'time': 'O(1)', 'space': 'O(1)'}]} />
+
 ## Projecting a point onto a segment
 
 Take a segment from $A$ to $B$, its direction $\mathbf{d} = B - A$, and a point $P$. The point of the whole line through $A$ and $B$ that's closest to $P$ is $A + t\,\mathbf{d}$, where
@@ -76,7 +81,11 @@ $$
 t = \frac{(P - A) \cdot \mathbf{d}}{\mathbf{d} \cdot \mathbf{d}}
 $$
 
-$t$ says where along the line that point is: $0$ at $A$, $1$ at $B$, and somewhere in between for points between them. Beyond the ends, $t$ drops below $0$ or rises above $1$. So for the segment, **clamp $t$ into $[0, 1]$**, just like we clamped the circle's centre into the rectangle, and the closest point sits at an end whenever $P$ is past it.
+The top of the fraction is how far $P - A$ reaches along $\mathbf{d}$, and dividing by $\mathbf{d} \cdot \mathbf{d}$ measures that in lengths of the segment. So $t$ says where along the line the closest point is: $0$ at $A$, $1$ at $B$, and in between for points between them. Beyond the ends, $t$ drops below $0$ or rises above $1$, so for the segment, **clamp $t$ into $[0, 1]$**, just like we clamped the circle's centre into the rectangle. Then the closest point sits at an end whenever $P$ is past it.
+
+Drag $P$ past either end of the segment and watch $t$ leave $[0, 1]$: the hollow circle is where the projection lands on the whole line, and $Q$ is where clamping puts it back on the segment.
+
+<ProjectOntoSegment />
 
 <CodeGroup>
 
@@ -112,9 +121,11 @@ def closest_point_on_segment(p: Point, a: Point, b: Point) -> Point:
 
 </CodeGroup>
 
+<Complexity items={[{'name': 'closestPointOnSegment', 'time': 'O(1)', 'space': 'O(1)'}]} />
+
 ## Circle vs line segment
 
-With the closest point $Q$ of the segment, it's a point-in-circle test once more: the circle touches the segment when $|CQ| \le r$. Drag the circle past either end and watch $t$ get clamped.
+With the closest point $Q$ of the segment, it's a point-in-circle test once more: the circle touches the segment when $|CQ| \le r$.
 
 <CircleSegment />
 
@@ -139,4 +150,99 @@ def circle_segment_collide(c: Circle, a: Point, b: Point) -> bool:
 
 </CodeGroup>
 
+<Complexity items={[{'name': 'circleSegmentCollide', 'time': 'O(1)', 'space': 'O(1)'}]} />
+
 This is the test for a ball against a wall, a platform or a paddle, however they're rotated. The set of all points within some distance of a segment even has a name of its own, a **capsule**, and it's a popular shape for game characters for exactly that reason: testing a circle against a capsule is this same test, with the two radii added together.
+
+## Line vs line segment
+
+An endless line and a segment touch when the segment's ends aren't both on the same side of the line. That's the side value from the lines chapter: put both ends into $ax + by + c$, and if the two results have different signs, or one of them is $0$, the segment crosses or touches the line. Multiplying them makes that one comparison: the product is negative or zero exactly then.
+
+<CodeGroup>
+
+```ts
+function lineSegmentCollide(line: Line, a: Point, b: Point): boolean {
+	return side(a, line) * side(b, line) <= 0;
+}
+```
+
+```js
+function lineSegmentCollide(line, a, b) {
+	return side(a, line) * side(b, line) <= 0;
+}
+```
+
+```py
+def line_segment_collide(line: Line, a: Point, b: Point) -> bool:
+    return side(a, line) * side(b, line) <= 0
+```
+
+</CodeGroup>
+
+<Complexity items={[{'name': 'lineSegmentCollide', 'time': 'O(1)', 'space': 'O(1)'}]} />
+
+## Segment vs segment
+
+Two segments $AB$ and $CD$ cross when $C$ and $D$ are on opposite sides of the line through $A$ and $B$, **and** $A$ and $B$ are on opposite sides of the line through $C$ and $D$. One of the two isn't enough: $C$ and $D$ can straddle the line through $AB$ far past the end of $AB$, and the second check is what catches that.
+
+There's one special case. When all four ends lie on one line, every side value is $0$, and the question becomes whether the two segments overlap along that line. That's the interval test from the rectangles chapter, on $x$ and on $y$.
+
+<SegmentSegment />
+
+<CodeGroup>
+
+```ts
+function segmentsIntersect(a: Point, b: Point, c: Point, d: Point): boolean {
+	const ab = lineThrough(a, b);
+	const sc = side(c, ab);
+	const sd = side(d, ab);
+	if (sc === 0 && sd === 0) {
+		// All four ends on one line: they meet only if they overlap along it.
+		return (
+			overlap(Math.min(a.x, b.x), Math.max(a.x, b.x), Math.min(c.x, d.x), Math.max(c.x, d.x)) &&
+			overlap(Math.min(a.y, b.y), Math.max(a.y, b.y), Math.min(c.y, d.y), Math.max(c.y, d.y))
+		);
+	}
+	const cd = lineThrough(c, d);
+	return sc * sd <= 0 && side(a, cd) * side(b, cd) <= 0;
+}
+```
+
+```js
+function segmentsIntersect(a, b, c, d) {
+	const ab = lineThrough(a, b);
+	const sc = side(c, ab);
+	const sd = side(d, ab);
+	if (sc === 0 && sd === 0) {
+		// All four ends on one line: they meet only if they overlap along it.
+		return (
+			overlap(Math.min(a.x, b.x), Math.max(a.x, b.x), Math.min(c.x, d.x), Math.max(c.x, d.x)) &&
+			overlap(Math.min(a.y, b.y), Math.max(a.y, b.y), Math.min(c.y, d.y), Math.max(c.y, d.y))
+		);
+	}
+	const cd = lineThrough(c, d);
+	return sc * sd <= 0 && side(a, cd) * side(b, cd) <= 0;
+}
+```
+
+```py
+def segments_intersect(a: Point, b: Point, c: Point, d: Point) -> bool:
+    ab = line_through(a, b)
+    sc = side(c, ab)
+    sd = side(d, ab)
+    if sc == 0 and sd == 0:
+        # All four ends on one line: they meet only if they overlap along it.
+        return overlap(
+            min(a.x, b.x), max(a.x, b.x), min(c.x, d.x), max(c.x, d.x)
+        ) and overlap(min(a.y, b.y), max(a.y, b.y), min(c.y, d.y), max(c.y, d.y))
+    cd = line_through(c, d)
+    return sc * sd <= 0 and side(a, cd) * side(b, cd) <= 0
+```
+
+</CodeGroup>
+
+<Complexity items={[{'name': 'segmentsIntersect', 'time': 'O(1)', 'space': 'O(1)'}]} />
+
+If you also need **where** they cross, for the point a bullet hits a wall, say, the side values give that away too. Along $AB$, the side value against $CD$ changes evenly from $s_{A}$ at $A$ to $s_{B}$ at $B$, so it reaches $0$ at $t = \frac{s_{A}}{s_{A} - s_{B}}$, and the crossing point is $A + t\,(B - A)$.
+
+These last two tests are exactly what the next two chapters need: a polygon's edges are segments.

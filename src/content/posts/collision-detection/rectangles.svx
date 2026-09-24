@@ -8,6 +8,7 @@ published: true
 
 <script>
   import CodeGroup from '$lib/components/CodeGroup.svelte';
+  import Complexity from '$lib/components/Complexity.svelte';
   import RectRect from '$lib/components/posts/geometry/RectRect.svelte';
   import CircleRect from '$lib/components/posts/geometry/CircleRect.svelte';
 </script>
@@ -40,6 +41,8 @@ def overlap(a1: float, a2: float, b1: float, b2: float) -> bool:
 ```
 
 </CodeGroup>
+
+<Complexity items={[{'name': 'overlap', 'time': 'O(1)', 'space': 'O(1)'}]} />
 
 ## Rectangle vs rectangle
 
@@ -89,6 +92,8 @@ def rects_collide(a: Rect, b: Rect) -> bool:
 ```
 
 </CodeGroup>
+
+<Complexity items={[{'name': 'rectsCollide', 'time': 'O(1)', 'space': 'O(1)'}]} />
 
 AABBs are so cheap that games often wrap complicated shapes in one, and only run the exact test when the boxes overlap.
 
@@ -148,3 +153,5 @@ def circle_rect_collide(c: Circle, rect: Rect) -> bool:
 ```
 
 </CodeGroup>
+
+<Complexity items={[{'name': 'clamp', 'time': 'O(1)', 'space': 'O(1)'}, {'name': 'circleRectCollide', 'time': 'O(1)', 'space': 'O(1)'}]} />
