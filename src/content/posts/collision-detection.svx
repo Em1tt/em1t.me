@@ -19,7 +19,7 @@ coming: Part II · 3D follows once the 2D part is finished.
 
 ## Inspiration
 
-This resource is heavily inspired by [Jeff Thompson's Collision Detection](https://www.jeffreythompson.org/collision-detection). I have worked with it on my own projects for several years now, and it helped me implement my own collision detection.
+This resource is heavily inspired by [Jeff Thompson's Collision Detection](https://www.jeffreythompson.org/collision-detection). I have worked with it on my own projects for several years now, and it helped me implement my own collision detection: every 2D algorithm in this book has been used in [Hallify](/work/hallify), my venue booking platform.
 
 ## Introduction
 
