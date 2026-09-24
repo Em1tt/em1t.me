@@ -1,0 +1,36 @@
+---
+title: Analytic geometry
+description: How a coordinate system turns points and shapes into numbers, which is all a program can work with.
+part: 2D
+order: 1
+published: true
+---
+
+<script>
+  import NumberLine from '$lib/components/posts/geometry/NumberLine.svelte';
+  import ShapesOnGrid from '$lib/components/posts/geometry/ShapesOnGrid.svelte';
+</script>
+
+## What analytic geometry is
+
+Analytic geometry, also called *coordinate geometry* or *Cartesian geometry*, is the branch of mathematics that studies geometric figures using a coordinate system and algebra. It represents points by ordered pairs of numbers, and describes lines, curves and shapes with equations and inequalities.
+
+That is exactly how a game sees the world. A point is two numbers. A circle is a centre and a radius. A rectangle is a range of values on each axis. The rest of this book is about turning those numbers into collision tests.
+
+## Coordinates of a point on a line
+
+A number axis is a line $x$ with a chosen unit and a chosen origin $O$. The origin divides the line into two opposite half-lines, the negative and the positive half-axis. Every point on the line then has exactly one real number, its coordinate.
+
+<NumberLine />
+
+## The Cartesian coordinate system
+
+The Cartesian coordinate system in a plane is two perpendicular number axes, the $x$-axis and the $y$-axis, that intersect at the origin $O$. Every point in the plane is represented by exactly one ordered pair of real numbers $(x, y)$: how far it is along the $x$-axis, and how far along the $y$-axis. In the figure below, the point $A$ has the coordinates $(4, 3)$.
+
+Shapes are numbers too. The circle is its centre $S(-5, 2)$ and its radius, $2$. The rectangle is every point whose $x$ lies between $3$ and $8$ and whose $y$ lies between $-4$ and $-1$.
+
+<ShapesOnGrid />
+
+## Screen coordinates
+
+Screens flip the $y$-axis. On a canvas, $(0, 0)$ is the top-left corner and $y$ grows **downwards**. None of the formulas in this book change because of that, since they only ever use differences and squares; it only matters when you think about which way is up. The interactive demos in the following chapters use screen coordinates.

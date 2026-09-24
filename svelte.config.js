@@ -59,18 +59,37 @@ const langs = [
 ];
 const highlighter = await createHighlighter({ themes: [em1tTheme], langs });
 
+// Fences can use the short names too: ```ts, ```js, ```py.
+const aliases = { ts: 'typescript', js: 'javascript', py: 'python', sh: 'bash', shell: 'bash' };
+// Shown in a code block's header when it has no file name.
+const labels = {
+	javascript: 'JavaScript',
+	typescript: 'TypeScript',
+	python: 'Python',
+	svelte: 'Svelte',
+	html: 'HTML',
+	css: 'CSS',
+	bash: 'Shell',
+	json: 'JSON',
+	jsx: 'JSX',
+	tsx: 'TSX',
+	text: 'Text'
+};
+
 /** @type {import('mdsvex').MdsvexOptions} */
 const mdsvexOptions = {
 	extensions: ['.svx', '.md'],
 	remarkPlugins: [remarkMath],
 	rehypePlugins: [rehypeSlug, rehypeKatexSvelte],
 	highlight: {
-		// ```ts HelloWorld.ts → highlighted code with the file name above it.
+		// ```ts HelloWorld.ts → highlighted code under a header with the file name (or the
+		// language) and a Copy button. The button works through copyCode in src/lib/copyCode.ts.
 		highlighter: async (code, lang = 'text', meta) => {
-			const language = langs.includes(lang) ? lang : 'text';
+			const name = aliases[lang] ?? lang;
+			const language = langs.includes(name) ? name : 'text';
 			const html = highlighter.codeToHtml(code, { lang: language, theme: 'em1t' });
-			const file = meta ? `<figcaption class="code-file">${meta}</figcaption>` : '';
-			return `{@html \`${escapeSvelte(`<figure class="code">${file}${html}</figure>`)}\`}`;
+			const head = `<figcaption class="code-head"><span class="code-file">${meta || labels[language]}</span><button type="button" class="code-copy">Copy</button></figcaption>`;
+			return `{@html \`${escapeSvelte(`<figure class="code" data-lang="${language}">${head}${html}</figure>`)}\`}`;
 		}
 	}
 };

@@ -1,0 +1,101 @@
+---
+title: Circles
+description: The equation of a circle, and the two collision tests that fall out of it, point vs circle and circle vs circle.
+part: 2D
+order: 4
+published: true
+---
+
+<script>
+  import CodeGroup from '$lib/components/CodeGroup.svelte';
+  import PointInCircle from '$lib/components/posts/geometry/PointInCircle.svelte';
+  import CircleCircle from '$lib/components/posts/geometry/CircleCircle.svelte';
+</script>
+
+## The equation of a circle
+
+A circle is the set of all points at the same distance $r$ from its centre $S(a, b)$. Write that sentence with the distance formula, square both sides, and you have the equation of a circle:
+
+$$
+(x - a)^2 + (y - b)^2 = r^2
+$$
+
+Points **inside** the circle are closer to the centre than $r$, so they satisfy the inequality
+
+$$
+(x - a)^2 + (y - b)^2 \le r^2
+$$
+
+## Point vs circle
+
+That inequality already is a collision test. Is the cursor over a round button? Did a bullet hit a round enemy?
+
+<PointInCircle />
+
+<CodeGroup>
+
+```ts
+type Circle = { x: number; y: number; r: number };
+
+function pointInCircle(p: Point, c: Circle): boolean {
+	return distanceSquared(p, c) <= c.r ** 2;
+}
+```
+
+```js
+// A circle is an object like { x: 200, y: 150, r: 40 }.
+function pointInCircle(p, c) {
+	return distanceSquared(p, c) <= c.r ** 2;
+}
+```
+
+```py
+@dataclass
+class Circle:
+    x: float
+    y: float
+    r: float
+
+
+def point_in_circle(p: Point, c: Circle) -> bool:
+    return distance_squared(p, c) <= c.r ** 2
+```
+
+</CodeGroup>
+
+A circle has an $x$ and a $y$ like a point, so the distance functions from the previous chapters take it as it is.
+
+## Circle vs circle
+
+Two circles touch when the distance between their centres is at most the sum of their radii:
+
+$$
+|S_{1}S_{2}| \le r_{1} + r_{2}
+$$
+
+Another way to see it: grow one circle by the other's radius, shrink the other one to a point, and you're back to a point-in-circle test.
+
+<CircleCircle />
+
+<CodeGroup>
+
+```ts
+function circlesCollide(a: Circle, b: Circle): boolean {
+	return distanceSquared(a, b) <= (a.r + b.r) ** 2;
+}
+```
+
+```js
+function circlesCollide(a, b) {
+	return distanceSquared(a, b) <= (a.r + b.r) ** 2;
+}
+```
+
+```py
+def circles_collide(a: Circle, b: Circle) -> bool:
+    return distance_squared(a, b) <= (a.r + b.r) ** 2
+```
+
+</CodeGroup>
+
+The circles on my home page run exactly this test.

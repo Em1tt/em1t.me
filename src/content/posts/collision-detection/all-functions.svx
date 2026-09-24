@@ -1,0 +1,358 @@
+---
+title: All the functions
+description: Every function from Part I in one file, ready to copy, in TypeScript, JavaScript or Python.
+part: 2D
+order: 9
+published: true
+---
+
+<script>
+  import CodeGroup from '$lib/components/CodeGroup.svelte';
+</script>
+
+Everything from Part I in one file. Each function is explained in its chapter; the contents on the first page list them all.
+
+<CodeGroup>
+
+```ts collision.ts
+export type Point = { x: number; y: number };
+export type Circle = { x: number; y: number; r: number };
+export type Rect = { x: number; y: number; w: number; h: number };
+export type Line = { a: number; b: number; c: number };
+export type Polygon = Point[];
+
+export function distance(a: Point, b: Point): number {
+	return Math.hypot(b.x - a.x, b.y - a.y);
+}
+
+export function distanceSquared(a: Point, b: Point): number {
+	return (b.x - a.x) ** 2 + (b.y - a.y) ** 2;
+}
+
+export function midpoint(a: Point, b: Point): Point {
+	return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+}
+
+export function pointInCircle(p: Point, c: Circle): boolean {
+	return distanceSquared(p, c) <= c.r ** 2;
+}
+
+export function circlesCollide(a: Circle, b: Circle): boolean {
+	return distanceSquared(a, b) <= (a.r + b.r) ** 2;
+}
+
+export function overlap(a1: number, a2: number, b1: number, b2: number): boolean {
+	return a1 <= b2 && b1 <= a2;
+}
+
+export function rectsCollide(a: Rect, b: Rect): boolean {
+	return (
+		overlap(a.x, a.x + a.w, b.x, b.x + b.w) &&
+		overlap(a.y, a.y + a.h, b.y, b.y + b.h)
+	);
+}
+
+export function clamp(value: number, min: number, max: number): number {
+	return Math.max(min, Math.min(max, value));
+}
+
+export function circleRectCollide(c: Circle, rect: Rect): boolean {
+	const closest = {
+		x: clamp(c.x, rect.x, rect.x + rect.w),
+		y: clamp(c.y, rect.y, rect.y + rect.h)
+	};
+	return pointInCircle(closest, c);
+}
+
+export function lineThrough(p1: Point, p2: Point): Line {
+	return { a: p2.y - p1.y, b: p1.x - p2.x, c: p2.x * p1.y - p1.x * p2.y };
+}
+
+export function distanceToLine(p: Point, line: Line): number {
+	const value = line.a * p.x + line.b * p.y + line.c;
+	return Math.abs(value) / Math.hypot(line.a, line.b);
+}
+
+export function circleLineCollide(c: Circle, line: Line): boolean {
+	const value = line.a * c.x + line.b * c.y + line.c;
+	return value ** 2 <= c.r ** 2 * (line.a ** 2 + line.b ** 2);
+}
+
+export function subtract(a: Point, b: Point): Point {
+	return { x: a.x - b.x, y: a.y - b.y };
+}
+
+export function dot(u: Point, v: Point): number {
+	return u.x * v.x + u.y * v.y;
+}
+
+export function closestPointOnSegment(p: Point, a: Point, b: Point): Point {
+	const d = subtract(b, a);
+	const lengthSquared = dot(d, d);
+	if (lengthSquared === 0) return a;
+	const t = clamp(dot(subtract(p, a), d) / lengthSquared, 0, 1);
+	return { x: a.x + t * d.x, y: a.y + t * d.y };
+}
+
+export function circleSegmentCollide(c: Circle, a: Point, b: Point): boolean {
+	return pointInCircle(closestPointOnSegment(c, a, b), c);
+}
+
+export function axes(polygon: Polygon): Point[] {
+	return polygon.map((p1, i) => {
+		const p2 = polygon[(i + 1) % polygon.length];
+		return { x: p2.y - p1.y, y: p1.x - p2.x };
+	});
+}
+
+export function project(polygon: Polygon, axis: Point): [number, number] {
+	const values = polygon.map((vertex) => dot(vertex, axis));
+	return [Math.min(...values), Math.max(...values)];
+}
+
+export function polygonsCollide(a: Polygon, b: Polygon): boolean {
+	for (const axis of [...axes(a), ...axes(b)]) {
+		const [aMin, aMax] = project(a, axis);
+		const [bMin, bMax] = project(b, axis);
+		if (!overlap(aMin, aMax, bMin, bMax)) return false;
+	}
+	return true;
+}
+```
+
+```js collision.js
+export function distance(a, b) {
+	return Math.hypot(b.x - a.x, b.y - a.y);
+}
+
+export function distanceSquared(a, b) {
+	return (b.x - a.x) ** 2 + (b.y - a.y) ** 2;
+}
+
+export function midpoint(a, b) {
+	return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+}
+
+export function pointInCircle(p, c) {
+	return distanceSquared(p, c) <= c.r ** 2;
+}
+
+export function circlesCollide(a, b) {
+	return distanceSquared(a, b) <= (a.r + b.r) ** 2;
+}
+
+export function overlap(a1, a2, b1, b2) {
+	return a1 <= b2 && b1 <= a2;
+}
+
+export function rectsCollide(a, b) {
+	return (
+		overlap(a.x, a.x + a.w, b.x, b.x + b.w) &&
+		overlap(a.y, a.y + a.h, b.y, b.y + b.h)
+	);
+}
+
+export function clamp(value, min, max) {
+	return Math.max(min, Math.min(max, value));
+}
+
+export function circleRectCollide(c, rect) {
+	const closest = {
+		x: clamp(c.x, rect.x, rect.x + rect.w),
+		y: clamp(c.y, rect.y, rect.y + rect.h)
+	};
+	return pointInCircle(closest, c);
+}
+
+export function lineThrough(p1, p2) {
+	return { a: p2.y - p1.y, b: p1.x - p2.x, c: p2.x * p1.y - p1.x * p2.y };
+}
+
+export function distanceToLine(p, line) {
+	const value = line.a * p.x + line.b * p.y + line.c;
+	return Math.abs(value) / Math.hypot(line.a, line.b);
+}
+
+export function circleLineCollide(c, line) {
+	const value = line.a * c.x + line.b * c.y + line.c;
+	return value ** 2 <= c.r ** 2 * (line.a ** 2 + line.b ** 2);
+}
+
+export function subtract(a, b) {
+	return { x: a.x - b.x, y: a.y - b.y };
+}
+
+export function dot(u, v) {
+	return u.x * v.x + u.y * v.y;
+}
+
+export function closestPointOnSegment(p, a, b) {
+	const d = subtract(b, a);
+	const lengthSquared = dot(d, d);
+	if (lengthSquared === 0) return a;
+	const t = clamp(dot(subtract(p, a), d) / lengthSquared, 0, 1);
+	return { x: a.x + t * d.x, y: a.y + t * d.y };
+}
+
+export function circleSegmentCollide(c, a, b) {
+	return pointInCircle(closestPointOnSegment(c, a, b), c);
+}
+
+export function axes(polygon) {
+	return polygon.map((p1, i) => {
+		const p2 = polygon[(i + 1) % polygon.length];
+		return { x: p2.y - p1.y, y: p1.x - p2.x };
+	});
+}
+
+export function project(polygon, axis) {
+	const values = polygon.map((vertex) => dot(vertex, axis));
+	return [Math.min(...values), Math.max(...values)];
+}
+
+export function polygonsCollide(a, b) {
+	for (const axis of [...axes(a), ...axes(b)]) {
+		const [aMin, aMax] = project(a, axis);
+		const [bMin, bMax] = project(b, axis);
+		if (!overlap(aMin, aMax, bMin, bMax)) return false;
+	}
+	return true;
+}
+```
+
+```py collision.py
+import math
+from dataclasses import dataclass
+
+
+@dataclass
+class Point:
+    x: float
+    y: float
+
+
+@dataclass
+class Circle:
+    x: float
+    y: float
+    r: float
+
+
+@dataclass
+class Rect:
+    x: float
+    y: float
+    w: float
+    h: float
+
+
+@dataclass
+class Line:
+    a: float
+    b: float
+    c: float
+
+
+Polygon = list[Point]
+
+
+def distance(a: Point, b: Point) -> float:
+    return math.hypot(b.x - a.x, b.y - a.y)
+
+
+def distance_squared(a: Point, b: Point) -> float:
+    return (b.x - a.x) ** 2 + (b.y - a.y) ** 2
+
+
+def midpoint(a: Point, b: Point) -> Point:
+    return Point((a.x + b.x) / 2, (a.y + b.y) / 2)
+
+
+def point_in_circle(p: Point, c: Circle) -> bool:
+    return distance_squared(p, c) <= c.r ** 2
+
+
+def circles_collide(a: Circle, b: Circle) -> bool:
+    return distance_squared(a, b) <= (a.r + b.r) ** 2
+
+
+def overlap(a1: float, a2: float, b1: float, b2: float) -> bool:
+    return a1 <= b2 and b1 <= a2
+
+
+def rects_collide(a: Rect, b: Rect) -> bool:
+    return (
+        overlap(a.x, a.x + a.w, b.x, b.x + b.w)
+        and overlap(a.y, a.y + a.h, b.y, b.y + b.h)
+    )
+
+
+def clamp(value: float, low: float, high: float) -> float:
+    return max(low, min(high, value))
+
+
+def circle_rect_collide(c: Circle, rect: Rect) -> bool:
+    closest = Point(
+        clamp(c.x, rect.x, rect.x + rect.w),
+        clamp(c.y, rect.y, rect.y + rect.h),
+    )
+    return point_in_circle(closest, c)
+
+
+def line_through(p1: Point, p2: Point) -> Line:
+    return Line(p2.y - p1.y, p1.x - p2.x, p2.x * p1.y - p1.x * p2.y)
+
+
+def distance_to_line(p: Point, line: Line) -> float:
+    value = line.a * p.x + line.b * p.y + line.c
+    return abs(value) / math.hypot(line.a, line.b)
+
+
+def circle_line_collide(c: Circle, line: Line) -> bool:
+    value = line.a * c.x + line.b * c.y + line.c
+    return value ** 2 <= c.r ** 2 * (line.a ** 2 + line.b ** 2)
+
+
+def subtract(a: Point, b: Point) -> Point:
+    return Point(a.x - b.x, a.y - b.y)
+
+
+def dot(u: Point, v: Point) -> float:
+    return u.x * v.x + u.y * v.y
+
+
+def closest_point_on_segment(p: Point, a: Point, b: Point) -> Point:
+    d = subtract(b, a)
+    length_squared = dot(d, d)
+    if length_squared == 0:
+        return a
+    t = clamp(dot(subtract(p, a), d) / length_squared, 0, 1)
+    return Point(a.x + t * d.x, a.y + t * d.y)
+
+
+def circle_segment_collide(c: Circle, a: Point, b: Point) -> bool:
+    return point_in_circle(closest_point_on_segment(c, a, b), c)
+
+
+def axes(polygon: Polygon) -> list[Point]:
+    return [
+        Point(p2.y - p1.y, p1.x - p2.x)
+        for p1, p2 in zip(polygon, polygon[1:] + polygon[:1])
+    ]
+
+
+def project(polygon: Polygon, axis: Point) -> tuple[float, float]:
+    values = [dot(vertex, axis) for vertex in polygon]
+    return min(values), max(values)
+
+
+def polygons_collide(a: Polygon, b: Polygon) -> bool:
+    for axis in axes(a) + axes(b):
+        a_min, a_max = project(a, axis)
+        b_min, b_max = project(b, axis)
+        if not overlap(a_min, a_max, b_min, b_max):
+            return False
+    return True
+```
+
+</CodeGroup>

@@ -1,0 +1,79 @@
+---
+title: Coordinates and distance in space
+description: The Cartesian coordinate system in 3D, and the distance between two points in space.
+part: 3D
+order: 101
+published: false
+---
+
+<script>
+  import CodeGroup from '$lib/components/CodeGroup.svelte';
+  import CoordinateSystems from '$lib/components/posts/geometry/CoordinateSystems.svelte';
+  import DistanceDemo3D from '$lib/components/posts/DistanceDemo3D.svelte';
+</script>
+
+<!--
+	Draft for Part II. It isn't published or listed until the 2D part is finished; set
+	published: true then. Spheres ((x − a)² + (y − b)² + (z − c)² = r²) and boxes (a third
+	interval on the z-axis) are the natural next chapters.
+-->
+
+## The Cartesian coordinate system in space
+
+In space, the Cartesian coordinate system is three mutually perpendicular number axes, the $x$-, $y$- and $z$-axis, that intersect at the origin. Every point in space is represented by exactly one ordered triple $(x, y, z)$.
+
+<CoordinateSystems />
+
+## Distance between two points in space
+
+The distance between two points $A(x_{1}, y_{1}, z_{1})$ and $B(x_{2}, y_{2}, z_{2})$ in space is also the hypotenuse of a right triangle, $ACB$. We just need one more right triangle, $ADC$, lying flat underneath it, to get the length of the leg $AC$ first. Take your time with the demo below, and drag it sideways to turn the view.
+
+$|AD| = |x_{2} - x_{1}|$,
+$|DC| = |z_{2} - z_{1}|$,
+$|CB| = |y_{2} - y_{1}|$
+
+From triangle $ADC$:
+
+$$
+|AC|^2 = (x_{2} - x_{1})^2 + (z_{2} - z_{1})^2
+$$
+
+and from triangle $ACB$:
+
+$$
+|AB| = \sqrt{|AC|^2 + (y_{2} - y_{1})^2} = \sqrt{(x_{2} - x_{1})^2 + (y_{2} - y_{1})^2 + (z_{2} - z_{1})^2}
+$$
+
+<DistanceDemo3D />
+
+<CodeGroup>
+
+```ts
+type Point3 = { x: number; y: number; z: number };
+
+function distance3(a: Point3, b: Point3): number {
+	return Math.sqrt((b.x - a.x) ** 2 + (b.y - a.y) ** 2 + (b.z - a.z) ** 2);
+}
+```
+
+```js
+function distance3(a, b) {
+	return Math.sqrt((b.x - a.x) ** 2 + (b.y - a.y) ** 2 + (b.z - a.z) ** 2);
+}
+```
+
+```py
+@dataclass
+class Point3:
+    x: float
+    y: float
+    z: float
+
+
+def distance3(a: Point3, b: Point3) -> float:
+    return math.sqrt((b.x - a.x) ** 2 + (b.y - a.y) ** 2 + (b.z - a.z) ** 2)
+```
+
+</CodeGroup>
+
+Each extra dimension just adds one more squared difference under the root.

@@ -1,0 +1,126 @@
+---
+title: Distance between two points
+description: The distance formula on a line and in the plane, straight from Pythagoras' theorem, and the trick that lets collision tests skip the square root.
+part: 2D
+order: 2
+published: true
+---
+
+<script>
+  import CodeGroup from '$lib/components/CodeGroup.svelte';
+  import DistanceDemo from '$lib/components/posts/DistanceDemo.svelte';
+</script>
+
+Most collision tests come down to one question: how far apart are two things?
+
+## Along a line
+
+The distance between two points $A(x_{1})$ and $B(x_{2})$ on a line is equal to the absolute value of the difference of their coordinates.
+
+$$
+|AB| = |x_{1} - x_{2}| = \sqrt{(x_{1} - x_{2})^2}
+$$
+
+*Try moving your cursor along this grid to interact with this example.*
+
+<DistanceDemo mode="line" />
+
+<CodeGroup>
+
+```ts
+function distanceOnLine(x1: number, x2: number): number {
+	return Math.abs(x1 - x2);
+}
+```
+
+```js
+function distanceOnLine(x1, x2) {
+	return Math.abs(x1 - x2);
+}
+```
+
+```py
+def distance_on_line(x1: float, x2: float) -> float:
+    return abs(x1 - x2)
+```
+
+</CodeGroup>
+
+## In the plane
+
+The distance between two points $A(x_{1}, y_{1})$ and $B(x_{2}, y_{2})$ in the plane is the hypotenuse of the right triangle $ABC$, where $C$ is level with $A$ and in line with $B$:
+$|AC| = |x_{2} - x_{1}|$, $|BC| = |y_{2} - y_{1}|$.
+Pythagoras' theorem says $|AB|^2 = |AC|^2 + |BC|^2$, so
+
+$$
+|AB| = \sqrt{(x_{2} - x_{1})^2 + (y_{2} - y_{1})^2}
+$$
+
+<DistanceDemo mode="plane" />
+
+<CodeGroup>
+
+```ts
+type Point = { x: number; y: number };
+
+function distance(a: Point, b: Point): number {
+	return Math.sqrt((b.x - a.x) ** 2 + (b.y - a.y) ** 2);
+}
+```
+
+```js
+// A point is an object like { x: 4, y: 3 }.
+function distance(a, b) {
+	return Math.sqrt((b.x - a.x) ** 2 + (b.y - a.y) ** 2);
+}
+```
+
+```py
+import math
+from dataclasses import dataclass
+
+
+@dataclass
+class Point:
+    x: float
+    y: float
+
+
+def distance(a: Point, b: Point) -> float:
+    return math.sqrt((b.x - a.x) ** 2 + (b.y - a.y) ** 2)
+```
+
+</CodeGroup>
+
+JavaScript's `Math.hypot(dx, dy)` and Python's `math.hypot(dx, dy)` do the same in one call.
+
+## Skipping the square root
+
+The square root is the slowest part of that function, and a collision test rarely needs the distance itself. It only needs to know whether the distance is smaller than something. Both sides of that comparison are never negative, so squaring them doesn't change the answer:
+
+$$
+d \le r \iff d^2 \le r^2
+$$
+
+<CodeGroup>
+
+```ts
+function distanceSquared(a: Point, b: Point): number {
+	return (b.x - a.x) ** 2 + (b.y - a.y) ** 2;
+}
+```
+
+```js
+function distanceSquared(a, b) {
+	return (b.x - a.x) ** 2 + (b.y - a.y) ** 2;
+}
+```
+
+```py
+def distance_squared(a: Point, b: Point) -> float:
+    return (b.x - a.x) ** 2 + (b.y - a.y) ** 2
+```
+
+</CodeGroup>
+
+Every test in the following chapters compares squared distances with squared lengths, and never takes a root.

@@ -1,27 +1,20 @@
 ---
 title: Collision detection for beginners (with TypeScript examples)
-description: Analytic geometry from the ground up, and how each idea becomes a collision test. Points, distances, circles, rectangles and lines, with interactive demos and TypeScript.
+description: A short book on collision detection, built on analytic geometry. Each chapter turns one idea into a collision test, with demos and code in TypeScript, JavaScript and Python.
 date: '2025-09-11'
 categories:
   - javascript
   - typescript
+  - python
   - collision detection
 status: work in progress
 featured: true
 published: true
+coming: Part II · 3D follows once the 2D part is finished.
 ---
 
 <script>
-  import DistanceDemo from '$lib/components/posts/DistanceDemo.svelte';
-  import DistanceDemo3D from '$lib/components/posts/DistanceDemo3D.svelte';
-  import ShapesOnGrid from '$lib/components/posts/geometry/ShapesOnGrid.svelte';
-  import NumberLine from '$lib/components/posts/geometry/NumberLine.svelte';
-  import CoordinateSystems from '$lib/components/posts/geometry/CoordinateSystems.svelte';
-  import PointInCircle from '$lib/components/posts/geometry/PointInCircle.svelte';
-  import CircleCircle from '$lib/components/posts/geometry/CircleCircle.svelte';
-  import RectRect from '$lib/components/posts/geometry/RectRect.svelte';
-  import CircleRect from '$lib/components/posts/geometry/CircleRect.svelte';
-  import CircleLine from '$lib/components/posts/geometry/CircleLine.svelte';
+  import CodeGroup from '$lib/components/CodeGroup.svelte';
 </script>
 
 ## Inspiration
@@ -32,396 +25,32 @@ This resource is heavily inspired by [Jeff Thompson's Collision Detection](https
 
 Collision detection answers one question: do two shapes share at least one point? A program can't answer that by looking. To a program, a ball and a wall are just numbers. Analytic geometry is the part of maths that turns shapes into numbers and equations, so the question becomes arithmetic that takes a computer a handful of operations.
 
-This post builds that up from the ground: coordinates first, then distances, then shapes as equations. Every idea ends in a collision test, with a TypeScript function and a demo you can play with. If you're only after the code, skip to [all the functions](#all-the-functions).
+This is a small book. Each chapter builds on the one before it: coordinates first, then distances, then shapes as equations, and every idea ends in a collision test with a demo you can play with. Part I works in the plane (2D). Part II takes the same ideas into space (3D), once Part I is finished.
+
+If you're only after the code, jump to [all the functions](/blog/collision-detection/all-functions).
 
 ## Prerequisites
 
-Basic understanding of any programming language of your choice. The examples here are written in **TypeScript**, but I explain the core concepts, so you'll have no trouble rewriting them in the language of your choice.
+Basic understanding of any programming language of your choice. Every example comes in **TypeScript**, **JavaScript** and **Python**: pick one with the tabs above any code block, and the whole book switches with it. I explain the core concepts as well, so you'll have no trouble rewriting the examples in any other language.
 **You will need to know how functions work and some basic data types.** If you understand the following example, you're good to go!
 
+<CodeGroup>
+
 ```ts HelloWorld.ts
-function greet(name: string) {
+function greet(name: string): string {
 	return `Hello ${name}!`;
 }
 ```
 
-## Analytic geometry
-
-Analytic geometry, also called *coordinate geometry* or *Cartesian geometry*, is the branch of mathematics that studies geometric figures using a coordinate system and algebra. It represents points by ordered pairs (or triples) of numbers, and describes lines, curves and shapes with equations and inequalities.
-
-That is exactly how a game sees the world. A point is two numbers. A circle is a centre and a radius. A rectangle is a range of values on each axis.
-
-<ShapesOnGrid />
-
-### Coordinates of a point on a line
-
-A number axis is a line $x$ with a chosen unit and a chosen origin $O$. The origin divides the line into two opposite half-lines, the negative and the positive half-axis. Every point on the line then has exactly one real number, its coordinate.
-
-<NumberLine />
-
-### Cartesian coordinate system
-
-- **In a plane (2D):** two perpendicular number axes, the $x$-axis and the $y$-axis, that intersect at the origin. Every point in the plane is represented by exactly one ordered pair of real numbers $(x, y)$, its coordinates along each axis.
-- **In space (3D):** three mutually perpendicular number axes, the $x$-, $y$- and $z$-axis, that intersect at the origin. Every point in space is represented by exactly one ordered triple $(x, y, z)$.
-
-<CoordinateSystems />
-
-> Screens flip the $y$-axis. On a canvas, $(0, 0)$ is the top-left corner and $y$ grows **downwards**. None of the formulas in this post change, because they only ever use differences and squares; it only matters when you think about which way is up. The interactive demos below use screen coordinates.
-
-## Distance between two points
-
-Most collision tests come down to one question: how far apart are two things?
-
-### Along a line
-
-The distance between two points $A(x_{1})$ and $B(x_{2})$ on a line is equal to the absolute value of the difference of their coordinates.
-
-$$
-|AB| = |x_{1} - x_{2}| = \sqrt{(x_{1} - x_{2})^2}
-$$
-
-*Try moving your cursor along this grid to interact with this example.*
-
-<DistanceDemo mode="line" />
-
-```ts
-function distanceOnLine(x1: number, x2: number): number {
-	return Math.abs(x1 - x2);
+```js HelloWorld.js
+function greet(name) {
+	return `Hello ${name}!`;
 }
 ```
 
-### On a plane
-
-The distance between two points $A(x_{1}, y_{1})$ and $B(x_{2}, y_{2})$ in the plane is the hypotenuse of the right triangle $ABC$, where $C$ is level with $A$ and in line with $B$:
-$|AC| = |x_{2} - x_{1}|$, $|BC| = |y_{2} - y_{1}|$.
-Pythagoras' theorem says $|AB|^2 = |AC|^2 + |BC|^2$, so
-
-$$
-|AB| = \sqrt{(x_{2} - x_{1})^2 + (y_{2} - y_{1})^2}
-$$
-
-<DistanceDemo mode="plane" />
-
-```ts
-type Point = { x: number; y: number };
-
-function distance(a: Point, b: Point): number {
-	return Math.sqrt((b.x - a.x) ** 2 + (b.y - a.y) ** 2);
-}
+```py hello_world.py
+def greet(name: str) -> str:
+    return f"Hello {name}!"
 ```
 
-JavaScript also has `Math.hypot(b.x - a.x, b.y - a.y)`, which does the same thing.
-
-### In space
-
-The distance between two points $A(x_{1}, y_{1}, z_{1})$ and $B(x_{2}, y_{2}, z_{2})$ in space is also the hypotenuse of a right triangle, $ACB$. We just need one more right triangle, $ADC$, lying flat underneath it, to get the length of the leg $AC$ first. Take your time with the demo below, and drag it sideways to turn the view.
-
-$|AD| = |x_{2} - x_{1}|$,
-$|DC| = |z_{2} - z_{1}|$,
-$|CB| = |y_{2} - y_{1}|$
-
-From triangle $ADC$:
-
-$$
-|AC|^2 = (x_{2} - x_{1})^2 + (z_{2} - z_{1})^2
-$$
-
-and from triangle $ACB$:
-
-$$
-|AB| = \sqrt{|AC|^2 + (y_{2} - y_{1})^2} = \sqrt{(x_{2} - x_{1})^2 + (y_{2} - y_{1})^2 + (z_{2} - z_{1})^2}
-$$
-
-<DistanceDemo3D />
-
-```ts
-type Point3 = { x: number; y: number; z: number };
-
-function distance3(a: Point3, b: Point3): number {
-	return Math.sqrt((b.x - a.x) ** 2 + (b.y - a.y) ** 2 + (b.z - a.z) ** 2);
-}
-```
-
-Each extra dimension just adds one more squared difference under the root.
-
-### Skipping the square root
-
-The square root is the slowest part of that function, and a collision test rarely needs the distance itself. It only needs to know whether the distance is smaller than something. Both sides of that comparison are never negative, so squaring them doesn't change the answer:
-
-$$
-d \le r \iff d^2 \le r^2
-$$
-
-```ts
-function distanceSquared(a: Point, b: Point): number {
-	return (b.x - a.x) ** 2 + (b.y - a.y) ** 2;
-}
-```
-
-Every test below compares squared distances with squared lengths, and never takes a root.
-
-## Midpoint of a line segment
-
-Point $S$ is the midpoint of the line segment $AB$ when it lies on the segment and $|AS| = |BS|$. Its coordinates are the averages of the endpoints' coordinates:
-
-$$
-x_{S} = \frac{x_{A} + x_{B}}{2}, \quad y_{S} = \frac{y_{A} + y_{B}}{2}
-$$
-
-```ts
-function midpoint(a: Point, b: Point): Point {
-	return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
-}
-```
-
-It's handy whenever you need the point halfway between two things, like aiming a camera between two players. In space, $z_{S}$ is the average of the $z$ coordinates too.
-
-## Circles
-
-### The equation of a circle
-
-A circle is the set of all points at the same distance $r$ from its centre $S(a, b)$. Write that sentence with the distance formula, square both sides, and you have the equation of a circle:
-
-$$
-(x - a)^2 + (y - b)^2 = r^2
-$$
-
-Points **inside** the circle are closer to the centre than $r$, so they satisfy the inequality
-
-$$
-(x - a)^2 + (y - b)^2 \le r^2
-$$
-
-In space, the same sentence describes a sphere: $(x - a)^2 + (y - b)^2 + (z - c)^2 = r^2$.
-
-### Point vs circle
-
-That inequality already is a collision test. Is the cursor over a round button? Did a bullet hit a round enemy?
-
-<PointInCircle />
-
-```ts
-type Circle = { x: number; y: number; r: number };
-
-function pointInCircle(p: Point, c: Circle): boolean {
-	return distanceSquared(p, c) <= c.r ** 2;
-}
-```
-
-### Circle vs circle
-
-Two circles touch when the distance between their centres is at most the sum of their radii:
-
-$$
-|S_{1}S_{2}| \le r_{1} + r_{2}
-$$
-
-Another way to see it: grow one circle by the other's radius, shrink the other one to a point, and you're back to a point-in-circle test.
-
-<CircleCircle />
-
-```ts
-function circlesCollide(a: Circle, b: Circle): boolean {
-	return distanceSquared(a, b) <= (a.r + b.r) ** 2;
-}
-```
-
-Spheres work the same way, with $z$ in the distance. The circles on my home page run exactly this test.
-
-## Rectangles
-
-### Intervals on a line
-
-Back on a single number axis. A segment from $a_{1}$ to $a_{2}$ is the interval $[a_{1}, a_{2}]$. Two intervals $[a_{1}, a_{2}]$ and $[b_{1}, b_{2}]$ overlap unless one ends before the other begins, so they overlap exactly when
-
-$$
-a_{1} \le b_{2} \quad \text{and} \quad b_{1} \le a_{2}
-$$
-
-```ts
-function overlap(a1: number, a2: number, b1: number, b2: number): boolean {
-	return a1 <= b2 && b1 <= a2;
-}
-```
-
-### Rectangle vs rectangle
-
-A rectangle whose sides run along the axes is called an **axis-aligned bounding box**, or AABB. With its corner at $(x, y)$, width $w$ and height $h$, it's nothing more than two intervals: $[x, x + w]$ on the $x$-axis and $[y, y + h]$ on the $y$-axis.
-
-Two AABBs collide when their intervals overlap on the $x$-axis **and** on the $y$-axis. If there's a gap on either axis, you can slide a straight line between them.
-
-<RectRect />
-
-```ts
-type Rect = { x: number; y: number; w: number; h: number };
-
-function rectsCollide(a: Rect, b: Rect): boolean {
-	return (
-		overlap(a.x, a.x + a.w, b.x, b.x + b.w) &&
-		overlap(a.y, a.y + a.h, b.y, b.y + b.h)
-	);
-}
-```
-
-A box in space adds a third interval, on the $z$-axis, and a third `overlap`. AABBs are so cheap that games often wrap complicated shapes in one, and only run the exact test when the boxes overlap.
-
-### Circle vs rectangle
-
-Find the point $Q$ of the rectangle that is closest to the circle's centre $C$, and it's a point-in-circle test again. Finding $Q$ takes no geometry at all: clamp each coordinate of $C$ into the rectangle's interval on that axis.
-
-$$
-Q = \big(\operatorname{clamp}(x_{C},\, x,\, x + w),\ \operatorname{clamp}(y_{C},\, y,\, y + h)\big)
-$$
-
-When the centre is inside the rectangle, $Q$ is the centre itself, the distance is $0$, and the test rightly says they collide.
-
-<CircleRect />
-
-```ts
-function clamp(value: number, min: number, max: number): number {
-	return Math.max(min, Math.min(max, value));
-}
-
-function circleRectCollide(c: Circle, rect: Rect): boolean {
-	const closest = {
-		x: clamp(c.x, rect.x, rect.x + rect.w),
-		y: clamp(c.y, rect.y, rect.y + rect.h)
-	};
-	return pointInCircle(closest, c);
-}
-```
-
-## Lines
-
-### The equation of a line
-
-The line you probably know from school is $y = kx + q$, where $k$ is the slope and $q$ is where the line crosses the $y$-axis. It has one flaw for games: a vertical line has no slope, so it can't be written that way. The **general equation of a line** covers every line:
-
-$$
-ax + by + c = 0
-$$
-
-For a line through two points $P_{1}(x_{1}, y_{1})$ and $P_{2}(x_{2}, y_{2})$, one choice of coefficients is
-
-$$
-a = y_{2} - y_{1}, \quad b = x_{1} - x_{2}, \quad c = x_{2}y_{1} - x_{1}y_{2}
-$$
-
-The vector $(a, b)$ is the line's **normal vector**. It points straight out of the line, perpendicular to it.
-
-```ts
-type Line = { a: number; b: number; c: number };
-
-function lineThrough(p1: Point, p2: Point): Line {
-	return { a: p2.y - p1.y, b: p1.x - p2.x, c: p2.x * p1.y - p1.x * p2.y };
-}
-```
-
-### Distance from a point to a line
-
-Put any point $(x_{0}, y_{0})$ into the left-hand side of the equation. For a point on the line, you get $0$. For a point off the line, you get a number whose sign tells you which side of the line the point is on, and whose size grows with the distance, multiplied by the length of the normal vector, $\sqrt{a^2 + b^2}$. Divide that length out and you have the distance:
-
-$$
-d = \frac{|ax_{0} + by_{0} + c|}{\sqrt{a^2 + b^2}}
-$$
-
-```ts
-function distanceToLine(p: Point, line: Line): number {
-	const value = line.a * p.x + line.b * p.y + line.c;
-	return Math.abs(value) / Math.hypot(line.a, line.b);
-}
-```
-
-The sign is useful on its own, too: it tells you which side of a wall the player is on.
-
-### Circle vs line
-
-A circle touches a line when its centre is at most $r$ away from it. With the squaring trick, that's $(ax_{0} + by_{0} + c)^2 \le r^2(a^2 + b^2)$: no root, and no division.
-
-<CircleLine />
-
-```ts
-function circleLineCollide(c: Circle, line: Line): boolean {
-	const value = line.a * c.x + line.b * c.y + line.c;
-	return value ** 2 <= c.r ** 2 * (line.a ** 2 + line.b ** 2);
-}
-```
-
-This line never ends. Walls and platforms do, which is where the next part of this post starts.
-
-## What's next
-
-This post is still a work in progress. Coming next:
-
-- **Line segments**: projecting a point onto a segment with the dot product, and clamping it to the ends, like we clamped into the rectangle.
-- **Polygons** and the **separating axis theorem**, the rectangle test generalised to any convex shape at any angle.
-- **Collision response**: once two things touch, pushing them apart.
-- **Fast objects** that move far enough in one frame to skip straight through each other.
-
-## All the functions
-
-Everything above in one file, ready to copy.
-
-```ts collision.ts
-export type Point = { x: number; y: number };
-export type Circle = { x: number; y: number; r: number };
-export type Rect = { x: number; y: number; w: number; h: number };
-export type Line = { a: number; b: number; c: number };
-
-export function distance(a: Point, b: Point): number {
-	return Math.hypot(b.x - a.x, b.y - a.y);
-}
-
-export function distanceSquared(a: Point, b: Point): number {
-	return (b.x - a.x) ** 2 + (b.y - a.y) ** 2;
-}
-
-export function midpoint(a: Point, b: Point): Point {
-	return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
-}
-
-export function pointInCircle(p: Point, c: Circle): boolean {
-	return distanceSquared(p, c) <= c.r ** 2;
-}
-
-export function circlesCollide(a: Circle, b: Circle): boolean {
-	return distanceSquared(a, b) <= (a.r + b.r) ** 2;
-}
-
-export function overlap(a1: number, a2: number, b1: number, b2: number): boolean {
-	return a1 <= b2 && b1 <= a2;
-}
-
-export function rectsCollide(a: Rect, b: Rect): boolean {
-	return (
-		overlap(a.x, a.x + a.w, b.x, b.x + b.w) &&
-		overlap(a.y, a.y + a.h, b.y, b.y + b.h)
-	);
-}
-
-export function clamp(value: number, min: number, max: number): number {
-	return Math.max(min, Math.min(max, value));
-}
-
-export function circleRectCollide(c: Circle, rect: Rect): boolean {
-	const closest = {
-		x: clamp(c.x, rect.x, rect.x + rect.w),
-		y: clamp(c.y, rect.y, rect.y + rect.h)
-	};
-	return pointInCircle(closest, c);
-}
-
-export function lineThrough(p1: Point, p2: Point): Line {
-	return { a: p2.y - p1.y, b: p1.x - p2.x, c: p2.x * p1.y - p1.x * p2.y };
-}
-
-export function distanceToLine(p: Point, line: Line): number {
-	const value = line.a * p.x + line.b * p.y + line.c;
-	return Math.abs(value) / Math.hypot(line.a, line.b);
-}
-
-export function circleLineCollide(c: Circle, line: Line): boolean {
-	const value = line.a * c.x + line.b * c.y + line.c;
-	return value ** 2 <= c.r ** 2 * (line.a ** 2 + line.b ** 2);
-}
-```
+</CodeGroup>

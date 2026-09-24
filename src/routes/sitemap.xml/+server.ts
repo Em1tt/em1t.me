@@ -1,4 +1,5 @@
 import { caseStudies } from '$lib/projects';
+import { chapters } from '$lib/server/books';
 import { posts } from '$lib/server/posts';
 import { SITE } from '$lib/site';
 import type { RequestHandler } from './$types';
@@ -8,7 +9,8 @@ export const GET: RequestHandler = () => {
 		{ path: '/' },
 		{ path: '/blog', lastmod: posts[0]?.date },
 		...caseStudies.map((project) => ({ path: `/work/${project.slug}` })),
-		...posts.map((post) => ({ path: `/blog/${post.slug}`, lastmod: post.date }))
+		...posts.map((post) => ({ path: `/blog/${post.slug}`, lastmod: post.date })),
+		...chapters.map((chapter) => ({ path: `/blog/${chapter.book}/${chapter.slug}` }))
 	];
 
 	const urls = pages
