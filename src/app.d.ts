@@ -10,7 +10,10 @@ declare global {
 		}
 
 		// interface Error {}
-		// interface Locals {}
+		interface Locals {
+			/** Signed in at /admin: comments post as Em1t, and can be deleted. */
+			author: boolean;
+		}
 		// interface PageData {}
 		// interface PageState {}
 	}

@@ -3,6 +3,7 @@
 	import '../post.css';
 	import { resolve } from '$app/paths';
 	import BookContents from '$lib/components/BookContents.svelte';
+	import Comments from '$lib/components/Comments.svelte';
 	import SectionLabel from '$lib/components/SectionLabel.svelte';
 	import Seo from '$lib/components/Seo.svelte';
 	import { copyCode } from '$lib/copyCode';
@@ -130,16 +131,27 @@
 								<!-- eslint-enable svelte/no-navigation-without-resolve -->
 							</li>
 						{/each}
+						<li>
+							<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- in-page anchor -->
+							<a href="#comments" class="leading-snug text-slate-300 hover:text-[#ff5640]"
+								>Comments</a
+							>
+						</li>
 					</ul>
 				</nav>
 			{/if}
 		</aside>
-		<article bind:this={article} class="post-body min-w-0" {@attach copyCode}>
-			<data.Body />
-			{#if data.chapters.length}
-				<BookContents chapters={data.chapters} coming={data.meta.coming} />
-			{/if}
-		</article>
+		<div class="min-w-0">
+			<article bind:this={article} class="post-body" {@attach copyCode}>
+				<data.Body />
+				{#if data.chapters.length}
+					<BookContents chapters={data.chapters} coming={data.meta.coming} />
+				{/if}
+			</article>
+			{#key data.meta.slug}
+				<Comments comments={data.comments} author={data.author} />
+			{/key}
+		</div>
 	</div>
 
 	<nav
