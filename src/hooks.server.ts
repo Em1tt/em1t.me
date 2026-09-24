@@ -2,6 +2,7 @@ import { redirect, type Handle } from '@sveltejs/kit';
 import { sequence } from '@sveltejs/kit/hooks';
 import { getTextDirection } from '$lib/paraglide/runtime';
 import { paraglideMiddleware } from '$lib/paraglide/server';
+import { isAuthor } from '$lib/server/author';
 
 const handleParaglide: Handle = ({ event, resolve }) =>
 	paraglideMiddleware(event.request, ({ request, locale }) => {
@@ -24,4 +25,10 @@ const handleCanonical: Handle = ({ event, resolve }) => {
 	return resolve(event);
 };
 
-export const handle: Handle = sequence(handleCanonical, handleParaglide);
+// Signed in at /admin? Comments then post as Em1t (src/lib/server/comments.ts).
+const handleAuthor: Handle = async ({ event, resolve }) => {
+	event.locals.author = await isAuthor(event);
+	return resolve(event);
+};
+
+export const handle: Handle = sequence(handleCanonical, handleAuthor, handleParaglide);

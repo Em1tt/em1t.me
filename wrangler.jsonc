@@ -14,9 +14,19 @@
 		{ "pattern": "em1t.me", "custom_domain": true },
 		{ "pattern": "www.em1t.me", "custom_domain": true }
 	],
-	// Public by design (it's in the page). DISCORD_WEBHOOK and TURNSTILE_SECRET are Worker secrets:
-	// npx wrangler secret put <NAME>
+	// Public by design (it's in the page). DISCORD_WEBHOOK, TURNSTILE_SECRET, COMMENTS_WEBHOOK,
+	// ADMIN_PASSWORD and IP_HASH_SECRET are Worker secrets: npx wrangler secret put <NAME>
 	"vars": {
 		"PUBLIC_TURNSTILE_SITE_KEY": "0x4AAAAAAA8Hbu4b2KXwK6YO"
-	}
+	},
+	// Blog comments and /admin sessions. After adding a file to migrations/:
+	// npx wrangler d1 migrations apply em1t-me-comments --remote (and --local for `npm run dev`)
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "em1t-me-comments",
+			"database_id": "5a0b5db6-4263-4448-9d36-90d366accea7",
+			"migrations_dir": "migrations"
+		}
+	]
 }
