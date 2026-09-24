@@ -1,0 +1,1227 @@
+---
+title: All the functions in 3D
+description: Every function from Part II in one file, ready to copy, in TypeScript, JavaScript or Python.
+part: 3D
+order: 109
+published: true
+---
+
+<script>
+  import CodeGroup from '$lib/components/CodeGroup.svelte';
+</script>
+
+Everything from Part II in one file, in the order the chapters introduce it. Each function is explained in its chapter; the contents on the first page list them all. Part I's functions have [their own file](/blog/collision-detection/all-functions): they share many names with these, so keep the two apart.
+
+## At a glance
+
+Their time and space complexity, with $n$ the number of corners of a polygon, $t$ the number of triangles, and $f$, $e$ and $v$ the face directions, edge directions and corners of each convex shape. Python uses the same names, in snake_case.
+
+| Functions | Time | Space |
+| --- | --- | --- |
+| Everything for points, spheres, boxes, planes, segments and rays, from `subtract` to `rayBox` | $O(1)$ | $O(1)$ |
+| `triangleNormal`, `triangleArea`, `pointInTriangle`, `rayTriangle`, `closestPointOnTriangle`, `sphereTriangleCollide` | $O(1)$ | $O(1)$ |
+| `polygonNormal` | $O(n)$ | $O(1)$ |
+| `fan` | $O(n)$ | $O(n)$ |
+| `earClip` | $O(n^3)$ | $O(n)$ |
+| `rayTriangles`, `sphereTrianglesCollide` | $O(t)$ | $O(1)$ |
+| `project` | $O(v)$ | $O(v)$ |
+| `convexShapesCollide` | $O((f + e^2) \cdot v)$ | $O(f + e^2 + v)$ |
+| `axesTurnedAroundY`, `orientedBoxShape`, `orientedBoxesCollide`, `boxToOriented`, `triangleShape`, `triangleBoxCollide` | $O(1)$ | $O(1)$ |
+
+## The code
+
+<CodeGroup>
+
+```ts collision3d.ts
+// A point, or a vector: { x, y, z } is then the step, not a position.
+export type Vec3 = { x: number; y: number; z: number };
+
+export function subtract(a: Vec3, b: Vec3): Vec3 {
+	return { x: a.x - b.x, y: a.y - b.y, z: a.z - b.z };
+}
+
+export function dot(u: Vec3, v: Vec3): number {
+	return u.x * v.x + u.y * v.y + u.z * v.z;
+}
+
+export function distance(a: Vec3, b: Vec3): number {
+	return Math.hypot(b.x - a.x, b.y - a.y, b.z - a.z);
+}
+
+export function distanceSquared(a: Vec3, b: Vec3): number {
+	const step = subtract(b, a);
+	return dot(step, step);
+}
+
+export function midpoint(a: Vec3, b: Vec3): Vec3 {
+	return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2, z: (a.z + b.z) / 2 };
+}
+
+export type Sphere = { x: number; y: number; z: number; r: number };
+
+export function pointInSphere(p: Vec3, s: Sphere): boolean {
+	return distanceSquared(p, s) <= s.r ** 2;
+}
+
+export function spheresCollide(a: Sphere, b: Sphere): boolean {
+	return distanceSquared(a, b) <= (a.r + b.r) ** 2;
+}
+
+export function overlap(a1: number, a2: number, b1: number, b2: number): boolean {
+	return a1 <= b2 && b1 <= a2;
+}
+
+export function clamp(value: number, min: number, max: number): number {
+	return Math.max(min, Math.min(max, value));
+}
+
+export type Box = { x: number; y: number; z: number; w: number; h: number; d: number };
+
+export function pointInBox(p: Vec3, box: Box): boolean {
+	return (
+		box.x <= p.x && p.x <= box.x + box.w &&
+		box.y <= p.y && p.y <= box.y + box.h &&
+		box.z <= p.z && p.z <= box.z + box.d
+	);
+}
+
+export function boxesCollide(a: Box, b: Box): boolean {
+	return (
+		overlap(a.x, a.x + a.w, b.x, b.x + b.w) &&
+		overlap(a.y, a.y + a.h, b.y, b.y + b.h) &&
+		overlap(a.z, a.z + a.d, b.z, b.z + b.d)
+	);
+}
+
+export function closestPointInBox(p: Vec3, box: Box): Vec3 {
+	return {
+		x: clamp(p.x, box.x, box.x + box.w),
+		y: clamp(p.y, box.y, box.y + box.h),
+		z: clamp(p.z, box.z, box.z + box.d)
+	};
+}
+
+export function sphereBoxCollide(s: Sphere, box: Box): boolean {
+	return pointInSphere(closestPointInBox(s, box), s);
+}
+
+export type Plane = { a: number; b: number; c: number; d: number };
+
+// The plane through `point`, at right angles to `normal`.
+export function planeAt(point: Vec3, normal: Vec3): Plane {
+	return { a: normal.x, b: normal.y, c: normal.z, d: -dot(normal, point) };
+}
+
+export function cross(u: Vec3, v: Vec3): Vec3 {
+	return {
+		x: u.y * v.z - u.z * v.y,
+		y: u.z * v.x - u.x * v.z,
+		z: u.x * v.y - u.y * v.x
+	};
+}
+
+export function planeThrough(a: Vec3, b: Vec3, c: Vec3): Plane {
+	return planeAt(a, cross(subtract(b, a), subtract(c, a)));
+}
+
+// ax + by + cz + d for the point: 0 on the plane, and its sign says which side.
+export function side(p: Vec3, plane: Plane): number {
+	return plane.a * p.x + plane.b * p.y + plane.c * p.z + plane.d;
+}
+
+export function distanceToPlane(p: Vec3, plane: Plane): number {
+	return Math.abs(side(p, plane)) / Math.hypot(plane.a, plane.b, plane.c);
+}
+
+export function spherePlaneCollide(s: Sphere, plane: Plane): boolean {
+	return side(s, plane) ** 2 <= s.r ** 2 * (plane.a ** 2 + plane.b ** 2 + plane.c ** 2);
+}
+
+export function boxPlaneCollide(box: Box, plane: Plane): boolean {
+	const centre = { x: box.x + box.w / 2, y: box.y + box.h / 2, z: box.z + box.d / 2 };
+	const reach =
+		(box.w / 2) * Math.abs(plane.a) +
+		(box.h / 2) * Math.abs(plane.b) +
+		(box.d / 2) * Math.abs(plane.c);
+	return Math.abs(side(centre, plane)) <= reach;
+}
+
+// The point t steps of `direction` away from `origin`.
+export function along(origin: Vec3, direction: Vec3, t: number): Vec3 {
+	return {
+		x: origin.x + t * direction.x,
+		y: origin.y + t * direction.y,
+		z: origin.z + t * direction.z
+	};
+}
+
+export function closestPointOnSegment(p: Vec3, a: Vec3, b: Vec3): Vec3 {
+	const d = subtract(b, a);
+	const lengthSquared = dot(d, d);
+	if (lengthSquared === 0) return a; // A and B are the same point
+	const t = clamp(dot(subtract(p, a), d) / lengthSquared, 0, 1);
+	return along(a, d, t);
+}
+
+export function sphereSegmentCollide(s: Sphere, a: Vec3, b: Vec3): boolean {
+	return pointInSphere(closestPointOnSegment(s, a, b), s);
+}
+
+export type Capsule = { a: Vec3; b: Vec3; r: number };
+
+export function capsuleSphereCollide(c: Capsule, s: Sphere): boolean {
+	return distanceSquared(closestPointOnSegment(s, c.a, c.b), s) <= (c.r + s.r) ** 2;
+}
+
+// Where the segment from a to b crosses the plane, or null if it doesn't.
+export function segmentPlane(a: Vec3, b: Vec3, plane: Plane): Vec3 | null {
+	const sa = side(a, plane);
+	const sb = side(b, plane);
+	if (sa * sb > 0) return null; // both ends on the same side
+	// sa and sb are equal only when both are 0: the segment lies in the plane.
+	const t = sa === sb ? 0 : sa / (sa - sb);
+	return along(a, subtract(b, a), t);
+}
+
+// How many steps of `direction` the ray takes to reach the plane, or null if it never does.
+export function rayPlane(origin: Vec3, direction: Vec3, plane: Plane): number | null {
+	const facing = plane.a * direction.x + plane.b * direction.y + plane.c * direction.z;
+	if (facing === 0) return null; // parallel to the plane
+	const t = -side(origin, plane) / facing;
+	return t >= 0 ? t : null; // the plane is behind the ray when t < 0
+}
+
+export function raySphere(origin: Vec3, direction: Vec3, s: Sphere): number | null {
+	const m = subtract(origin, s);
+	const a = dot(direction, direction);
+	const b = dot(m, direction);
+	const c = dot(m, m) - s.r ** 2;
+	if (c > 0 && b > 0) return null; // outside, and pointing away
+	const discriminant = b * b - a * c;
+	if (discriminant < 0) return null; // the line misses the sphere
+	return Math.max((-b - Math.sqrt(discriminant)) / a, 0); // 0 when it starts inside
+}
+
+export function rayBox(origin: Vec3, direction: Vec3, box: Box): number | null {
+	let near = 0; // the ray starts at t = 0
+	let far = Infinity;
+	const slabs = [
+		[origin.x, direction.x, box.x, box.x + box.w],
+		[origin.y, direction.y, box.y, box.y + box.h],
+		[origin.z, direction.z, box.z, box.z + box.d]
+	];
+	for (const [o, d, min, max] of slabs) {
+		if (d === 0) {
+			// Parallel to this slab: inside it all along, or never.
+			if (o < min || o > max) return null;
+			continue;
+		}
+		const t1 = (min - o) / d;
+		const t2 = (max - o) / d;
+		near = Math.max(near, Math.min(t1, t2));
+		far = Math.min(far, Math.max(t1, t2));
+		if (near > far) return null; // it leaves one slab before it enters another
+	}
+	return near;
+}
+
+export type Triangle = { a: Vec3; b: Vec3; c: Vec3 };
+
+export function triangleNormal(tri: Triangle): Vec3 {
+	return cross(subtract(tri.b, tri.a), subtract(tri.c, tri.a));
+}
+
+export function triangleArea(tri: Triangle): number {
+	const n = triangleNormal(tri);
+	return Math.hypot(n.x, n.y, n.z) / 2;
+}
+
+export function pointInTriangle(p: Vec3, tri: Triangle): boolean {
+	const n = triangleNormal(tri);
+	return (
+		dot(cross(subtract(tri.b, tri.a), subtract(p, tri.a)), n) >= 0 &&
+		dot(cross(subtract(tri.c, tri.b), subtract(p, tri.b)), n) >= 0 &&
+		dot(cross(subtract(tri.a, tri.c), subtract(p, tri.c)), n) >= 0
+	);
+}
+
+export function rayTriangle(origin: Vec3, direction: Vec3, tri: Triangle): number | null {
+	const t = rayPlane(origin, direction, planeThrough(tri.a, tri.b, tri.c));
+	if (t === null) return null;
+	return pointInTriangle(along(origin, direction, t), tri) ? t : null;
+}
+
+export function closestPointOnTriangle(p: Vec3, tri: Triangle): Vec3 {
+	const n = triangleNormal(tri);
+	const lengthSquared = dot(n, n);
+	if (lengthSquared > 0) {
+		// Straight down onto the triangle's plane.
+		const onPlane = along(p, n, -side(p, planeAt(tri.a, n)) / lengthSquared);
+		if (pointInTriangle(onPlane, tri)) return onPlane;
+	}
+	// Otherwise, the nearest point of the three edges.
+	const edges = [
+		closestPointOnSegment(p, tri.a, tri.b),
+		closestPointOnSegment(p, tri.b, tri.c),
+		closestPointOnSegment(p, tri.c, tri.a)
+	];
+	return edges.reduce((best, q) => (distanceSquared(p, q) < distanceSquared(p, best) ? q : best));
+}
+
+export function sphereTriangleCollide(s: Sphere, tri: Triangle): boolean {
+	return pointInSphere(closestPointOnTriangle(s, tri), s);
+}
+
+export type Polygon = Vec3[]; // corners in order around the outline, all in one plane
+
+export function polygonNormal(polygon: Polygon): Vec3 {
+	const first = polygon[0];
+	const normal = { x: 0, y: 0, z: 0 };
+	for (let i = 1; i + 1 < polygon.length; i++) {
+		const n = cross(subtract(polygon[i], first), subtract(polygon[i + 1], first));
+		normal.x += n.x;
+		normal.y += n.y;
+		normal.z += n.z;
+	}
+	return normal;
+}
+
+export function fan(polygon: Polygon): Triangle[] {
+	const triangles: Triangle[] = [];
+	for (let i = 1; i + 1 < polygon.length; i++) {
+		triangles.push({ a: polygon[0], b: polygon[i], c: polygon[i + 1] });
+	}
+	return triangles;
+}
+
+export function earClip(polygon: Polygon): Triangle[] {
+	const normal = polygonNormal(polygon);
+	const corners = [...polygon];
+	const triangles: Triangle[] = [];
+	let i = 0;
+	let checked = 0; // corners checked since the last ear
+	while (corners.length > 3 && checked < corners.length) {
+		const before = (i + corners.length - 1) % corners.length;
+		const after = (i + 1) % corners.length;
+		const ear = { a: corners[before], b: corners[i], c: corners[after] };
+		const turn = dot(cross(subtract(ear.b, ear.a), subtract(ear.c, ear.b)), normal);
+		const empty = corners.every(
+			(p, j) => j === before || j === i || j === after || !pointInTriangle(p, ear)
+		);
+		if (turn > 0 && empty) {
+			triangles.push(ear);
+			corners.splice(i, 1); // cut the ear off
+			i %= corners.length;
+			checked = 0;
+		} else {
+			i = (i + 1) % corners.length;
+			checked++;
+		}
+	}
+	if (corners.length === 3) triangles.push({ a: corners[0], b: corners[1], c: corners[2] });
+	return triangles;
+}
+
+// The first place the ray hits any of the triangles, or null if it misses them all.
+export function rayTriangles(origin: Vec3, direction: Vec3, triangles: Triangle[]): number | null {
+	let nearest: number | null = null;
+	for (const tri of triangles) {
+		const t = rayTriangle(origin, direction, tri);
+		if (t !== null && (nearest === null || t < nearest)) nearest = t;
+	}
+	return nearest;
+}
+
+export function sphereTrianglesCollide(s: Sphere, triangles: Triangle[]): boolean {
+	return triangles.some((tri) => sphereTriangleCollide(s, tri));
+}
+
+// A convex shape, for the test: its corners, and the directions of its faces and edges.
+export type ConvexShape = { vertices: Vec3[]; normals: Vec3[]; edges: Vec3[] };
+
+// The shape's shadow on an axis, as an interval.
+export function project(vertices: Vec3[], axis: Vec3): [number, number] {
+	const values = vertices.map((vertex) => dot(vertex, axis));
+	return [Math.min(...values), Math.max(...values)];
+}
+
+export function convexShapesCollide(a: ConvexShape, b: ConvexShape): boolean {
+	const axes = [...a.normals, ...b.normals];
+	for (const u of a.edges) for (const v of b.edges) axes.push(cross(u, v));
+	for (const axis of axes) {
+		if (dot(axis, axis) < 1e-9) continue; // parallel edges give no axis
+		const [aMin, aMax] = project(a.vertices, axis);
+		const [bMin, bMax] = project(b.vertices, axis);
+		if (!overlap(aMin, aMax, bMin, bMax)) return false; // a gap: they're apart
+	}
+	return true;
+}
+
+// A box turned any way: its centre, three axes at right angles to each other, each of length 1,
+// and half its size along each.
+export type OrientedBox = { centre: Vec3; axes: [Vec3, Vec3, Vec3]; half: [number, number, number] };
+
+// The axes of something turned `angle` radians around the y-axis.
+export function axesTurnedAroundY(angle: number): [Vec3, Vec3, Vec3] {
+	const [cos, sin] = [Math.cos(angle), Math.sin(angle)];
+	return [
+		{ x: cos, y: 0, z: -sin },
+		{ x: 0, y: 1, z: 0 },
+		{ x: sin, y: 0, z: cos }
+	];
+}
+
+export function orientedBoxShape(box: OrientedBox): ConvexShape {
+	const [u, v, w] = box.axes;
+	const [hu, hv, hw] = box.half;
+	const vertices: Vec3[] = [];
+	for (const i of [-1, 1]) {
+		for (const j of [-1, 1]) {
+			for (const k of [-1, 1]) {
+				vertices.push({
+					x: box.centre.x + i * hu * u.x + j * hv * v.x + k * hw * w.x,
+					y: box.centre.y + i * hu * u.y + j * hv * v.y + k * hw * w.y,
+					z: box.centre.z + i * hu * u.z + j * hv * v.z + k * hw * w.z
+				});
+			}
+		}
+	}
+	return { vertices, normals: [u, v, w], edges: [u, v, w] };
+}
+
+export function orientedBoxesCollide(a: OrientedBox, b: OrientedBox): boolean {
+	return convexShapesCollide(orientedBoxShape(a), orientedBoxShape(b));
+}
+
+export function boxToOriented(box: Box): OrientedBox {
+	return {
+		centre: { x: box.x + box.w / 2, y: box.y + box.h / 2, z: box.z + box.d / 2 },
+		axes: [
+			{ x: 1, y: 0, z: 0 },
+			{ x: 0, y: 1, z: 0 },
+			{ x: 0, y: 0, z: 1 }
+		],
+		half: [box.w / 2, box.h / 2, box.d / 2]
+	};
+}
+
+export function triangleShape(tri: Triangle): ConvexShape {
+	return {
+		vertices: [tri.a, tri.b, tri.c],
+		normals: [triangleNormal(tri)],
+		edges: [subtract(tri.b, tri.a), subtract(tri.c, tri.b), subtract(tri.a, tri.c)]
+	};
+}
+
+export function triangleBoxCollide(tri: Triangle, box: OrientedBox): boolean {
+	return convexShapesCollide(triangleShape(tri), orientedBoxShape(box));
+}
+```
+
+```js collision3d.js
+// A point or a vector is an object like { x: 1, y: 2, z: 3 }.
+export function subtract(a, b) {
+	return { x: a.x - b.x, y: a.y - b.y, z: a.z - b.z };
+}
+
+export function dot(u, v) {
+	return u.x * v.x + u.y * v.y + u.z * v.z;
+}
+
+export function distance(a, b) {
+	return Math.hypot(b.x - a.x, b.y - a.y, b.z - a.z);
+}
+
+export function distanceSquared(a, b) {
+	const step = subtract(b, a);
+	return dot(step, step);
+}
+
+export function midpoint(a, b) {
+	return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2, z: (a.z + b.z) / 2 };
+}
+
+// A sphere is an object like { x: 0, y: 1, z: 0, r: 2 }.
+export function pointInSphere(p, s) {
+	return distanceSquared(p, s) <= s.r ** 2;
+}
+
+export function spheresCollide(a, b) {
+	return distanceSquared(a, b) <= (a.r + b.r) ** 2;
+}
+
+export function overlap(a1, a2, b1, b2) {
+	return a1 <= b2 && b1 <= a2;
+}
+
+export function clamp(value, min, max) {
+	return Math.max(min, Math.min(max, value));
+}
+
+// A box is an object like { x: 0, y: 0, z: 0, w: 2, h: 1, d: 3 }.
+export function pointInBox(p, box) {
+	return (
+		box.x <= p.x && p.x <= box.x + box.w &&
+		box.y <= p.y && p.y <= box.y + box.h &&
+		box.z <= p.z && p.z <= box.z + box.d
+	);
+}
+
+export function boxesCollide(a, b) {
+	return (
+		overlap(a.x, a.x + a.w, b.x, b.x + b.w) &&
+		overlap(a.y, a.y + a.h, b.y, b.y + b.h) &&
+		overlap(a.z, a.z + a.d, b.z, b.z + b.d)
+	);
+}
+
+export function closestPointInBox(p, box) {
+	return {
+		x: clamp(p.x, box.x, box.x + box.w),
+		y: clamp(p.y, box.y, box.y + box.h),
+		z: clamp(p.z, box.z, box.z + box.d)
+	};
+}
+
+export function sphereBoxCollide(s, box) {
+	return pointInSphere(closestPointInBox(s, box), s);
+}
+
+// A plane is an object like { a: 0, b: 1, c: 0, d: 0 }, for y = 0.
+// The plane through `point`, at right angles to `normal`.
+export function planeAt(point, normal) {
+	return { a: normal.x, b: normal.y, c: normal.z, d: -dot(normal, point) };
+}
+
+export function cross(u, v) {
+	return {
+		x: u.y * v.z - u.z * v.y,
+		y: u.z * v.x - u.x * v.z,
+		z: u.x * v.y - u.y * v.x
+	};
+}
+
+export function planeThrough(a, b, c) {
+	return planeAt(a, cross(subtract(b, a), subtract(c, a)));
+}
+
+// ax + by + cz + d for the point: 0 on the plane, and its sign says which side.
+export function side(p, plane) {
+	return plane.a * p.x + plane.b * p.y + plane.c * p.z + plane.d;
+}
+
+export function distanceToPlane(p, plane) {
+	return Math.abs(side(p, plane)) / Math.hypot(plane.a, plane.b, plane.c);
+}
+
+export function spherePlaneCollide(s, plane) {
+	return side(s, plane) ** 2 <= s.r ** 2 * (plane.a ** 2 + plane.b ** 2 + plane.c ** 2);
+}
+
+export function boxPlaneCollide(box, plane) {
+	const centre = { x: box.x + box.w / 2, y: box.y + box.h / 2, z: box.z + box.d / 2 };
+	const reach =
+		(box.w / 2) * Math.abs(plane.a) +
+		(box.h / 2) * Math.abs(plane.b) +
+		(box.d / 2) * Math.abs(plane.c);
+	return Math.abs(side(centre, plane)) <= reach;
+}
+
+// The point t steps of `direction` away from `origin`.
+export function along(origin, direction, t) {
+	return {
+		x: origin.x + t * direction.x,
+		y: origin.y + t * direction.y,
+		z: origin.z + t * direction.z
+	};
+}
+
+export function closestPointOnSegment(p, a, b) {
+	const d = subtract(b, a);
+	const lengthSquared = dot(d, d);
+	if (lengthSquared === 0) return a; // A and B are the same point
+	const t = clamp(dot(subtract(p, a), d) / lengthSquared, 0, 1);
+	return along(a, d, t);
+}
+
+export function sphereSegmentCollide(s, a, b) {
+	return pointInSphere(closestPointOnSegment(s, a, b), s);
+}
+
+// A capsule is an object like { a: { x: 0, y: 0, z: 0 }, b: { x: 0, y: 2, z: 0 }, r: 0.5 }.
+export function capsuleSphereCollide(c, s) {
+	return distanceSquared(closestPointOnSegment(s, c.a, c.b), s) <= (c.r + s.r) ** 2;
+}
+
+// Where the segment from a to b crosses the plane, or null if it doesn't.
+export function segmentPlane(a, b, plane) {
+	const sa = side(a, plane);
+	const sb = side(b, plane);
+	if (sa * sb > 0) return null; // both ends on the same side
+	// sa and sb are equal only when both are 0: the segment lies in the plane.
+	const t = sa === sb ? 0 : sa / (sa - sb);
+	return along(a, subtract(b, a), t);
+}
+
+// How many steps of `direction` the ray takes to reach the plane, or null if it never does.
+export function rayPlane(origin, direction, plane) {
+	const facing = plane.a * direction.x + plane.b * direction.y + plane.c * direction.z;
+	if (facing === 0) return null; // parallel to the plane
+	const t = -side(origin, plane) / facing;
+	return t >= 0 ? t : null; // the plane is behind the ray when t < 0
+}
+
+export function raySphere(origin, direction, s) {
+	const m = subtract(origin, s);
+	const a = dot(direction, direction);
+	const b = dot(m, direction);
+	const c = dot(m, m) - s.r ** 2;
+	if (c > 0 && b > 0) return null; // outside, and pointing away
+	const discriminant = b * b - a * c;
+	if (discriminant < 0) return null; // the line misses the sphere
+	return Math.max((-b - Math.sqrt(discriminant)) / a, 0); // 0 when it starts inside
+}
+
+export function rayBox(origin, direction, box) {
+	let near = 0; // the ray starts at t = 0
+	let far = Infinity;
+	const slabs = [
+		[origin.x, direction.x, box.x, box.x + box.w],
+		[origin.y, direction.y, box.y, box.y + box.h],
+		[origin.z, direction.z, box.z, box.z + box.d]
+	];
+	for (const [o, d, min, max] of slabs) {
+		if (d === 0) {
+			// Parallel to this slab: inside it all along, or never.
+			if (o < min || o > max) return null;
+			continue;
+		}
+		const t1 = (min - o) / d;
+		const t2 = (max - o) / d;
+		near = Math.max(near, Math.min(t1, t2));
+		far = Math.min(far, Math.max(t1, t2));
+		if (near > far) return null; // it leaves one slab before it enters another
+	}
+	return near;
+}
+
+// A triangle is an object like { a: { x: 0, y: 0, z: 0 }, b: { x: 1, y: 0, z: 0 }, c: { x: 0, y: 1, z: 0 } }.
+export function triangleNormal(tri) {
+	return cross(subtract(tri.b, tri.a), subtract(tri.c, tri.a));
+}
+
+export function triangleArea(tri) {
+	const n = triangleNormal(tri);
+	return Math.hypot(n.x, n.y, n.z) / 2;
+}
+
+export function pointInTriangle(p, tri) {
+	const n = triangleNormal(tri);
+	return (
+		dot(cross(subtract(tri.b, tri.a), subtract(p, tri.a)), n) >= 0 &&
+		dot(cross(subtract(tri.c, tri.b), subtract(p, tri.b)), n) >= 0 &&
+		dot(cross(subtract(tri.a, tri.c), subtract(p, tri.c)), n) >= 0
+	);
+}
+
+export function rayTriangle(origin, direction, tri) {
+	const t = rayPlane(origin, direction, planeThrough(tri.a, tri.b, tri.c));
+	if (t === null) return null;
+	return pointInTriangle(along(origin, direction, t), tri) ? t : null;
+}
+
+export function closestPointOnTriangle(p, tri) {
+	const n = triangleNormal(tri);
+	const lengthSquared = dot(n, n);
+	if (lengthSquared > 0) {
+		// Straight down onto the triangle's plane.
+		const onPlane = along(p, n, -side(p, planeAt(tri.a, n)) / lengthSquared);
+		if (pointInTriangle(onPlane, tri)) return onPlane;
+	}
+	// Otherwise, the nearest point of the three edges.
+	const edges = [
+		closestPointOnSegment(p, tri.a, tri.b),
+		closestPointOnSegment(p, tri.b, tri.c),
+		closestPointOnSegment(p, tri.c, tri.a)
+	];
+	return edges.reduce((best, q) => (distanceSquared(p, q) < distanceSquared(p, best) ? q : best));
+}
+
+export function sphereTriangleCollide(s, tri) {
+	return pointInSphere(closestPointOnTriangle(s, tri), s);
+}
+
+// A polygon is an array of points, in order around its outline, all in one plane.
+
+export function polygonNormal(polygon) {
+	const first = polygon[0];
+	const normal = { x: 0, y: 0, z: 0 };
+	for (let i = 1; i + 1 < polygon.length; i++) {
+		const n = cross(subtract(polygon[i], first), subtract(polygon[i + 1], first));
+		normal.x += n.x;
+		normal.y += n.y;
+		normal.z += n.z;
+	}
+	return normal;
+}
+
+export function fan(polygon) {
+	const triangles = [];
+	for (let i = 1; i + 1 < polygon.length; i++) {
+		triangles.push({ a: polygon[0], b: polygon[i], c: polygon[i + 1] });
+	}
+	return triangles;
+}
+
+export function earClip(polygon) {
+	const normal = polygonNormal(polygon);
+	const corners = [...polygon];
+	const triangles = [];
+	let i = 0;
+	let checked = 0; // corners checked since the last ear
+	while (corners.length > 3 && checked < corners.length) {
+		const before = (i + corners.length - 1) % corners.length;
+		const after = (i + 1) % corners.length;
+		const ear = { a: corners[before], b: corners[i], c: corners[after] };
+		const turn = dot(cross(subtract(ear.b, ear.a), subtract(ear.c, ear.b)), normal);
+		const empty = corners.every(
+			(p, j) => j === before || j === i || j === after || !pointInTriangle(p, ear)
+		);
+		if (turn > 0 && empty) {
+			triangles.push(ear);
+			corners.splice(i, 1); // cut the ear off
+			i %= corners.length;
+			checked = 0;
+		} else {
+			i = (i + 1) % corners.length;
+			checked++;
+		}
+	}
+	if (corners.length === 3) triangles.push({ a: corners[0], b: corners[1], c: corners[2] });
+	return triangles;
+}
+
+// The first place the ray hits any of the triangles, or null if it misses them all.
+export function rayTriangles(origin, direction, triangles) {
+	let nearest = null;
+	for (const tri of triangles) {
+		const t = rayTriangle(origin, direction, tri);
+		if (t !== null && (nearest === null || t < nearest)) nearest = t;
+	}
+	return nearest;
+}
+
+export function sphereTrianglesCollide(s, triangles) {
+	return triangles.some((tri) => sphereTriangleCollide(s, tri));
+}
+
+// A convex shape, for the test, is an object with its corners, and the directions of its faces
+// and edges: { vertices: [...], normals: [...], edges: [...] }.
+
+// The shape's shadow on an axis, as an interval.
+export function project(vertices, axis) {
+	const values = vertices.map((vertex) => dot(vertex, axis));
+	return [Math.min(...values), Math.max(...values)];
+}
+
+export function convexShapesCollide(a, b) {
+	const axes = [...a.normals, ...b.normals];
+	for (const u of a.edges) for (const v of b.edges) axes.push(cross(u, v));
+	for (const axis of axes) {
+		if (dot(axis, axis) < 1e-9) continue; // parallel edges give no axis
+		const [aMin, aMax] = project(a.vertices, axis);
+		const [bMin, bMax] = project(b.vertices, axis);
+		if (!overlap(aMin, aMax, bMin, bMax)) return false; // a gap: they're apart
+	}
+	return true;
+}
+
+// A box turned any way is an object with its centre, three axes at right angles to each other,
+// each of length 1, and half its size along each: { centre, axes: [u, v, w], half: [hu, hv, hw] }.
+
+// The axes of something turned `angle` radians around the y-axis.
+export function axesTurnedAroundY(angle) {
+	const [cos, sin] = [Math.cos(angle), Math.sin(angle)];
+	return [
+		{ x: cos, y: 0, z: -sin },
+		{ x: 0, y: 1, z: 0 },
+		{ x: sin, y: 0, z: cos }
+	];
+}
+
+export function orientedBoxShape(box) {
+	const [u, v, w] = box.axes;
+	const [hu, hv, hw] = box.half;
+	const vertices = [];
+	for (const i of [-1, 1]) {
+		for (const j of [-1, 1]) {
+			for (const k of [-1, 1]) {
+				vertices.push({
+					x: box.centre.x + i * hu * u.x + j * hv * v.x + k * hw * w.x,
+					y: box.centre.y + i * hu * u.y + j * hv * v.y + k * hw * w.y,
+					z: box.centre.z + i * hu * u.z + j * hv * v.z + k * hw * w.z
+				});
+			}
+		}
+	}
+	return { vertices, normals: [u, v, w], edges: [u, v, w] };
+}
+
+export function orientedBoxesCollide(a, b) {
+	return convexShapesCollide(orientedBoxShape(a), orientedBoxShape(b));
+}
+
+export function boxToOriented(box) {
+	return {
+		centre: { x: box.x + box.w / 2, y: box.y + box.h / 2, z: box.z + box.d / 2 },
+		axes: [
+			{ x: 1, y: 0, z: 0 },
+			{ x: 0, y: 1, z: 0 },
+			{ x: 0, y: 0, z: 1 }
+		],
+		half: [box.w / 2, box.h / 2, box.d / 2]
+	};
+}
+
+export function triangleShape(tri) {
+	return {
+		vertices: [tri.a, tri.b, tri.c],
+		normals: [triangleNormal(tri)],
+		edges: [subtract(tri.b, tri.a), subtract(tri.c, tri.b), subtract(tri.a, tri.c)]
+	};
+}
+
+export function triangleBoxCollide(tri, box) {
+	return convexShapesCollide(triangleShape(tri), orientedBoxShape(box));
+}
+```
+
+```py collision3d.py
+import math
+from dataclasses import dataclass
+
+
+@dataclass
+class Vec3:
+    """A point, or a vector: (x, y, z) is then the step, not a position."""
+
+    x: float
+    y: float
+    z: float
+
+
+def subtract(a: Vec3, b: Vec3) -> Vec3:
+    return Vec3(a.x - b.x, a.y - b.y, a.z - b.z)
+
+
+def dot(u: Vec3, v: Vec3) -> float:
+    return u.x * v.x + u.y * v.y + u.z * v.z
+
+
+def distance(a: Vec3, b: Vec3) -> float:
+    return math.hypot(b.x - a.x, b.y - a.y, b.z - a.z)
+
+
+def distance_squared(a: Vec3, b: Vec3) -> float:
+    step = subtract(b, a)
+    return dot(step, step)
+
+
+def midpoint(a: Vec3, b: Vec3) -> Vec3:
+    return Vec3((a.x + b.x) / 2, (a.y + b.y) / 2, (a.z + b.z) / 2)
+
+
+@dataclass
+class Sphere:
+    x: float
+    y: float
+    z: float
+    r: float
+
+
+def point_in_sphere(p: Vec3, s: Sphere) -> bool:
+    return distance_squared(p, s) <= s.r ** 2
+
+
+def spheres_collide(a: Sphere, b: Sphere) -> bool:
+    return distance_squared(a, b) <= (a.r + b.r) ** 2
+
+
+def overlap(a1: float, a2: float, b1: float, b2: float) -> bool:
+    return a1 <= b2 and b1 <= a2
+
+
+def clamp(value: float, low: float, high: float) -> float:
+    return max(low, min(high, value))
+
+
+@dataclass
+class Box:
+    x: float
+    y: float
+    z: float
+    w: float
+    h: float
+    d: float
+
+
+def point_in_box(p: Vec3, box: Box) -> bool:
+    return (
+        box.x <= p.x <= box.x + box.w
+        and box.y <= p.y <= box.y + box.h
+        and box.z <= p.z <= box.z + box.d
+    )
+
+
+def boxes_collide(a: Box, b: Box) -> bool:
+    return (
+        overlap(a.x, a.x + a.w, b.x, b.x + b.w)
+        and overlap(a.y, a.y + a.h, b.y, b.y + b.h)
+        and overlap(a.z, a.z + a.d, b.z, b.z + b.d)
+    )
+
+
+def closest_point_in_box(p: Vec3, box: Box) -> Vec3:
+    return Vec3(
+        clamp(p.x, box.x, box.x + box.w),
+        clamp(p.y, box.y, box.y + box.h),
+        clamp(p.z, box.z, box.z + box.d),
+    )
+
+
+def sphere_box_collide(s: Sphere, box: Box) -> bool:
+    return point_in_sphere(closest_point_in_box(s, box), s)
+
+
+@dataclass
+class Plane:
+    a: float
+    b: float
+    c: float
+    d: float
+
+
+def plane_at(point: Vec3, normal: Vec3) -> Plane:
+    """The plane through `point`, at right angles to `normal`."""
+    return Plane(normal.x, normal.y, normal.z, -dot(normal, point))
+
+
+def cross(u: Vec3, v: Vec3) -> Vec3:
+    return Vec3(
+        u.y * v.z - u.z * v.y,
+        u.z * v.x - u.x * v.z,
+        u.x * v.y - u.y * v.x,
+    )
+
+
+def plane_through(a: Vec3, b: Vec3, c: Vec3) -> Plane:
+    return plane_at(a, cross(subtract(b, a), subtract(c, a)))
+
+
+def side(p: Vec3, plane: Plane) -> float:
+    """ax + by + cz + d for the point: 0 on the plane, and its sign says which side."""
+    return plane.a * p.x + plane.b * p.y + plane.c * p.z + plane.d
+
+
+def distance_to_plane(p: Vec3, plane: Plane) -> float:
+    return abs(side(p, plane)) / math.hypot(plane.a, plane.b, plane.c)
+
+
+def sphere_plane_collide(s: Sphere, plane: Plane) -> bool:
+    return side(s, plane) ** 2 <= s.r ** 2 * (plane.a ** 2 + plane.b ** 2 + plane.c ** 2)
+
+
+def box_plane_collide(box: Box, plane: Plane) -> bool:
+    centre = Vec3(box.x + box.w / 2, box.y + box.h / 2, box.z + box.d / 2)
+    reach = (
+        box.w / 2 * abs(plane.a)
+        + box.h / 2 * abs(plane.b)
+        + box.d / 2 * abs(plane.c)
+    )
+    return abs(side(centre, plane)) <= reach
+
+
+def along(origin: Vec3, direction: Vec3, t: float) -> Vec3:
+    """The point t steps of `direction` away from `origin`."""
+    return Vec3(
+        origin.x + t * direction.x,
+        origin.y + t * direction.y,
+        origin.z + t * direction.z,
+    )
+
+
+def closest_point_on_segment(p: Vec3, a: Vec3, b: Vec3) -> Vec3:
+    d = subtract(b, a)
+    length_squared = dot(d, d)
+    if length_squared == 0:  # A and B are the same point
+        return a
+    t = clamp(dot(subtract(p, a), d) / length_squared, 0, 1)
+    return along(a, d, t)
+
+
+def sphere_segment_collide(s: Sphere, a: Vec3, b: Vec3) -> bool:
+    return point_in_sphere(closest_point_on_segment(s, a, b), s)
+
+
+@dataclass
+class Capsule:
+    a: Vec3
+    b: Vec3
+    r: float
+
+
+def capsule_sphere_collide(c: Capsule, s: Sphere) -> bool:
+    return distance_squared(closest_point_on_segment(s, c.a, c.b), s) <= (c.r + s.r) ** 2
+
+
+def segment_plane(a: Vec3, b: Vec3, plane: Plane) -> Vec3 | None:
+    """Where the segment from a to b crosses the plane, or None if it doesn't."""
+    sa = side(a, plane)
+    sb = side(b, plane)
+    if sa * sb > 0:  # both ends on the same side
+        return None
+    # sa and sb are equal only when both are 0: the segment lies in the plane.
+    t = 0 if sa == sb else sa / (sa - sb)
+    return along(a, subtract(b, a), t)
+
+
+def ray_plane(origin: Vec3, direction: Vec3, plane: Plane) -> float | None:
+    """How many steps of `direction` the ray takes to reach the plane, or None if it never does."""
+    facing = plane.a * direction.x + plane.b * direction.y + plane.c * direction.z
+    if facing == 0:  # parallel to the plane
+        return None
+    t = -side(origin, plane) / facing
+    return t if t >= 0 else None  # the plane is behind the ray when t < 0
+
+
+def ray_sphere(origin: Vec3, direction: Vec3, s: Sphere) -> float | None:
+    m = subtract(origin, s)
+    a = dot(direction, direction)
+    b = dot(m, direction)
+    c = dot(m, m) - s.r ** 2
+    if c > 0 and b > 0:  # outside, and pointing away
+        return None
+    discriminant = b * b - a * c
+    if discriminant < 0:  # the line misses the sphere
+        return None
+    return max((-b - math.sqrt(discriminant)) / a, 0)  # 0 when it starts inside
+
+
+def ray_box(origin: Vec3, direction: Vec3, box: Box) -> float | None:
+    near = 0.0  # the ray starts at t = 0
+    far = math.inf
+    slabs = [
+        (origin.x, direction.x, box.x, box.x + box.w),
+        (origin.y, direction.y, box.y, box.y + box.h),
+        (origin.z, direction.z, box.z, box.z + box.d),
+    ]
+    for o, d, low, high in slabs:
+        if d == 0:
+            # Parallel to this slab: inside it all along, or never.
+            if o < low or o > high:
+                return None
+            continue
+        t1 = (low - o) / d
+        t2 = (high - o) / d
+        near = max(near, min(t1, t2))
+        far = min(far, max(t1, t2))
+        if near > far:  # it leaves one slab before it enters another
+            return None
+    return near
+
+
+@dataclass
+class Triangle:
+    a: Vec3
+    b: Vec3
+    c: Vec3
+
+
+def triangle_normal(tri: Triangle) -> Vec3:
+    return cross(subtract(tri.b, tri.a), subtract(tri.c, tri.a))
+
+
+def triangle_area(tri: Triangle) -> float:
+    n = triangle_normal(tri)
+    return math.hypot(n.x, n.y, n.z) / 2
+
+
+def point_in_triangle(p: Vec3, tri: Triangle) -> bool:
+    n = triangle_normal(tri)
+    return (
+        dot(cross(subtract(tri.b, tri.a), subtract(p, tri.a)), n) >= 0
+        and dot(cross(subtract(tri.c, tri.b), subtract(p, tri.b)), n) >= 0
+        and dot(cross(subtract(tri.a, tri.c), subtract(p, tri.c)), n) >= 0
+    )
+
+
+def ray_triangle(origin: Vec3, direction: Vec3, tri: Triangle) -> float | None:
+    t = ray_plane(origin, direction, plane_through(tri.a, tri.b, tri.c))
+    if t is None:
+        return None
+    return t if point_in_triangle(along(origin, direction, t), tri) else None
+
+
+def closest_point_on_triangle(p: Vec3, tri: Triangle) -> Vec3:
+    n = triangle_normal(tri)
+    length_squared = dot(n, n)
+    if length_squared > 0:
+        # Straight down onto the triangle's plane.
+        on_plane = along(p, n, -side(p, plane_at(tri.a, n)) / length_squared)
+        if point_in_triangle(on_plane, tri):
+            return on_plane
+    # Otherwise, the nearest point of the three edges.
+    edges = [
+        closest_point_on_segment(p, tri.a, tri.b),
+        closest_point_on_segment(p, tri.b, tri.c),
+        closest_point_on_segment(p, tri.c, tri.a),
+    ]
+    return min(edges, key=lambda q: distance_squared(p, q))
+
+
+def sphere_triangle_collide(s: Sphere, tri: Triangle) -> bool:
+    return point_in_sphere(closest_point_on_triangle(s, tri), s)
+
+
+Polygon = list[Vec3]  # corners in order around the outline, all in one plane
+
+
+def polygon_normal(polygon: Polygon) -> Vec3:
+    first = polygon[0]
+    normal = Vec3(0, 0, 0)
+    for p, q in zip(polygon[1:], polygon[2:]):
+        n = cross(subtract(p, first), subtract(q, first))
+        normal = Vec3(normal.x + n.x, normal.y + n.y, normal.z + n.z)
+    return normal
+
+
+def fan(polygon: Polygon) -> list[Triangle]:
+    return [Triangle(polygon[0], p, q) for p, q in zip(polygon[1:], polygon[2:])]
+
+
+def ear_clip(polygon: Polygon) -> list[Triangle]:
+    normal = polygon_normal(polygon)
+    corners = list(polygon)
+    triangles = []
+    i = 0
+    checked = 0  # corners checked since the last ear
+    while len(corners) > 3 and checked < len(corners):
+        before = (i - 1) % len(corners)
+        after = (i + 1) % len(corners)
+        ear = Triangle(corners[before], corners[i], corners[after])
+        turn = dot(cross(subtract(ear.b, ear.a), subtract(ear.c, ear.b)), normal)
+        empty = all(
+            j in (before, i, after) or not point_in_triangle(p, ear)
+            for j, p in enumerate(corners)
+        )
+        if turn > 0 and empty:
+            triangles.append(ear)
+            del corners[i]  # cut the ear off
+            i %= len(corners)
+            checked = 0
+        else:
+            i = (i + 1) % len(corners)
+            checked += 1
+    if len(corners) == 3:
+        triangles.append(Triangle(*corners))
+    return triangles
+
+
+def ray_triangles(origin: Vec3, direction: Vec3, triangles: list[Triangle]) -> float | None:
+    """The first place the ray hits any of the triangles, or None if it misses them all."""
+    nearest = None
+    for tri in triangles:
+        t = ray_triangle(origin, direction, tri)
+        if t is not None and (nearest is None or t < nearest):
+            nearest = t
+    return nearest
+
+
+def sphere_triangles_collide(s: Sphere, triangles: list[Triangle]) -> bool:
+    return any(sphere_triangle_collide(s, tri) for tri in triangles)
+
+
+@dataclass
+class ConvexShape:
+    """A convex shape, for the test: its corners, and the directions of its faces and edges."""
+
+    vertices: list[Vec3]
+    normals: list[Vec3]
+    edges: list[Vec3]
+
+
+def project(vertices: list[Vec3], axis: Vec3) -> tuple[float, float]:
+    """The shape's shadow on an axis, as an interval."""
+    values = [dot(vertex, axis) for vertex in vertices]
+    return min(values), max(values)
+
+
+def convex_shapes_collide(a: ConvexShape, b: ConvexShape) -> bool:
+    axes = a.normals + b.normals + [cross(u, v) for u in a.edges for v in b.edges]
+    for axis in axes:
+        if dot(axis, axis) < 1e-9:  # parallel edges give no axis
+            continue
+        a_min, a_max = project(a.vertices, axis)
+        b_min, b_max = project(b.vertices, axis)
+        if not overlap(a_min, a_max, b_min, b_max):
+            return False  # a gap: they're apart
+    return True
+
+
+@dataclass
+class OrientedBox:
+    """A box turned any way: its centre, three axes at right angles to each other, each of
+    length 1, and half its size along each."""
+
+    centre: Vec3
+    axes: tuple[Vec3, Vec3, Vec3]
+    half: tuple[float, float, float]
+
+
+def axes_turned_around_y(angle: float) -> tuple[Vec3, Vec3, Vec3]:
+    """The axes of something turned `angle` radians around the y-axis."""
+    cos, sin = math.cos(angle), math.sin(angle)
+    return Vec3(cos, 0, -sin), Vec3(0, 1, 0), Vec3(sin, 0, cos)
+
+
+def oriented_box_shape(box: OrientedBox) -> ConvexShape:
+    u, v, w = box.axes
+    hu, hv, hw = box.half
+    vertices = [
+        Vec3(
+            box.centre.x + i * hu * u.x + j * hv * v.x + k * hw * w.x,
+            box.centre.y + i * hu * u.y + j * hv * v.y + k * hw * w.y,
+            box.centre.z + i * hu * u.z + j * hv * v.z + k * hw * w.z,
+        )
+        for i in (-1, 1)
+        for j in (-1, 1)
+        for k in (-1, 1)
+    ]
+    return ConvexShape(vertices, [u, v, w], [u, v, w])
+
+
+def oriented_boxes_collide(a: OrientedBox, b: OrientedBox) -> bool:
+    return convex_shapes_collide(oriented_box_shape(a), oriented_box_shape(b))
+
+
+def box_to_oriented(box: Box) -> OrientedBox:
+    return OrientedBox(
+        Vec3(box.x + box.w / 2, box.y + box.h / 2, box.z + box.d / 2),
+        (Vec3(1, 0, 0), Vec3(0, 1, 0), Vec3(0, 0, 1)),
+        (box.w / 2, box.h / 2, box.d / 2),
+    )
+
+
+def triangle_shape(tri: Triangle) -> ConvexShape:
+    return ConvexShape(
+        [tri.a, tri.b, tri.c],
+        [triangle_normal(tri)],
+        [subtract(tri.b, tri.a), subtract(tri.c, tri.b), subtract(tri.a, tri.c)],
+    )
+
+
+def triangle_box_collide(tri: Triangle, box: OrientedBox) -> bool:
+    return convex_shapes_collide(triangle_shape(tri), oriented_box_shape(box))
+```
+
+</CodeGroup>

@@ -1,0 +1,352 @@
+---
+title: The separating axis test in 3D
+description: The separating axis test for convex shapes in space. Face normals, the edge × edge axes that 3D adds, turned boxes, and triangle vs box.
+part: 3D
+order: 108
+published: true
+---
+
+<script>
+  import CodeGroup from '$lib/components/CodeGroup.svelte';
+  import Complexity from '$lib/components/Complexity.svelte';
+  import SatTest from '$lib/components/posts/space/SatTest.svelte';
+</script>
+
+Boxes along the axes are cheap, but they can't turn. A crate knocked on its side, a car on a slope, a door swinging open: those need boxes at any angle, and the tool for them is the separating axis test from Part I, taken into space.
+
+## The theorem in space
+
+In the plane, two convex shapes didn't touch exactly when a line fitted between them. In space, it's a plane:
+
+> Two convex shapes in space don't touch exactly when there's a plane you can slide between them.
+
+The axis is that plane's normal, and the test is the same as before: project both shapes onto the axis, and if their shadows don't overlap, the axis separates them.
+
+In the plane, it was enough to try the edge normals. In space, there are two kinds of axes to try:
+
+- The **face normals** of both shapes. They find the gap when a face of one shape is what's facing the other shape.
+- The **cross product of every edge direction of one shape with every edge direction of the other**. They find the gap when the shapes are nearest edge to edge, like two sticks crossed at a distance. No face of either stick separates them then, but a plane parallel to both edges does, and its normal is at right angles to both edges: their cross product.
+
+If none of these axes shows a gap, the shapes collide.
+
+## Convex shapes
+
+For the test, a convex shape is its corners and the directions of its faces and edges. Only the directions matter, so a box has 3 face normals and 3 edge directions, not 6 faces and 12 edges: opposite faces and parallel edges give the same axis.
+
+Projecting works just like it did in Part I. Two parallel edges give no axis at all, because their cross product is zero, so those are skipped. A pair that's only nearly parallel gives an axis so short that rounding errors could fake a gap, so the check skips those too.
+
+<CodeGroup>
+
+```ts
+// A convex shape, for the test: its corners, and the directions of its faces and edges.
+type ConvexShape = { vertices: Vec3[]; normals: Vec3[]; edges: Vec3[] };
+
+// The shape's shadow on an axis, as an interval.
+function project(vertices: Vec3[], axis: Vec3): [number, number] {
+	const values = vertices.map((vertex) => dot(vertex, axis));
+	return [Math.min(...values), Math.max(...values)];
+}
+
+function convexShapesCollide(a: ConvexShape, b: ConvexShape): boolean {
+	const axes = [...a.normals, ...b.normals];
+	for (const u of a.edges) for (const v of b.edges) axes.push(cross(u, v));
+	for (const axis of axes) {
+		if (dot(axis, axis) < 1e-9) continue; // parallel edges give no axis
+		const [aMin, aMax] = project(a.vertices, axis);
+		const [bMin, bMax] = project(b.vertices, axis);
+		if (!overlap(aMin, aMax, bMin, bMax)) return false; // a gap: they're apart
+	}
+	return true;
+}
+```
+
+```js
+// A convex shape, for the test, is an object with its corners, and the directions of its faces
+// and edges: { vertices: [...], normals: [...], edges: [...] }.
+
+// The shape's shadow on an axis, as an interval.
+function project(vertices, axis) {
+	const values = vertices.map((vertex) => dot(vertex, axis));
+	return [Math.min(...values), Math.max(...values)];
+}
+
+function convexShapesCollide(a, b) {
+	const axes = [...a.normals, ...b.normals];
+	for (const u of a.edges) for (const v of b.edges) axes.push(cross(u, v));
+	for (const axis of axes) {
+		if (dot(axis, axis) < 1e-9) continue; // parallel edges give no axis
+		const [aMin, aMax] = project(a.vertices, axis);
+		const [bMin, bMax] = project(b.vertices, axis);
+		if (!overlap(aMin, aMax, bMin, bMax)) return false; // a gap: they're apart
+	}
+	return true;
+}
+```
+
+```py
+@dataclass
+class ConvexShape:
+    """A convex shape, for the test: its corners, and the directions of its faces and edges."""
+
+    vertices: list[Vec3]
+    normals: list[Vec3]
+    edges: list[Vec3]
+
+
+def project(vertices: list[Vec3], axis: Vec3) -> tuple[float, float]:
+    """The shape's shadow on an axis, as an interval."""
+    values = [dot(vertex, axis) for vertex in vertices]
+    return min(values), max(values)
+
+
+def convex_shapes_collide(a: ConvexShape, b: ConvexShape) -> bool:
+    axes = a.normals + b.normals + [cross(u, v) for u in a.edges for v in b.edges]
+    for axis in axes:
+        if dot(axis, axis) < 1e-9:  # parallel edges give no axis
+            continue
+        a_min, a_max = project(a.vertices, axis)
+        b_min, b_max = project(b.vertices, axis)
+        if not overlap(a_min, a_max, b_min, b_max):
+            return False  # a gap: they're apart
+    return True
+```
+
+</CodeGroup>
+
+<Complexity items={[{'name': 'project', 'time': 'O(v)', 'space': 'O(v)', 'note': 'for v corners; tracking the minimum and maximum as you go needs only O(1) space'}, {'name': 'convexShapesCollide', 'time': 'O((f + e²) · v)', 'space': 'O(f + e² + v)', 'note': 'with f face directions, e edge directions and v corners per shape: f + f + e · e axes, each projecting every corner'}]} />
+
+## Turned boxes
+
+A box turned any way is its centre, three axes and three half-sizes. The axes are unit vectors at right angles to each other, the directions its width, height and depth run along. Its corners are the centre, plus or minus each axis times its half-size, which makes $2 \times 2 \times 2 = 8$ corners. Its face normals and its edge directions are both just the three axes.
+
+Where do the axes come from? For something that only turns around the vertical, like a character or a car on flat ground, they're the $x$-, $y$- and $z$-axis turned by the same angle. In general, they're the three columns of the object's rotation matrix, which is where an engine keeps its rotation anyway.
+
+<CodeGroup>
+
+```ts
+// A box turned any way: its centre, three axes at right angles to each other, each of length 1,
+// and half its size along each.
+type OrientedBox = { centre: Vec3; axes: [Vec3, Vec3, Vec3]; half: [number, number, number] };
+
+// The axes of something turned `angle` radians around the y-axis.
+function axesTurnedAroundY(angle: number): [Vec3, Vec3, Vec3] {
+	const [cos, sin] = [Math.cos(angle), Math.sin(angle)];
+	return [
+		{ x: cos, y: 0, z: -sin },
+		{ x: 0, y: 1, z: 0 },
+		{ x: sin, y: 0, z: cos }
+	];
+}
+
+function orientedBoxShape(box: OrientedBox): ConvexShape {
+	const [u, v, w] = box.axes;
+	const [hu, hv, hw] = box.half;
+	const vertices: Vec3[] = [];
+	for (const i of [-1, 1]) {
+		for (const j of [-1, 1]) {
+			for (const k of [-1, 1]) {
+				vertices.push({
+					x: box.centre.x + i * hu * u.x + j * hv * v.x + k * hw * w.x,
+					y: box.centre.y + i * hu * u.y + j * hv * v.y + k * hw * w.y,
+					z: box.centre.z + i * hu * u.z + j * hv * v.z + k * hw * w.z
+				});
+			}
+		}
+	}
+	return { vertices, normals: [u, v, w], edges: [u, v, w] };
+}
+
+function orientedBoxesCollide(a: OrientedBox, b: OrientedBox): boolean {
+	return convexShapesCollide(orientedBoxShape(a), orientedBoxShape(b));
+}
+```
+
+```js
+// A box turned any way is an object with its centre, three axes at right angles to each other,
+// each of length 1, and half its size along each: { centre, axes: [u, v, w], half: [hu, hv, hw] }.
+
+// The axes of something turned `angle` radians around the y-axis.
+function axesTurnedAroundY(angle) {
+	const [cos, sin] = [Math.cos(angle), Math.sin(angle)];
+	return [
+		{ x: cos, y: 0, z: -sin },
+		{ x: 0, y: 1, z: 0 },
+		{ x: sin, y: 0, z: cos }
+	];
+}
+
+function orientedBoxShape(box) {
+	const [u, v, w] = box.axes;
+	const [hu, hv, hw] = box.half;
+	const vertices = [];
+	for (const i of [-1, 1]) {
+		for (const j of [-1, 1]) {
+			for (const k of [-1, 1]) {
+				vertices.push({
+					x: box.centre.x + i * hu * u.x + j * hv * v.x + k * hw * w.x,
+					y: box.centre.y + i * hu * u.y + j * hv * v.y + k * hw * w.y,
+					z: box.centre.z + i * hu * u.z + j * hv * v.z + k * hw * w.z
+				});
+			}
+		}
+	}
+	return { vertices, normals: [u, v, w], edges: [u, v, w] };
+}
+
+function orientedBoxesCollide(a, b) {
+	return convexShapesCollide(orientedBoxShape(a), orientedBoxShape(b));
+}
+```
+
+```py
+@dataclass
+class OrientedBox:
+    """A box turned any way: its centre, three axes at right angles to each other, each of
+    length 1, and half its size along each."""
+
+    centre: Vec3
+    axes: tuple[Vec3, Vec3, Vec3]
+    half: tuple[float, float, float]
+
+
+def axes_turned_around_y(angle: float) -> tuple[Vec3, Vec3, Vec3]:
+    """The axes of something turned `angle` radians around the y-axis."""
+    cos, sin = math.cos(angle), math.sin(angle)
+    return Vec3(cos, 0, -sin), Vec3(0, 1, 0), Vec3(sin, 0, cos)
+
+
+def oriented_box_shape(box: OrientedBox) -> ConvexShape:
+    u, v, w = box.axes
+    hu, hv, hw = box.half
+    vertices = [
+        Vec3(
+            box.centre.x + i * hu * u.x + j * hv * v.x + k * hw * w.x,
+            box.centre.y + i * hu * u.y + j * hv * v.y + k * hw * w.y,
+            box.centre.z + i * hu * u.z + j * hv * v.z + k * hw * w.z,
+        )
+        for i in (-1, 1)
+        for j in (-1, 1)
+        for k in (-1, 1)
+    ]
+    return ConvexShape(vertices, [u, v, w], [u, v, w])
+
+
+def oriented_boxes_collide(a: OrientedBox, b: OrientedBox) -> bool:
+    return convex_shapes_collide(oriented_box_shape(a), oriented_box_shape(b))
+```
+
+</CodeGroup>
+
+<Complexity items={[{'name': 'axesTurnedAroundY', 'time': 'O(1)', 'space': 'O(1)'}, {'name': 'orientedBoxShape', 'time': 'O(1)', 'space': 'O(1)'}, {'name': 'orientedBoxesCollide', 'time': 'O(1)', 'space': 'O(1)', 'note': 'at most 3 + 3 + 3 × 3 = 15 axes, each projecting 8 + 8 corners'}]} />
+
+Two boxes have $3 + 3$ face normals and $3 \times 3$ edge pairs, so at most 15 axes. Move and turn the boxes below. The dashed line is the first axis that shows a gap, with each box's shadow on it, and the small square is a piece of the plane that fits between them.
+
+<SatTest against="box" />
+
+And here is why the edge pairs are needed. These two sticks don't touch, but turn the view: no face of either one faces the gap. The first gap only shows up on an edge × edge axis. Leave those axes out of the test, and it would report a collision here.
+
+<SatTest against="box" start="edges" />
+
+An axis-aligned box from the chapter on boxes is a turned box that isn't turned, so it fits the same test:
+
+<CodeGroup>
+
+```ts
+function boxToOriented(box: Box): OrientedBox {
+	return {
+		centre: { x: box.x + box.w / 2, y: box.y + box.h / 2, z: box.z + box.d / 2 },
+		axes: [
+			{ x: 1, y: 0, z: 0 },
+			{ x: 0, y: 1, z: 0 },
+			{ x: 0, y: 0, z: 1 }
+		],
+		half: [box.w / 2, box.h / 2, box.d / 2]
+	};
+}
+```
+
+```js
+function boxToOriented(box) {
+	return {
+		centre: { x: box.x + box.w / 2, y: box.y + box.h / 2, z: box.z + box.d / 2 },
+		axes: [
+			{ x: 1, y: 0, z: 0 },
+			{ x: 0, y: 1, z: 0 },
+			{ x: 0, y: 0, z: 1 }
+		],
+		half: [box.w / 2, box.h / 2, box.d / 2]
+	};
+}
+```
+
+```py
+def box_to_oriented(box: Box) -> OrientedBox:
+    return OrientedBox(
+        Vec3(box.x + box.w / 2, box.y + box.h / 2, box.z + box.d / 2),
+        (Vec3(1, 0, 0), Vec3(0, 1, 0), Vec3(0, 0, 1)),
+        (box.w / 2, box.h / 2, box.d / 2),
+    )
+```
+
+</CodeGroup>
+
+<Complexity items={[{'name': 'boxToOriented', 'time': 'O(1)', 'space': 'O(1)'}]} />
+
+## Triangle vs box
+
+A triangle is a convex shape too: three corners, one face normal, and three edge directions. Against a box, that's $1 + 3$ face normals and $3 \times 3$ edge pairs, so at most 13 axes. This is the test behind turning a mesh into voxels, and behind finding which cells of a grid a triangle passes through.
+
+<SatTest against="triangle" />
+
+<CodeGroup>
+
+```ts
+function triangleShape(tri: Triangle): ConvexShape {
+	return {
+		vertices: [tri.a, tri.b, tri.c],
+		normals: [triangleNormal(tri)],
+		edges: [subtract(tri.b, tri.a), subtract(tri.c, tri.b), subtract(tri.a, tri.c)]
+	};
+}
+
+function triangleBoxCollide(tri: Triangle, box: OrientedBox): boolean {
+	return convexShapesCollide(triangleShape(tri), orientedBoxShape(box));
+}
+```
+
+```js
+function triangleShape(tri) {
+	return {
+		vertices: [tri.a, tri.b, tri.c],
+		normals: [triangleNormal(tri)],
+		edges: [subtract(tri.b, tri.a), subtract(tri.c, tri.b), subtract(tri.a, tri.c)]
+	};
+}
+
+function triangleBoxCollide(tri, box) {
+	return convexShapesCollide(triangleShape(tri), orientedBoxShape(box));
+}
+```
+
+```py
+def triangle_shape(tri: Triangle) -> ConvexShape:
+    return ConvexShape(
+        [tri.a, tri.b, tri.c],
+        [triangle_normal(tri)],
+        [subtract(tri.b, tri.a), subtract(tri.c, tri.b), subtract(tri.a, tri.c)],
+    )
+
+
+def triangle_box_collide(tri: Triangle, box: OrientedBox) -> bool:
+    return convex_shapes_collide(triangle_shape(tri), oriented_box_shape(box))
+```
+
+</CodeGroup>
+
+<Complexity items={[{'name': 'triangleShape', 'time': 'O(1)', 'space': 'O(1)'}, {'name': 'triangleBoxCollide', 'time': 'O(1)', 'space': 'O(1)', 'note': 'at most 1 + 3 + 3 × 3 = 13 axes, each projecting 3 + 8 corners'}]} />
+
+## Any convex shape
+
+`convexShapesCollide` takes any convex shape whose corners, face directions and edge directions you know: a prism, a pyramid, or the convex hull an engine wraps around a character. List each direction once. The number of axes grows with the product of the two shapes' edge directions, though, so for convex shapes with many faces, engines switch to other algorithms, like GJK. For boxes and triangles, the separating axis test is the standard.
+
+A concave shape has to be split into convex pieces first, just as a concave polygon was split into triangles in the previous chapter. Test the pieces, and the shape collides if any of them does.

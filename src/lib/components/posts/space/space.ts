@@ -157,3 +157,176 @@ export function rayBoxSlabs(origin: Vec3, direction: Vec3, box: Box) {
 }
 export const rayBox = (origin: Vec3, direction: Vec3, box: Box) =>
 	rayBoxSlabs(origin, direction, box).hit?.[0] ?? null;
+
+// Triangles.
+export type Triangle = { a: Vec3; b: Vec3; c: Vec3 };
+export const triangleNormal = (tri: Triangle) =>
+	cross(subtract(tri.b, tri.a), subtract(tri.c, tri.a));
+/** Per edge (AB, BC, CA): which side of it p is on, positive inside, as the book's test sees it. */
+export function edgeSides(p: Vec3, tri: Triangle) {
+	const n = triangleNormal(tri);
+	return [
+		dot(cross(subtract(tri.b, tri.a), subtract(p, tri.a)), n),
+		dot(cross(subtract(tri.c, tri.b), subtract(p, tri.b)), n),
+		dot(cross(subtract(tri.a, tri.c), subtract(p, tri.c)), n)
+	];
+}
+export const pointInTriangle = (p: Vec3, tri: Triangle) =>
+	edgeSides(p, tri).every((value) => value >= 0);
+export function rayTriangle(origin: Vec3, direction: Vec3, tri: Triangle) {
+	const t = rayPlane(origin, direction, planeThrough(tri.a, tri.b, tri.c));
+	if (t === null) return null;
+	return pointInTriangle(along(origin, direction, t), tri) ? t : null;
+}
+export function closestPointOnTriangle(p: Vec3, tri: Triangle) {
+	const n = triangleNormal(tri);
+	const lengthSquared = dot(n, n);
+	if (lengthSquared > 0) {
+		const onPlane = along(p, n, -side(p, planeAt(tri.a, n)) / lengthSquared);
+		if (pointInTriangle(onPlane, tri)) return onPlane;
+	}
+	return [
+		closestPointOnSegment(p, tri.a, tri.b),
+		closestPointOnSegment(p, tri.b, tri.c),
+		closestPointOnSegment(p, tri.c, tri.a)
+	].reduce((best, q) => (distanceSquared(p, q) < distanceSquared(p, best) ? q : best));
+}
+export const sphereTriangleCollide = (s: Sphere, tri: Triangle) =>
+	pointInSphere(closestPointOnTriangle(s, tri), s);
+
+// Polygons into triangles.
+export type Polygon = Vec3[];
+/** The fan's triangle normals added up: along the normal, twice the area long. */
+export function polygonNormal(polygon: Polygon) {
+	let normal = { x: 0, y: 0, z: 0 };
+	for (let i = 1; i + 1 < polygon.length; i++) {
+		normal = add(
+			normal,
+			cross(subtract(polygon[i], polygon[0]), subtract(polygon[i + 1], polygon[0]))
+		);
+	}
+	return normal;
+}
+export function fan(polygon: Polygon): Triangle[] {
+	const triangles: Triangle[] = [];
+	for (let i = 1; i + 1 < polygon.length; i++) {
+		triangles.push({ a: polygon[0], b: polygon[i], c: polygon[i + 1] });
+	}
+	return triangles;
+}
+/** Whether the corner at `corner` turns the same way as the polygon: not dented inwards. */
+export const isConvexCorner = (before: Vec3, corner: Vec3, after: Vec3, normal: Vec3) =>
+	dot(cross(subtract(corner, before), subtract(after, corner)), normal) > 0;
+/** Ear clipping, one ear at a time: each step's triangle, and the index of its corner. */
+export function earClipSteps(polygon: Polygon) {
+	const normal = polygonNormal(polygon);
+	const corners = polygon.map((p, index) => ({ p, index }));
+	const steps: { triangle: Triangle; corner: number }[] = [];
+	let i = 0;
+	let tries = 0;
+	while (corners.length > 3 && tries < corners.length) {
+		const before = (i + corners.length - 1) % corners.length;
+		const after = (i + 1) % corners.length;
+		const ear = { a: corners[before].p, b: corners[i].p, c: corners[after].p };
+		const isEar =
+			isConvexCorner(ear.a, ear.b, ear.c, normal) &&
+			!corners.some(
+				(other, j) => j !== before && j !== i && j !== after && pointInTriangle(other.p, ear)
+			);
+		if (isEar) {
+			steps.push({ triangle: ear, corner: corners[i].index });
+			corners.splice(i, 1);
+			i %= corners.length;
+			tries = 0;
+		} else {
+			i = (i + 1) % corners.length;
+			tries++;
+		}
+	}
+	if (corners.length === 3) {
+		steps.push({
+			triangle: { a: corners[0].p, b: corners[1].p, c: corners[2].p },
+			corner: corners[1].index
+		});
+	}
+	return steps;
+}
+export const earClip = (polygon: Polygon) => earClipSteps(polygon).map((step) => step.triangle);
+export function rayTriangles(origin: Vec3, direction: Vec3, triangles: Triangle[]) {
+	let nearest: number | null = null;
+	for (const tri of triangles) {
+		const t = rayTriangle(origin, direction, tri);
+		if (t !== null && (nearest === null || t < nearest)) nearest = t;
+	}
+	return nearest;
+}
+export const sphereTrianglesCollide = (s: Sphere, triangles: Triangle[]) =>
+	triangles.some((tri) => sphereTriangleCollide(s, tri));
+
+// The separating axis test in 3D.
+export type ConvexShape = { vertices: Vec3[]; normals: Vec3[]; edges: Vec3[] };
+export type OrientedBox = {
+	centre: Vec3;
+	axes: [Vec3, Vec3, Vec3];
+	half: [number, number, number];
+};
+export function projectOnto(vertices: Vec3[], axis: Vec3): [number, number] {
+	const values = vertices.map((vertex) => dot(vertex, axis));
+	return [Math.min(...values), Math.max(...values)];
+}
+/** Every axis the test tries, in order, with where it came from, and whether it shows a gap. */
+export function separatingAxes3(a: ConvexShape, b: ConvexShape, names = ['A', 'B']) {
+	const [nameA, nameB] = names;
+	const candidates = [
+		...a.normals.map((axis, i) => ({ axis, from: `${nameA}’s face normal ${i + 1}` })),
+		...b.normals.map((axis, i) => ({ axis, from: `${nameB}’s face normal ${i + 1}` })),
+		...a.edges.flatMap((u, i) =>
+			b.edges.map((v, j) => ({
+				axis: cross(u, v),
+				from: `${nameA}’s edge ${i + 1} × ${nameB}’s edge ${j + 1}`
+			}))
+		)
+	].filter(({ axis }) => dot(axis, axis) > 1e-9);
+	return candidates.map((candidate) => {
+		const shadowA = projectOnto(a.vertices, candidate.axis);
+		const shadowB = projectOnto(b.vertices, candidate.axis);
+		return {
+			...candidate,
+			shadowA,
+			shadowB,
+			gap: !overlap(shadowA[0], shadowA[1], shadowB[0], shadowB[1])
+		};
+	});
+}
+export const convexShapesCollide = (a: ConvexShape, b: ConvexShape) =>
+	separatingAxes3(a, b).every((test) => !test.gap);
+export function orientedBoxCorners(box: OrientedBox) {
+	const [u, v, w] = box.axes;
+	const [hu, hv, hw] = box.half;
+	const corners: Vec3[] = [];
+	for (const i of [-1, 1])
+		for (const j of [-1, 1])
+			for (const k of [-1, 1])
+				corners.push(
+					add(box.centre, add(scale(u, i * hu), add(scale(v, j * hv), scale(w, k * hw))))
+				);
+	return corners;
+}
+export const orientedBoxShape = (box: OrientedBox): ConvexShape => ({
+	vertices: orientedBoxCorners(box),
+	normals: [...box.axes],
+	edges: [...box.axes]
+});
+export const triangleShape = (tri: Triangle): ConvexShape => ({
+	vertices: [tri.a, tri.b, tri.c],
+	normals: [triangleNormal(tri)],
+	edges: [subtract(tri.b, tri.a), subtract(tri.c, tri.b), subtract(tri.a, tri.c)]
+});
+/** Axes turned `yaw` around y, then tilted `tilt` around the turned x-axis. */
+export function turned(yaw: number, tilt = 0): [Vec3, Vec3, Vec3] {
+	const [cy, sy, ct, st] = [Math.cos(yaw), Math.sin(yaw), Math.cos(tilt), Math.sin(tilt)];
+	const x = { x: cy, y: 0, z: -sy };
+	const up = { x: 0, y: 1, z: 0 };
+	const z = { x: sy, y: 0, z: cy };
+	return [x, add(scale(up, ct), scale(z, st)), add(scale(z, ct), scale(up, -st))];
+}

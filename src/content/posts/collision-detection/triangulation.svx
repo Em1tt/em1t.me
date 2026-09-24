@@ -1,0 +1,321 @@
+---
+title: Polygons into triangles
+description: Splitting a flat polygon in space into triangles, convex or concave. Its normal, a fan, ear clipping, flattening to 2D, holes, and testing any polygon or mesh through its triangles.
+part: 3D
+order: 107
+published: true
+---
+
+<script>
+  import CodeGroup from '$lib/components/CodeGroup.svelte';
+  import Complexity from '$lib/components/Complexity.svelte';
+  import Triangulate from '$lib/components/posts/space/Triangulate.svelte';
+</script>
+
+Models and levels are full of flat faces with more than three corners: a four-cornered wall, a hexagonal tile, an L-shaped floor. The tests in the previous chapter all take triangles, so engines split every such face into triangles once, when the model loads, and test those from then on. That split is called **triangulation**. This chapter covers the two ways to do it: the **fan**, which is enough for convex polygons, and **ear clipping**, which works for concave ones too.
+
+Here, a polygon is a list of corners in order around its outline, all in one plane. Its outline mustn't cross itself, which makes it a _simple_ polygon, and it has no holes. The end of the chapter comes back to holes.
+
+<CodeGroup>
+
+```ts
+type Polygon = Vec3[]; // corners in order around the outline, all in one plane
+```
+
+```js
+// A polygon is an array of points, in order around its outline, all in one plane.
+```
+
+```py
+Polygon = list[Vec3]  # corners in order around the outline, all in one plane
+```
+
+</CodeGroup>
+
+## The normal of a polygon
+
+Everything below needs to know which way the polygon faces. For a triangle, that took one cross product. For a convex polygon, the cross product at any corner would do. But a concave polygon has corners that point inwards, and the cross product at one of those points the wrong way.
+
+The reliable way is to add them all up. Split the polygon into triangles from its first corner, $P_{0}$, like the fan in the next section, and add up all their normals:
+
+$$
+\mathbf{N} = \sum_{i=1}^{n-2} (P_{i} - P_{0}) \times (P_{i+1} - P_{0})
+$$
+
+Each of those normals is as long as twice its triangle's area. Where a concave polygon makes the fan fold back over its outside, those triangles point the other way, and they cancel out exactly the parts that don't belong to the polygon. What's left points the way the polygon faces, and it's twice the polygon's area long. It's the same vector as **Newell's method**, which is how many libraries write it.
+
+It also settles the winding: seen from the side $\mathbf{N}$ points to, the corners go round counterclockwise.
+
+<CodeGroup>
+
+```ts
+function polygonNormal(polygon: Polygon): Vec3 {
+	const first = polygon[0];
+	const normal = { x: 0, y: 0, z: 0 };
+	for (let i = 1; i + 1 < polygon.length; i++) {
+		const n = cross(subtract(polygon[i], first), subtract(polygon[i + 1], first));
+		normal.x += n.x;
+		normal.y += n.y;
+		normal.z += n.z;
+	}
+	return normal;
+}
+```
+
+```js
+function polygonNormal(polygon) {
+	const first = polygon[0];
+	const normal = { x: 0, y: 0, z: 0 };
+	for (let i = 1; i + 1 < polygon.length; i++) {
+		const n = cross(subtract(polygon[i], first), subtract(polygon[i + 1], first));
+		normal.x += n.x;
+		normal.y += n.y;
+		normal.z += n.z;
+	}
+	return normal;
+}
+```
+
+```py
+def polygon_normal(polygon: Polygon) -> Vec3:
+    first = polygon[0]
+    normal = Vec3(0, 0, 0)
+    for p, q in zip(polygon[1:], polygon[2:]):
+        n = cross(subtract(p, first), subtract(q, first))
+        normal = Vec3(normal.x + n.x, normal.y + n.y, normal.z + n.z)
+    return normal
+```
+
+</CodeGroup>
+
+<Complexity items={[{'name': 'polygonNormal', 'time': 'O(n)', 'space': 'O(1)'}]} />
+
+## Convex polygons: a fan
+
+In a convex polygon, every corner can see every other corner, so the lines from the first corner to all the others stay inside it. They split it into a **fan** of triangles, $(P_{0}, P_{1}, P_{2})$, $(P_{0}, P_{2}, P_{3})$, and so on up to $(P_{0}, P_{n-2}, P_{n-1})$: $n$ corners make $n - 2$ triangles.
+
+Now drag a corner inwards, past the line between its two neighbours, until the polygon is concave. Some triangles of the fan then stick out of it or fold back over the others, and turn red. A fan only works when its first corner can see every other corner.
+
+<Triangulate method="fan" />
+
+<CodeGroup>
+
+```ts
+function fan(polygon: Polygon): Triangle[] {
+	const triangles: Triangle[] = [];
+	for (let i = 1; i + 1 < polygon.length; i++) {
+		triangles.push({ a: polygon[0], b: polygon[i], c: polygon[i + 1] });
+	}
+	return triangles;
+}
+```
+
+```js
+function fan(polygon) {
+	const triangles = [];
+	for (let i = 1; i + 1 < polygon.length; i++) {
+		triangles.push({ a: polygon[0], b: polygon[i], c: polygon[i + 1] });
+	}
+	return triangles;
+}
+```
+
+```py
+def fan(polygon: Polygon) -> list[Triangle]:
+    return [Triangle(polygon[0], p, q) for p, q in zip(polygon[1:], polygon[2:])]
+```
+
+</CodeGroup>
+
+<Complexity items={[{'name': 'fan', 'time': 'O(n)', 'space': 'O(n)', 'note': 'the list of n − 2 triangles'}]} />
+
+A fan is also how 3D file formats and graphics cards turn a four-cornered face into two triangles.
+
+## Concave polygons: ear clipping
+
+A concave polygon needs a cleverer cut. Look for an **ear**: three corners in a row, $B$, $P$ and $A$, where
+
+1. the corner $P$ turns the same way as the polygon, instead of pointing inwards, and
+2. no other corner of the polygon is inside the triangle $BPA$.
+
+Then the triangle $BPA$ lies entirely inside the polygon, and you can cut it off like an ear. What's left is a polygon with one corner fewer, so do it again, and again, until only three corners are left: they're the last triangle. It takes $n - 2$ triangles, just like the fan.
+
+Both checks use earlier tools. A corner turns the same way as the polygon when the turn from the edge before it to the edge after it agrees with the polygon's normal $\mathbf{N}$:
+
+$$
+\big((P - B) \times (A - P)\big) \cdot \mathbf{N} > 0
+$$
+
+For a corner that points inwards, that value is negative. The second check is point in triangle, from the previous chapter: if another corner were inside the ear, cutting the ear off would cut through the outline.
+
+Is there always an ear to cut? Yes. The **two ears theorem** says that every simple polygon with more than three corners has at least two ears, so the loop can't run out of them.
+
+Step through the ears below. The hollow corners point inwards, so they can never be ears. Watch which corners go first, and how each cut can turn a neighbour into an ear. Then drag the corners around and step through again.
+
+<Triangulate method="ears" />
+
+<CodeGroup>
+
+```ts
+function earClip(polygon: Polygon): Triangle[] {
+	const normal = polygonNormal(polygon);
+	const corners = [...polygon];
+	const triangles: Triangle[] = [];
+	let i = 0;
+	let checked = 0; // corners checked since the last ear
+	while (corners.length > 3 && checked < corners.length) {
+		const before = (i + corners.length - 1) % corners.length;
+		const after = (i + 1) % corners.length;
+		const ear = { a: corners[before], b: corners[i], c: corners[after] };
+		const turn = dot(cross(subtract(ear.b, ear.a), subtract(ear.c, ear.b)), normal);
+		const empty = corners.every(
+			(p, j) => j === before || j === i || j === after || !pointInTriangle(p, ear)
+		);
+		if (turn > 0 && empty) {
+			triangles.push(ear);
+			corners.splice(i, 1); // cut the ear off
+			i %= corners.length;
+			checked = 0;
+		} else {
+			i = (i + 1) % corners.length;
+			checked++;
+		}
+	}
+	if (corners.length === 3) triangles.push({ a: corners[0], b: corners[1], c: corners[2] });
+	return triangles;
+}
+```
+
+```js
+function earClip(polygon) {
+	const normal = polygonNormal(polygon);
+	const corners = [...polygon];
+	const triangles = [];
+	let i = 0;
+	let checked = 0; // corners checked since the last ear
+	while (corners.length > 3 && checked < corners.length) {
+		const before = (i + corners.length - 1) % corners.length;
+		const after = (i + 1) % corners.length;
+		const ear = { a: corners[before], b: corners[i], c: corners[after] };
+		const turn = dot(cross(subtract(ear.b, ear.a), subtract(ear.c, ear.b)), normal);
+		const empty = corners.every(
+			(p, j) => j === before || j === i || j === after || !pointInTriangle(p, ear)
+		);
+		if (turn > 0 && empty) {
+			triangles.push(ear);
+			corners.splice(i, 1); // cut the ear off
+			i %= corners.length;
+			checked = 0;
+		} else {
+			i = (i + 1) % corners.length;
+			checked++;
+		}
+	}
+	if (corners.length === 3) triangles.push({ a: corners[0], b: corners[1], c: corners[2] });
+	return triangles;
+}
+```
+
+```py
+def ear_clip(polygon: Polygon) -> list[Triangle]:
+    normal = polygon_normal(polygon)
+    corners = list(polygon)
+    triangles = []
+    i = 0
+    checked = 0  # corners checked since the last ear
+    while len(corners) > 3 and checked < len(corners):
+        before = (i - 1) % len(corners)
+        after = (i + 1) % len(corners)
+        ear = Triangle(corners[before], corners[i], corners[after])
+        turn = dot(cross(subtract(ear.b, ear.a), subtract(ear.c, ear.b)), normal)
+        empty = all(
+            j in (before, i, after) or not point_in_triangle(p, ear)
+            for j, p in enumerate(corners)
+        )
+        if turn > 0 and empty:
+            triangles.append(ear)
+            del corners[i]  # cut the ear off
+            i %= len(corners)
+            checked = 0
+        else:
+            i = (i + 1) % len(corners)
+            checked += 1
+    if len(corners) == 3:
+        triangles.append(Triangle(*corners))
+    return triangles
+```
+
+</CodeGroup>
+
+<Complexity items={[{'name': 'earClip', 'time': 'O(n³)', 'space': 'O(n)', 'note': 'n − 3 ears, each found after checking up to n corners, and each check goes through all n corners'}]} />
+
+After an ear is cut off, `i` already points at the corner after it, which is the best place to look next: cutting an ear changes only its two neighbours. `checked` counts the corners tried since the last ear. After a whole round without one, the outline must cross itself, and the loop stops instead of spinning for ever.
+
+$O(n^3)$ is plenty for the few corners of a wall or a floor. For polygons with thousands of corners, like the outline of a country on a map, faster versions keep a list of the corners that point inwards, because only those can be inside an ear, and recheck just the two neighbours after each cut. That brings it down to $O(n^2)$. The **earcut** library, which Mapbox and three.js use, goes further still.
+
+### Or flatten it first
+
+Many engines don't triangulate in 3D at all. A flat polygon's normal has one coordinate bigger than the other two, the axis it faces most. Drop that coordinate from every corner, and you have a 2D polygon of the same shape, only squashed a little. Triangulate that with the same algorithm in 2D, and use the same corners for the triangles in 3D. If that coordinate of the normal is negative, the flat copy comes out mirrored, clockwise instead of counterclockwise, so list its corners backwards first.
+
+### Holes
+
+A polygon with a hole, like a floor around a pillar, needs one more step first. Cut a slit from the hole to the outline: a thin bridge of two edges, one going there and one coming back. The outline now runs around the outside, in along the bridge, around the hole the other way, and back out, which makes it one simple polygon that ear clipping can take.
+
+## Testing polygons and meshes
+
+Once a polygon is triangles, every test from the previous chapter works on it. A ray hits the polygon where it hits any of its triangles first, at the smallest $t$, and a sphere touches the polygon if it touches any of them. The same two functions work for a whole mesh, which is nothing but a long list of triangles.
+
+<CodeGroup>
+
+```ts
+// The first place the ray hits any of the triangles, or null if it misses them all.
+function rayTriangles(origin: Vec3, direction: Vec3, triangles: Triangle[]): number | null {
+	let nearest: number | null = null;
+	for (const tri of triangles) {
+		const t = rayTriangle(origin, direction, tri);
+		if (t !== null && (nearest === null || t < nearest)) nearest = t;
+	}
+	return nearest;
+}
+
+function sphereTrianglesCollide(s: Sphere, triangles: Triangle[]): boolean {
+	return triangles.some((tri) => sphereTriangleCollide(s, tri));
+}
+```
+
+```js
+// The first place the ray hits any of the triangles, or null if it misses them all.
+function rayTriangles(origin, direction, triangles) {
+	let nearest = null;
+	for (const tri of triangles) {
+		const t = rayTriangle(origin, direction, tri);
+		if (t !== null && (nearest === null || t < nearest)) nearest = t;
+	}
+	return nearest;
+}
+
+function sphereTrianglesCollide(s, triangles) {
+	return triangles.some((tri) => sphereTriangleCollide(s, tri));
+}
+```
+
+```py
+def ray_triangles(origin: Vec3, direction: Vec3, triangles: list[Triangle]) -> float | None:
+    """The first place the ray hits any of the triangles, or None if it misses them all."""
+    nearest = None
+    for tri in triangles:
+        t = ray_triangle(origin, direction, tri)
+        if t is not None and (nearest is None or t < nearest):
+            nearest = t
+    return nearest
+
+
+def sphere_triangles_collide(s: Sphere, triangles: list[Triangle]) -> bool:
+    return any(sphere_triangle_collide(s, tri) for tri in triangles)
+```
+
+</CodeGroup>
+
+<Complexity items={[{'name': 'rayTriangles', 'time': 'O(t)', 'space': 'O(1)', 'note': 'for t triangles'}, {'name': 'sphereTrianglesCollide', 'time': 'O(t)', 'space': 'O(1)', 'note': 'for t triangles'}]} />
+
+Split each polygon once, when it's made, and keep the triangles: triangulating costs far more than testing. A big mesh has too many triangles to test one by one, so engines sort them into a tree of boxes, a **bounding volume hierarchy**. A ray then only tests the few triangles whose boxes it passes through, with the slab method from the chapter on rays and segments.
