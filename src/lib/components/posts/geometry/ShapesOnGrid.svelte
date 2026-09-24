@@ -48,7 +48,7 @@
 		stroke-width="2"
 	/>
 	<line x1={S.x} y1={S.y} x2={S.x + 2 * U} y2={S.y} stroke="#45d16b" stroke-dasharray="4 4" />
-	<Dot x={S.x} y={S.y} r={6} color="#45d16b" />
+	<Dot x={S.x} y={S.y} r={5} color="#45d16b" />
 	<text x={S.x + U} y={S.y - 8} text-anchor="middle" class="math" fill="#45d16b">r</text>
 	<text x={S.x} y={S.y + 2 * U + 28} text-anchor="middle" class="math" fill="#45d16b"
 		>S<tspan class="num">(−5, 2),&#160;</tspan>r<tspan class="num">&#160;=&#160;2</tspan></text

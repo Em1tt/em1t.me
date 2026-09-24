@@ -2,6 +2,7 @@
 	import { resolve } from '$app/paths';
 	import SectionLabel from '$lib/components/SectionLabel.svelte';
 	import Seo from '$lib/components/Seo.svelte';
+	import { copyCode } from '$lib/copyCode';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
@@ -89,7 +90,7 @@
 				</dd>
 			{/each}
 		</dl>
-		<article class="case-body">
+		<article class="case-body" {@attach copyCode}>
 			<data.Body />
 		</article>
 	</div>

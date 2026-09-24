@@ -1,8 +1,11 @@
 <script lang="ts">
 	import 'katex/dist/katex.min.css';
+	import '../post.css';
 	import { resolve } from '$app/paths';
+	import BookContents from '$lib/components/BookContents.svelte';
 	import SectionLabel from '$lib/components/SectionLabel.svelte';
 	import Seo from '$lib/components/Seo.svelte';
+	import { copyCode } from '$lib/copyCode';
 	import { formatDate, splitTitle } from '$lib/posts';
 	import { SITE } from '$lib/site';
 	import type { PageProps } from './$types';
@@ -28,6 +31,7 @@
 	// Build the contents list from the rendered headings (rehype-slug gives them ids).
 	$effect(() => {
 		void data.Body;
+		void data.chapters;
 		sections = [...article.querySelectorAll<HTMLElement>('h2[id], h3[id]')].map((heading) => ({
 			id: heading.id,
 			text: heading.textContent ?? '',
@@ -130,8 +134,11 @@
 				</nav>
 			{/if}
 		</aside>
-		<article bind:this={article} class="post-body min-w-0">
+		<article bind:this={article} class="post-body min-w-0" {@attach copyCode}>
 			<data.Body />
+			{#if data.chapters.length}
+				<BookContents chapters={data.chapters} coming={data.meta.coming} />
+			{/if}
 		</article>
 	</div>
 
@@ -171,123 +178,3 @@
 		</div>
 	</nav>
 </div>
-
-<style>
-	/* Post bodies come from src/content/posts/*.svx; style their markdown output here. */
-	.post-body {
-		font-family: 'Google Sans', sans-serif;
-		color: #cbd5e1;
-		font-size: clamp(17px, 1.2vw, 20px);
-		line-height: 1.7;
-	}
-	.post-body :global(:where(p, ul, ol, blockquote, figure, pre, .katex-display)) {
-		max-width: 40em;
-		margin: 0 0 1.15em;
-	}
-	.post-body :global(h2) {
-		margin: 2.4em 0 0.7em;
-		scroll-margin-top: 2rem;
-		font-family: 'Google Sans', sans-serif;
-		font-weight: 500;
-		font-size: clamp(26px, 2.2vw, 38px);
-		line-height: 1.15;
-		letter-spacing: -0.02em;
-		color: #e2e8f0;
-	}
-	.post-body :global(h2:first-child) {
-		margin-top: 0;
-	}
-	.post-body :global(h3) {
-		margin: 1.9em 0 0.6em;
-		scroll-margin-top: 2rem;
-		font-family: 'Google Sans Code', monospace;
-		font-weight: 500;
-		font-size: 13px;
-		letter-spacing: 0.1em;
-		text-transform: uppercase;
-		color: #ff5640;
-	}
-	.post-body :global(a) {
-		color: #e2e8f0;
-		text-decoration: underline;
-		text-decoration-color: #ff5640;
-		text-underline-offset: 4px;
-	}
-	.post-body :global(strong) {
-		font-weight: 700;
-		color: #e2e8f0;
-	}
-	.post-body :global(ul) {
-		list-style: disc;
-		padding-left: 1.2em;
-	}
-	.post-body :global(ol) {
-		list-style: decimal;
-		padding-left: 1.4em;
-	}
-	.post-body :global(li) {
-		margin-bottom: 0.4em;
-	}
-	.post-body :global(li::marker) {
-		color: #ff5640;
-	}
-	.post-body :global(blockquote) {
-		padding-left: 1.1em;
-		border-left: 2px solid #a91a06;
-		color: #94a3b8;
-		font-style: italic;
-	}
-	.post-body :global(blockquote p) {
-		margin-bottom: 0.6em;
-	}
-	.post-body :global(p > img) {
-		display: block;
-		max-width: 100%;
-		height: auto;
-		margin: 1.8em 0;
-		border: 1px solid rgb(148 163 184 / 0.2);
-	}
-	.post-body :global(:not(pre) > code) {
-		padding: 0.1em 0.35em;
-		background: #0c0a1a;
-		border: 1px solid rgb(148 163 184 / 0.15);
-		font-family: 'Google Sans Code', monospace;
-		font-size: 0.86em;
-		color: #ffa261;
-		overflow-wrap: anywhere;
-	}
-	.post-body :global(figure.code) {
-		border: 1px solid rgb(148 163 184 / 0.2);
-		background: #0c0a1a;
-	}
-	.post-body :global(.code-file) {
-		padding: 0.55em 0.9em;
-		border-bottom: 1px solid rgb(148 163 184 / 0.2);
-		font-family: 'Google Sans Code', monospace;
-		font-size: 12px;
-		letter-spacing: 0.04em;
-		color: #94a3b8;
-	}
-	.post-body :global(pre) {
-		margin: 0;
-		max-width: none;
-		padding: 1em 1.1em;
-		overflow-x: auto;
-		font-family: 'Google Sans Code', monospace;
-		font-size: 14px;
-		line-height: 1.6;
-	}
-	.post-body :global(.katex-display) {
-		overflow-x: auto;
-		overflow-y: hidden;
-		padding-block: 0.3em;
-		color: #e2e8f0;
-	}
-	.post-body :global(.katex) {
-		font-size: 1.08em;
-	}
-	.post-body :global(figure.demo) {
-		max-width: none;
-		margin: 1.6em 0 2em;
-	}
-</style>

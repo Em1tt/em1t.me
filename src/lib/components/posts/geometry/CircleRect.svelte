@@ -71,7 +71,7 @@
 		stroke-width="2"
 		stroke-dasharray="6 5"
 	/>
-	<Dot x={Q.x} y={Q.y} r={7} color="#f1f5f9" />
+	<Dot x={Q.x} y={Q.y} r={5} color="#f1f5f9" />
 	<text
 		x={Q.x + (Q.x >= C.x ? -14 : 12)}
 		y={Q.y + (Q.y >= C.y ? -12 : 24)}

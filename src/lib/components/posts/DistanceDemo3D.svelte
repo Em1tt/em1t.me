@@ -5,7 +5,8 @@
 -->
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { fitCanvas, halftoneDisc, INKS } from '$lib/halftone';
+	import { fitCanvas, INKS } from '$lib/halftone';
+	import { dot } from './draw';
 
 	type Vec = { x: number; y: number; z: number };
 
@@ -100,7 +101,7 @@
 				[b, '#45d16b', 9]
 			] as const) {
 				const q = project(p);
-				halftoneDisc(ctx, q.x, q.y, r, color, 4);
+				dot(ctx, q.x, q.y, r * 0.75, color);
 			}
 			ctx.font = 'italic 600 17px KaTeX_Math, Georgia, serif';
 			label(a, 'A', INKS.ember, -18, 18);

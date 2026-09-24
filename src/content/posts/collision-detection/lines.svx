@@ -1,0 +1,125 @@
+---
+title: Lines
+description: The general equation of a line, the distance from a point to a line, and circle vs line.
+part: 2D
+order: 6
+published: true
+---
+
+<script>
+  import CodeGroup from '$lib/components/CodeGroup.svelte';
+  import CircleLine from '$lib/components/posts/geometry/CircleLine.svelte';
+</script>
+
+## The equation of a line
+
+The line you probably know from school is $y = kx + q$, where $k$ is the slope and $q$ is where the line crosses the $y$-axis. It has one flaw for games: a vertical line has no slope, so it can't be written that way. The **general equation of a line** covers every line:
+
+$$
+ax + by + c = 0
+$$
+
+For a line through two points $P_{1}(x_{1}, y_{1})$ and $P_{2}(x_{2}, y_{2})$, one choice of coefficients is
+
+$$
+a = y_{2} - y_{1}, \quad b = x_{1} - x_{2}, \quad c = x_{2}y_{1} - x_{1}y_{2}
+$$
+
+The vector $(a, b)$ is the line's **normal vector**. It points straight out of the line, perpendicular to it.
+
+<CodeGroup>
+
+```ts
+type Line = { a: number; b: number; c: number };
+
+function lineThrough(p1: Point, p2: Point): Line {
+	return { a: p2.y - p1.y, b: p1.x - p2.x, c: p2.x * p1.y - p1.x * p2.y };
+}
+```
+
+```js
+// A line is an object like { a: 1, b: -2, c: 5 }, for x - 2y + 5 = 0.
+function lineThrough(p1, p2) {
+	return { a: p2.y - p1.y, b: p1.x - p2.x, c: p2.x * p1.y - p1.x * p2.y };
+}
+```
+
+```py
+@dataclass
+class Line:
+    a: float
+    b: float
+    c: float
+
+
+def line_through(p1: Point, p2: Point) -> Line:
+    return Line(p2.y - p1.y, p1.x - p2.x, p2.x * p1.y - p1.x * p2.y)
+```
+
+</CodeGroup>
+
+## Distance from a point to a line
+
+Put any point $(x_{0}, y_{0})$ into the left-hand side of the equation. For a point on the line, you get $0$. For a point off the line, you get a number whose sign tells you which side of the line the point is on, and whose size grows with the distance, multiplied by the length of the normal vector, $\sqrt{a^2 + b^2}$. Divide that length out and you have the distance:
+
+$$
+d = \frac{|ax_{0} + by_{0} + c|}{\sqrt{a^2 + b^2}}
+$$
+
+<CodeGroup>
+
+```ts
+function distanceToLine(p: Point, line: Line): number {
+	const value = line.a * p.x + line.b * p.y + line.c;
+	return Math.abs(value) / Math.hypot(line.a, line.b);
+}
+```
+
+```js
+function distanceToLine(p, line) {
+	const value = line.a * p.x + line.b * p.y + line.c;
+	return Math.abs(value) / Math.hypot(line.a, line.b);
+}
+```
+
+```py
+def distance_to_line(p: Point, line: Line) -> float:
+    value = line.a * p.x + line.b * p.y + line.c
+    return abs(value) / math.hypot(line.a, line.b)
+```
+
+</CodeGroup>
+
+The sign is useful on its own, too: it tells you which side of a wall the player is on.
+
+## Circle vs line
+
+A circle touches a line when its centre is at most $r$ away from it. With the squaring trick, that's $(ax_{0} + by_{0} + c)^2 \le r^2(a^2 + b^2)$: no root, and no division.
+
+<CircleLine />
+
+<CodeGroup>
+
+```ts
+function circleLineCollide(c: Circle, line: Line): boolean {
+	const value = line.a * c.x + line.b * c.y + line.c;
+	return value ** 2 <= c.r ** 2 * (line.a ** 2 + line.b ** 2);
+}
+```
+
+```js
+function circleLineCollide(c, line) {
+	const value = line.a * c.x + line.b * c.y + line.c;
+	return value ** 2 <= c.r ** 2 * (line.a ** 2 + line.b ** 2);
+}
+```
+
+```py
+def circle_line_collide(c: Circle, line: Line) -> bool:
+    value = line.a * c.x + line.b * c.y + line.c
+    return value ** 2 <= c.r ** 2 * (line.a ** 2 + line.b ** 2)
+```
+
+</CodeGroup>
+
+This line never ends. Walls and platforms do, which is what the next chapter is about.

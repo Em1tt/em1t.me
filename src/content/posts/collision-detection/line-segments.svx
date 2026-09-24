@@ -1,0 +1,142 @@
+---
+title: Line segments
+description: Vectors and the dot product, projecting a point onto a segment, and circle vs line segment, the test behind walls and platforms.
+part: 2D
+order: 7
+published: true
+---
+
+<script>
+  import CodeGroup from '$lib/components/CodeGroup.svelte';
+  import CircleSegment from '$lib/components/posts/geometry/CircleSegment.svelte';
+</script>
+
+A wall in a game isn't an endless line. It starts somewhere and ends somewhere: it's a **line segment**. To test against one, we need one new tool, the dot product.
+
+## Vectors and the dot product
+
+A **vector** is a step: how far to move along $x$ and along $y$. The step from point $A$ to point $B$ is the vector
+
+$$
+\overrightarrow{AB} = B - A = (x_{B} - x_{A},\ y_{B} - y_{A})
+$$
+
+The **dot product** of two vectors $\mathbf{u}$ and $\mathbf{v}$ multiplies them coordinate by coordinate and adds the results:
+
+$$
+\mathbf{u} \cdot \mathbf{v} = u_{x}v_{x} + u_{y}v_{y}
+$$
+
+It's also equal to $|\mathbf{u}|\,|\mathbf{v}| \cos\theta$, where $\theta$ is the angle between the two vectors. That tells us what it measures:
+
+- It's **positive** when the vectors point roughly the same way, **zero** when they're perpendicular, and **negative** when they point roughly opposite ways.
+- When $\mathbf{v}$ has length $1$, $\mathbf{u} \cdot \mathbf{v}$ is how far $\mathbf{u}$ reaches along $\mathbf{v}$: the length of the shadow $\mathbf{u}$ casts onto $\mathbf{v}$.
+
+<CodeGroup>
+
+```ts
+// A vector is stored like a point: { x, y } is the step, not a position.
+function subtract(a: Point, b: Point): Point {
+	return { x: a.x - b.x, y: a.y - b.y };
+}
+
+function dot(u: Point, v: Point): number {
+	return u.x * v.x + u.y * v.y;
+}
+```
+
+```js
+// A vector is stored like a point: { x, y } is the step, not a position.
+function subtract(a, b) {
+	return { x: a.x - b.x, y: a.y - b.y };
+}
+
+function dot(u, v) {
+	return u.x * v.x + u.y * v.y;
+}
+```
+
+```py
+# A vector is stored like a point: (x, y) is the step, not a position.
+def subtract(a: Point, b: Point) -> Point:
+    return Point(a.x - b.x, a.y - b.y)
+
+
+def dot(u: Point, v: Point) -> float:
+    return u.x * v.x + u.y * v.y
+```
+
+</CodeGroup>
+
+## Projecting a point onto a segment
+
+Take a segment from $A$ to $B$, its direction $\mathbf{d} = B - A$, and a point $P$. The point of the whole line through $A$ and $B$ that's closest to $P$ is $A + t\,\mathbf{d}$, where
+
+$$
+t = \frac{(P - A) \cdot \mathbf{d}}{\mathbf{d} \cdot \mathbf{d}}
+$$
+
+$t$ says where along the line that point is: $0$ at $A$, $1$ at $B$, and somewhere in between for points between them. Beyond the ends, $t$ drops below $0$ or rises above $1$. So for the segment, **clamp $t$ into $[0, 1]$**, just like we clamped the circle's centre into the rectangle, and the closest point sits at an end whenever $P$ is past it.
+
+<CodeGroup>
+
+```ts
+function closestPointOnSegment(p: Point, a: Point, b: Point): Point {
+	const d = subtract(b, a);
+	const lengthSquared = dot(d, d);
+	if (lengthSquared === 0) return a; // A and B are the same point
+	const t = clamp(dot(subtract(p, a), d) / lengthSquared, 0, 1);
+	return { x: a.x + t * d.x, y: a.y + t * d.y };
+}
+```
+
+```js
+function closestPointOnSegment(p, a, b) {
+	const d = subtract(b, a);
+	const lengthSquared = dot(d, d);
+	if (lengthSquared === 0) return a; // A and B are the same point
+	const t = clamp(dot(subtract(p, a), d) / lengthSquared, 0, 1);
+	return { x: a.x + t * d.x, y: a.y + t * d.y };
+}
+```
+
+```py
+def closest_point_on_segment(p: Point, a: Point, b: Point) -> Point:
+    d = subtract(b, a)
+    length_squared = dot(d, d)
+    if length_squared == 0:  # A and B are the same point
+        return a
+    t = clamp(dot(subtract(p, a), d) / length_squared, 0, 1)
+    return Point(a.x + t * d.x, a.y + t * d.y)
+```
+
+</CodeGroup>
+
+## Circle vs line segment
+
+With the closest point $Q$ of the segment, it's a point-in-circle test once more: the circle touches the segment when $|CQ| \le r$. Drag the circle past either end and watch $t$ get clamped.
+
+<CircleSegment />
+
+<CodeGroup>
+
+```ts
+function circleSegmentCollide(c: Circle, a: Point, b: Point): boolean {
+	return pointInCircle(closestPointOnSegment(c, a, b), c);
+}
+```
+
+```js
+function circleSegmentCollide(c, a, b) {
+	return pointInCircle(closestPointOnSegment(c, a, b), c);
+}
+```
+
+```py
+def circle_segment_collide(c: Circle, a: Point, b: Point) -> bool:
+    return point_in_circle(closest_point_on_segment(c, a, b), c)
+```
+
+</CodeGroup>
+
+This is the test for a ball against a wall, a platform or a paddle, however they're rotated. The set of all points within some distance of a segment even has a name of its own, a **capsule**, and it's a popular shape for game characters for exactly that reason: testing a circle against a capsule is this same test, with the two radii added together.

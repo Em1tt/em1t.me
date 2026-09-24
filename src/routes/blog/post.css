@@ -1,0 +1,96 @@
+/* Posts and book chapters are .svx files in src/content/posts; this styles their markdown output. */
+.post-body {
+	font-family: 'Google Sans', sans-serif;
+	color: #cbd5e1;
+	font-size: clamp(17px, 1.2vw, 20px);
+	line-height: 1.7;
+}
+.post-body :where(p, ul, ol, blockquote, figure, pre, .katex-display) {
+	max-width: 40em;
+	margin: 0 0 1.15em;
+}
+.post-body h2 {
+	margin: 2.4em 0 0.7em;
+	scroll-margin-top: 2rem;
+	font-family: 'Google Sans', sans-serif;
+	font-weight: 500;
+	font-size: clamp(26px, 2.2vw, 38px);
+	line-height: 1.15;
+	letter-spacing: -0.02em;
+	color: #e2e8f0;
+}
+.post-body h2:first-child {
+	margin-top: 0;
+}
+.post-body h3 {
+	margin: 1.9em 0 0.6em;
+	scroll-margin-top: 2rem;
+	font-family: 'Google Sans Code', monospace;
+	font-weight: 500;
+	font-size: 13px;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	color: #ff5640;
+}
+.post-body a {
+	color: #e2e8f0;
+	text-decoration: underline;
+	text-decoration-color: #ff5640;
+	text-underline-offset: 4px;
+}
+.post-body strong {
+	font-weight: 700;
+	color: #e2e8f0;
+}
+.post-body ul {
+	list-style: disc;
+	padding-left: 1.2em;
+}
+.post-body ol {
+	list-style: decimal;
+	padding-left: 1.4em;
+}
+.post-body li {
+	margin-bottom: 0.4em;
+}
+.post-body li::marker {
+	color: #ff5640;
+}
+.post-body blockquote {
+	padding-left: 1.1em;
+	border-left: 2px solid #a91a06;
+	color: #94a3b8;
+	font-style: italic;
+}
+.post-body blockquote p {
+	margin-bottom: 0.6em;
+}
+.post-body p > img {
+	display: block;
+	max-width: 100%;
+	height: auto;
+	margin: 1.8em 0;
+	border: 1px solid rgb(148 163 184 / 0.2);
+}
+.post-body :not(pre) > code {
+	padding: 0.1em 0.35em;
+	background: #0c0a1a;
+	border: 1px solid rgb(148 163 184 / 0.15);
+	font-family: 'Google Sans Code', monospace;
+	font-size: 0.86em;
+	color: #ffa261;
+	overflow-wrap: anywhere;
+}
+.post-body .katex-display {
+	overflow-x: auto;
+	overflow-y: hidden;
+	padding-block: 0.3em;
+	color: #e2e8f0;
+}
+.post-body .katex {
+	font-size: 1.08em;
+}
+.post-body figure.demo {
+	max-width: none;
+	margin: 1.6em 0 2em;
+}

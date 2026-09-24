@@ -75,3 +75,54 @@
 		scroll-snap-type: y mandatory;
 	}
 }
+
+/* Highlighted code blocks in posts and case studies (see the highlighter in svelte.config.js). */
+figure.code {
+	border: 1px solid rgb(148 163 184 / 0.2);
+	background: #0c0a1a;
+}
+.code-head {
+	display: flex;
+	align-items: stretch;
+	justify-content: space-between;
+	gap: 1em;
+	border-bottom: 1px solid rgb(148 163 184 / 0.2);
+	font-family: 'Google Sans Code', monospace;
+	font-size: 12px;
+	letter-spacing: 0.04em;
+	color: #94a3b8;
+}
+.code-file {
+	overflow: hidden;
+	padding: 0.55em 0 0.55em 0.9em;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.code-copy {
+	padding: 0 0.95em;
+	border-left: 1px solid rgb(148 163 184 / 0.2);
+	font: inherit;
+	letter-spacing: 0.08em;
+	color: #cbd5e1;
+	cursor: pointer;
+}
+.code-copy:hover {
+	background: #a91a06;
+	color: #fff;
+}
+.code-copy[data-done] {
+	color: #45d16b;
+}
+.code-copy:focus-visible {
+	outline: 2px solid #ff5640;
+	outline-offset: -2px;
+}
+figure.code pre {
+	max-width: none;
+	margin: 0;
+	padding: 1em 1.1em;
+	overflow-x: auto;
+	font-family: 'Google Sans Code', monospace;
+	font-size: 14px;
+	line-height: 1.6;
+}

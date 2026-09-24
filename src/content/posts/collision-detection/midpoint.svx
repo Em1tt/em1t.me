@@ -1,0 +1,47 @@
+---
+title: Midpoint of a line segment
+description: The point exactly halfway between two others, which is just the average of their coordinates.
+part: 2D
+order: 3
+published: true
+---
+
+<script>
+  import CodeGroup from '$lib/components/CodeGroup.svelte';
+  import Midpoint from '$lib/components/posts/geometry/Midpoint.svelte';
+</script>
+
+## The midpoint
+
+Point $S$ is the midpoint of the line segment $AB$ when it lies on the segment and $|AS| = |BS|$. Its coordinates are the averages of the endpoints' coordinates:
+
+$$
+x_{S} = \frac{x_{A} + x_{B}}{2}, \quad y_{S} = \frac{y_{A} + y_{B}}{2}
+$$
+
+<Midpoint />
+
+<CodeGroup>
+
+```ts
+function midpoint(a: Point, b: Point): Point {
+	return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+}
+```
+
+```js
+function midpoint(a, b) {
+	return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+}
+```
+
+```py
+def midpoint(a: Point, b: Point) -> Point:
+    return Point((a.x + b.x) / 2, (a.y + b.y) / 2)
+```
+
+</CodeGroup>
+
+## Where it's useful
+
+The midpoint is handy whenever you need the point halfway between two things, like aiming a camera between two players, or putting a hit effect between two objects that bumped into each other. It's also the centre of a segment, which the chapter on line segments comes back to.

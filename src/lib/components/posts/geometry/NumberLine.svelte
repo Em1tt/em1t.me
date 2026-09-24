@@ -30,7 +30,7 @@
 	<text x={O + 2.9 * UNIT} y={Y - 26} text-anchor="middle" class="mono" fill="#45d16b"
 		>positive half-axis</text
 	>
-	<Dot x={O} y={Y} r={9} color={INKS.ember} />
+	<Dot x={O} y={Y} r={6} color={INKS.ember} />
 	<text x={O - 8} y={Y - 20} text-anchor="end" class="math" fill={INKS.ember}>O</text>
 	<text x={O + 5.6 * UNIT + 4} y={Y + 32} class="math" fill="#e2e8f0">x</text>
 </Stage>

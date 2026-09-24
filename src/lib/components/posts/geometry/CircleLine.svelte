@@ -69,7 +69,7 @@
 		stroke-width="2"
 		stroke-dasharray="6 5"
 	/>
-	<Dot x={F.x} y={F.y} r={6} color="#f1f5f9" />
+	<Dot x={F.x} y={F.y} r={5} color="#f1f5f9" />
 	<text x={(C.x + F.x) / 2 + 10} y={(C.y + F.y) / 2} class="math" fill="#f1f5f9">d</text>
 
 	{#each [{ name: '1', get: () => P1, set: (p: typeof P1) => (P1 = p) }, { name: '2', get: () => P2, set: (p: typeof P1) => (P2 = p) }] as handle (handle.name)}
