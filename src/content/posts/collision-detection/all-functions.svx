@@ -2,7 +2,7 @@
 title: All the functions
 description: Every function from Part I in one file, ready to copy, in TypeScript, JavaScript or Python.
 part: 2D
-order: 9
+order: 10
 published: true
 ---
 
@@ -10,7 +10,24 @@ published: true
   import CodeGroup from '$lib/components/CodeGroup.svelte';
 </script>
 
-Everything from Part I in one file. Each function is explained in its chapter; the contents on the first page list them all.
+Everything from Part I in one file, in the order the chapters introduce it. Each function is explained in its chapter; the contents on the first page list them all.
+
+## At a glance
+
+Their time and space complexity, with $n$ the number of vertices of a polygon and $m$ of the other shape. Python uses the same names, in snake_case.
+
+| Functions | Time | Space |
+| --- | --- | --- |
+| Everything for points, circles, rectangles, lines and segments, from `distance` to `segmentsIntersect` | $O(1)$ | $O(1)$ |
+| `edges`, `axes`, `project` | $O(n)$ | $O(n)$ |
+| `pointInConvexPolygon`, `polygonLineCollide` | $O(n)$ | $O(n)$ |
+| `convexPolygonsCollide` | $O((n + m)^2)$ | $O(n + m)$ |
+| `convexPolygonRectCollide`, `convexPolygonSegmentCollide`, `convexPolygonCircleCollide` | $O(n^2)$ | $O(n)$ |
+| `rectToPolygon`, `normalize` | $O(1)$ | $O(1)$ |
+| `pointInPolygon`, `polygonSegmentCollide`, `polygonCircleCollide`, `polygonRectCollide` | $O(n)$ | $O(n)$ |
+| `polygonsCollide` | $O(n \cdot m)$ | $O(n + m)$ |
+
+## The code
 
 <CodeGroup>
 
@@ -21,6 +38,7 @@ export type Rect = { x: number; y: number; w: number; h: number };
 export type Line = { a: number; b: number; c: number };
 export type Polygon = Point[];
 
+// Distance between two points
 export function distance(a: Point, b: Point): number {
 	return Math.hypot(b.x - a.x, b.y - a.y);
 }
@@ -29,10 +47,12 @@ export function distanceSquared(a: Point, b: Point): number {
 	return (b.x - a.x) ** 2 + (b.y - a.y) ** 2;
 }
 
+// Midpoint
 export function midpoint(a: Point, b: Point): Point {
 	return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
 }
 
+// Circles
 export function pointInCircle(p: Point, c: Circle): boolean {
 	return distanceSquared(p, c) <= c.r ** 2;
 }
@@ -41,6 +61,7 @@ export function circlesCollide(a: Circle, b: Circle): boolean {
 	return distanceSquared(a, b) <= (a.r + b.r) ** 2;
 }
 
+// Rectangles
 export function overlap(a1: number, a2: number, b1: number, b2: number): boolean {
 	return a1 <= b2 && b1 <= a2;
 }
@@ -64,20 +85,24 @@ export function circleRectCollide(c: Circle, rect: Rect): boolean {
 	return pointInCircle(closest, c);
 }
 
+// Lines
 export function lineThrough(p1: Point, p2: Point): Line {
 	return { a: p2.y - p1.y, b: p1.x - p2.x, c: p2.x * p1.y - p1.x * p2.y };
 }
 
+export function side(p: Point, line: Line): number {
+	return line.a * p.x + line.b * p.y + line.c;
+}
+
 export function distanceToLine(p: Point, line: Line): number {
-	const value = line.a * p.x + line.b * p.y + line.c;
-	return Math.abs(value) / Math.hypot(line.a, line.b);
+	return Math.abs(side(p, line)) / Math.hypot(line.a, line.b);
 }
 
 export function circleLineCollide(c: Circle, line: Line): boolean {
-	const value = line.a * c.x + line.b * c.y + line.c;
-	return value ** 2 <= c.r ** 2 * (line.a ** 2 + line.b ** 2);
+	return side(c, line) ** 2 <= c.r ** 2 * (line.a ** 2 + line.b ** 2);
 }
 
+// Line segments
 export function subtract(a: Point, b: Point): Point {
 	return { x: a.x - b.x, y: a.y - b.y };
 }
@@ -98,11 +123,41 @@ export function circleSegmentCollide(c: Circle, a: Point, b: Point): boolean {
 	return pointInCircle(closestPointOnSegment(c, a, b), c);
 }
 
+export function lineSegmentCollide(line: Line, a: Point, b: Point): boolean {
+	return side(a, line) * side(b, line) <= 0;
+}
+
+export function segmentsIntersect(a: Point, b: Point, c: Point, d: Point): boolean {
+	const ab = lineThrough(a, b);
+	const sc = side(c, ab);
+	const sd = side(d, ab);
+	if (sc === 0 && sd === 0) {
+		return (
+			overlap(Math.min(a.x, b.x), Math.max(a.x, b.x), Math.min(c.x, d.x), Math.max(c.x, d.x)) &&
+			overlap(Math.min(a.y, b.y), Math.max(a.y, b.y), Math.min(c.y, d.y), Math.max(c.y, d.y))
+		);
+	}
+	const cd = lineThrough(c, d);
+	return sc * sd <= 0 && side(a, cd) * side(b, cd) <= 0;
+}
+
+// Convex polygons
+export function edges(polygon: Polygon): [Point, Point][] {
+	return polygon.map((a, i) => [a, polygon[(i + 1) % polygon.length]]);
+}
+
+export function pointInConvexPolygon(p: Point, polygon: Polygon): boolean {
+	const values = edges(polygon).map(([a, b]) => side(p, lineThrough(a, b)));
+	return !(values.some((v) => v > 0) && values.some((v) => v < 0));
+}
+
+export function polygonLineCollide(polygon: Polygon, line: Line): boolean {
+	const values = polygon.map((vertex) => side(vertex, line));
+	return Math.min(...values) <= 0 && Math.max(...values) >= 0;
+}
+
 export function axes(polygon: Polygon): Point[] {
-	return polygon.map((p1, i) => {
-		const p2 = polygon[(i + 1) % polygon.length];
-		return { x: p2.y - p1.y, y: p1.x - p2.x };
-	});
+	return edges(polygon).map(([p1, p2]) => ({ x: p2.y - p1.y, y: p1.x - p2.x }));
 }
 
 export function project(polygon: Polygon, axis: Point): [number, number] {
@@ -110,7 +165,7 @@ export function project(polygon: Polygon, axis: Point): [number, number] {
 	return [Math.min(...values), Math.max(...values)];
 }
 
-export function polygonsCollide(a: Polygon, b: Polygon): boolean {
+export function convexPolygonsCollide(a: Polygon, b: Polygon): boolean {
 	for (const axis of [...axes(a), ...axes(b)]) {
 		const [aMin, aMax] = project(a, axis);
 		const [bMin, bMax] = project(b, axis);
@@ -118,9 +173,80 @@ export function polygonsCollide(a: Polygon, b: Polygon): boolean {
 	}
 	return true;
 }
+
+export function rectToPolygon(rect: Rect): Polygon {
+	return [
+		{ x: rect.x, y: rect.y },
+		{ x: rect.x + rect.w, y: rect.y },
+		{ x: rect.x + rect.w, y: rect.y + rect.h },
+		{ x: rect.x, y: rect.y + rect.h }
+	];
+}
+
+export function convexPolygonRectCollide(polygon: Polygon, rect: Rect): boolean {
+	return convexPolygonsCollide(polygon, rectToPolygon(rect));
+}
+
+export function convexPolygonSegmentCollide(polygon: Polygon, a: Point, b: Point): boolean {
+	return convexPolygonsCollide(polygon, [a, b]);
+}
+
+export function normalize(v: Point): Point {
+	const length = Math.hypot(v.x, v.y);
+	return { x: v.x / length, y: v.y / length };
+}
+
+export function convexPolygonCircleCollide(polygon: Polygon, c: Circle): boolean {
+	const nearest = polygon.reduce((best, v) =>
+		distanceSquared(v, c) < distanceSquared(best, c) ? v : best
+	);
+	if (distanceSquared(nearest, c) === 0) return true;
+	for (const axis of [...axes(polygon), subtract(nearest, c)].map(normalize)) {
+		const [min, max] = project(polygon, axis);
+		const centre = dot(c, axis);
+		if (!overlap(min, max, centre - c.r, centre + c.r)) return false;
+	}
+	return true;
+}
+
+// Concave polygons: these work on any polygon
+export function pointInPolygon(p: Point, polygon: Polygon): boolean {
+	let inside = false;
+	for (const [a, b] of edges(polygon)) {
+		if (a.y > p.y !== b.y > p.y) {
+			const crossingX = a.x + ((p.y - a.y) * (b.x - a.x)) / (b.y - a.y);
+			if (p.x < crossingX) inside = !inside;
+		}
+	}
+	return inside;
+}
+
+export function polygonSegmentCollide(polygon: Polygon, a: Point, b: Point): boolean {
+	return (
+		edges(polygon).some(([p, q]) => segmentsIntersect(a, b, p, q)) || pointInPolygon(a, polygon)
+	);
+}
+
+export function polygonCircleCollide(polygon: Polygon, c: Circle): boolean {
+	return (
+		edges(polygon).some(([p, q]) => circleSegmentCollide(c, p, q)) || pointInPolygon(c, polygon)
+	);
+}
+
+export function polygonsCollide(a: Polygon, b: Polygon): boolean {
+	const crossing = edges(a).some(([p, q]) =>
+		edges(b).some(([r, s]) => segmentsIntersect(p, q, r, s))
+	);
+	return crossing || pointInPolygon(a[0], b) || pointInPolygon(b[0], a);
+}
+
+export function polygonRectCollide(polygon: Polygon, rect: Rect): boolean {
+	return polygonsCollide(polygon, rectToPolygon(rect));
+}
 ```
 
 ```js collision.js
+// Distance between two points
 export function distance(a, b) {
 	return Math.hypot(b.x - a.x, b.y - a.y);
 }
@@ -129,10 +255,12 @@ export function distanceSquared(a, b) {
 	return (b.x - a.x) ** 2 + (b.y - a.y) ** 2;
 }
 
+// Midpoint
 export function midpoint(a, b) {
 	return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
 }
 
+// Circles
 export function pointInCircle(p, c) {
 	return distanceSquared(p, c) <= c.r ** 2;
 }
@@ -141,6 +269,7 @@ export function circlesCollide(a, b) {
 	return distanceSquared(a, b) <= (a.r + b.r) ** 2;
 }
 
+// Rectangles
 export function overlap(a1, a2, b1, b2) {
 	return a1 <= b2 && b1 <= a2;
 }
@@ -164,20 +293,24 @@ export function circleRectCollide(c, rect) {
 	return pointInCircle(closest, c);
 }
 
+// Lines
 export function lineThrough(p1, p2) {
 	return { a: p2.y - p1.y, b: p1.x - p2.x, c: p2.x * p1.y - p1.x * p2.y };
 }
 
+export function side(p, line) {
+	return line.a * p.x + line.b * p.y + line.c;
+}
+
 export function distanceToLine(p, line) {
-	const value = line.a * p.x + line.b * p.y + line.c;
-	return Math.abs(value) / Math.hypot(line.a, line.b);
+	return Math.abs(side(p, line)) / Math.hypot(line.a, line.b);
 }
 
 export function circleLineCollide(c, line) {
-	const value = line.a * c.x + line.b * c.y + line.c;
-	return value ** 2 <= c.r ** 2 * (line.a ** 2 + line.b ** 2);
+	return side(c, line) ** 2 <= c.r ** 2 * (line.a ** 2 + line.b ** 2);
 }
 
+// Line segments
 export function subtract(a, b) {
 	return { x: a.x - b.x, y: a.y - b.y };
 }
@@ -198,11 +331,41 @@ export function circleSegmentCollide(c, a, b) {
 	return pointInCircle(closestPointOnSegment(c, a, b), c);
 }
 
+export function lineSegmentCollide(line, a, b) {
+	return side(a, line) * side(b, line) <= 0;
+}
+
+export function segmentsIntersect(a, b, c, d) {
+	const ab = lineThrough(a, b);
+	const sc = side(c, ab);
+	const sd = side(d, ab);
+	if (sc === 0 && sd === 0) {
+		return (
+			overlap(Math.min(a.x, b.x), Math.max(a.x, b.x), Math.min(c.x, d.x), Math.max(c.x, d.x)) &&
+			overlap(Math.min(a.y, b.y), Math.max(a.y, b.y), Math.min(c.y, d.y), Math.max(c.y, d.y))
+		);
+	}
+	const cd = lineThrough(c, d);
+	return sc * sd <= 0 && side(a, cd) * side(b, cd) <= 0;
+}
+
+// Convex polygons
+export function edges(polygon) {
+	return polygon.map((a, i) => [a, polygon[(i + 1) % polygon.length]]);
+}
+
+export function pointInConvexPolygon(p, polygon) {
+	const values = edges(polygon).map(([a, b]) => side(p, lineThrough(a, b)));
+	return !(values.some((v) => v > 0) && values.some((v) => v < 0));
+}
+
+export function polygonLineCollide(polygon, line) {
+	const values = polygon.map((vertex) => side(vertex, line));
+	return Math.min(...values) <= 0 && Math.max(...values) >= 0;
+}
+
 export function axes(polygon) {
-	return polygon.map((p1, i) => {
-		const p2 = polygon[(i + 1) % polygon.length];
-		return { x: p2.y - p1.y, y: p1.x - p2.x };
-	});
+	return edges(polygon).map(([p1, p2]) => ({ x: p2.y - p1.y, y: p1.x - p2.x }));
 }
 
 export function project(polygon, axis) {
@@ -210,13 +373,83 @@ export function project(polygon, axis) {
 	return [Math.min(...values), Math.max(...values)];
 }
 
-export function polygonsCollide(a, b) {
+export function convexPolygonsCollide(a, b) {
 	for (const axis of [...axes(a), ...axes(b)]) {
 		const [aMin, aMax] = project(a, axis);
 		const [bMin, bMax] = project(b, axis);
 		if (!overlap(aMin, aMax, bMin, bMax)) return false;
 	}
 	return true;
+}
+
+export function rectToPolygon(rect) {
+	return [
+		{ x: rect.x, y: rect.y },
+		{ x: rect.x + rect.w, y: rect.y },
+		{ x: rect.x + rect.w, y: rect.y + rect.h },
+		{ x: rect.x, y: rect.y + rect.h }
+	];
+}
+
+export function convexPolygonRectCollide(polygon, rect) {
+	return convexPolygonsCollide(polygon, rectToPolygon(rect));
+}
+
+export function convexPolygonSegmentCollide(polygon, a, b) {
+	return convexPolygonsCollide(polygon, [a, b]);
+}
+
+export function normalize(v) {
+	const length = Math.hypot(v.x, v.y);
+	return { x: v.x / length, y: v.y / length };
+}
+
+export function convexPolygonCircleCollide(polygon, c) {
+	const nearest = polygon.reduce((best, v) =>
+		distanceSquared(v, c) < distanceSquared(best, c) ? v : best
+	);
+	if (distanceSquared(nearest, c) === 0) return true;
+	for (const axis of [...axes(polygon), subtract(nearest, c)].map(normalize)) {
+		const [min, max] = project(polygon, axis);
+		const centre = dot(c, axis);
+		if (!overlap(min, max, centre - c.r, centre + c.r)) return false;
+	}
+	return true;
+}
+
+// Concave polygons: these work on any polygon
+export function pointInPolygon(p, polygon) {
+	let inside = false;
+	for (const [a, b] of edges(polygon)) {
+		if (a.y > p.y !== b.y > p.y) {
+			const crossingX = a.x + ((p.y - a.y) * (b.x - a.x)) / (b.y - a.y);
+			if (p.x < crossingX) inside = !inside;
+		}
+	}
+	return inside;
+}
+
+export function polygonSegmentCollide(polygon, a, b) {
+	return (
+		edges(polygon).some(([p, q]) => segmentsIntersect(a, b, p, q)) || pointInPolygon(a, polygon)
+	);
+}
+
+export function polygonCircleCollide(polygon, c) {
+	return (
+		edges(polygon).some(([p, q]) => circleSegmentCollide(c, p, q)) || pointInPolygon(c, polygon)
+	);
+}
+
+export function polygonsCollide(a, b) {
+	const crossing = edges(a).some(([p, q]) =>
+		edges(b).some(([r, s]) => segmentsIntersect(p, q, r, s))
+	);
+	return crossing || pointInPolygon(a[0], b) || pointInPolygon(b[0], a);
+}
+
+export function polygonRectCollide(polygon, rect) {
+	return polygonsCollide(polygon, rectToPolygon(rect));
 }
 ```
 
@@ -256,6 +489,7 @@ class Line:
 Polygon = list[Point]
 
 
+# Distance between two points
 def distance(a: Point, b: Point) -> float:
     return math.hypot(b.x - a.x, b.y - a.y)
 
@@ -264,10 +498,12 @@ def distance_squared(a: Point, b: Point) -> float:
     return (b.x - a.x) ** 2 + (b.y - a.y) ** 2
 
 
+# Midpoint
 def midpoint(a: Point, b: Point) -> Point:
     return Point((a.x + b.x) / 2, (a.y + b.y) / 2)
 
 
+# Circles
 def point_in_circle(p: Point, c: Circle) -> bool:
     return distance_squared(p, c) <= c.r ** 2
 
@@ -276,6 +512,7 @@ def circles_collide(a: Circle, b: Circle) -> bool:
     return distance_squared(a, b) <= (a.r + b.r) ** 2
 
 
+# Rectangles
 def overlap(a1: float, a2: float, b1: float, b2: float) -> bool:
     return a1 <= b2 and b1 <= a2
 
@@ -299,20 +536,24 @@ def circle_rect_collide(c: Circle, rect: Rect) -> bool:
     return point_in_circle(closest, c)
 
 
+# Lines
 def line_through(p1: Point, p2: Point) -> Line:
     return Line(p2.y - p1.y, p1.x - p2.x, p2.x * p1.y - p1.x * p2.y)
 
 
+def side(p: Point, line: Line) -> float:
+    return line.a * p.x + line.b * p.y + line.c
+
+
 def distance_to_line(p: Point, line: Line) -> float:
-    value = line.a * p.x + line.b * p.y + line.c
-    return abs(value) / math.hypot(line.a, line.b)
+    return abs(side(p, line)) / math.hypot(line.a, line.b)
 
 
 def circle_line_collide(c: Circle, line: Line) -> bool:
-    value = line.a * c.x + line.b * c.y + line.c
-    return value ** 2 <= c.r ** 2 * (line.a ** 2 + line.b ** 2)
+    return side(c, line) ** 2 <= c.r ** 2 * (line.a ** 2 + line.b ** 2)
 
 
+# Line segments
 def subtract(a: Point, b: Point) -> Point:
     return Point(a.x - b.x, a.y - b.y)
 
@@ -334,11 +575,39 @@ def circle_segment_collide(c: Circle, a: Point, b: Point) -> bool:
     return point_in_circle(closest_point_on_segment(c, a, b), c)
 
 
+def line_segment_collide(line: Line, a: Point, b: Point) -> bool:
+    return side(a, line) * side(b, line) <= 0
+
+
+def segments_intersect(a: Point, b: Point, c: Point, d: Point) -> bool:
+    ab = line_through(a, b)
+    sc = side(c, ab)
+    sd = side(d, ab)
+    if sc == 0 and sd == 0:
+        return overlap(
+            min(a.x, b.x), max(a.x, b.x), min(c.x, d.x), max(c.x, d.x)
+        ) and overlap(min(a.y, b.y), max(a.y, b.y), min(c.y, d.y), max(c.y, d.y))
+    cd = line_through(c, d)
+    return sc * sd <= 0 and side(a, cd) * side(b, cd) <= 0
+
+
+# Convex polygons
+def edges(polygon: Polygon) -> list[tuple[Point, Point]]:
+    return list(zip(polygon, polygon[1:] + polygon[:1]))
+
+
+def point_in_convex_polygon(p: Point, polygon: Polygon) -> bool:
+    values = [side(p, line_through(a, b)) for a, b in edges(polygon)]
+    return not (any(v > 0 for v in values) and any(v < 0 for v in values))
+
+
+def polygon_line_collide(polygon: Polygon, line: Line) -> bool:
+    values = [side(vertex, line) for vertex in polygon]
+    return min(values) <= 0 <= max(values)
+
+
 def axes(polygon: Polygon) -> list[Point]:
-    return [
-        Point(p2.y - p1.y, p1.x - p2.x)
-        for p1, p2 in zip(polygon, polygon[1:] + polygon[:1])
-    ]
+    return [Point(p2.y - p1.y, p1.x - p2.x) for p1, p2 in edges(polygon)]
 
 
 def project(polygon: Polygon, axis: Point) -> tuple[float, float]:
@@ -346,13 +615,81 @@ def project(polygon: Polygon, axis: Point) -> tuple[float, float]:
     return min(values), max(values)
 
 
-def polygons_collide(a: Polygon, b: Polygon) -> bool:
+def convex_polygons_collide(a: Polygon, b: Polygon) -> bool:
     for axis in axes(a) + axes(b):
         a_min, a_max = project(a, axis)
         b_min, b_max = project(b, axis)
         if not overlap(a_min, a_max, b_min, b_max):
             return False
     return True
+
+
+def rect_to_polygon(rect: Rect) -> Polygon:
+    return [
+        Point(rect.x, rect.y),
+        Point(rect.x + rect.w, rect.y),
+        Point(rect.x + rect.w, rect.y + rect.h),
+        Point(rect.x, rect.y + rect.h),
+    ]
+
+
+def convex_polygon_rect_collide(polygon: Polygon, rect: Rect) -> bool:
+    return convex_polygons_collide(polygon, rect_to_polygon(rect))
+
+
+def convex_polygon_segment_collide(polygon: Polygon, a: Point, b: Point) -> bool:
+    return convex_polygons_collide(polygon, [a, b])
+
+
+def normalize(v: Point) -> Point:
+    length = math.hypot(v.x, v.y)
+    return Point(v.x / length, v.y / length)
+
+
+def convex_polygon_circle_collide(polygon: Polygon, c: Circle) -> bool:
+    nearest = min(polygon, key=lambda v: distance_squared(v, c))
+    if distance_squared(nearest, c) == 0:
+        return True
+    for axis in map(normalize, axes(polygon) + [subtract(nearest, c)]):
+        low, high = project(polygon, axis)
+        centre = dot(c, axis)
+        if not overlap(low, high, centre - c.r, centre + c.r):
+            return False
+    return True
+
+
+# Concave polygons: these work on any polygon
+def point_in_polygon(p: Point, polygon: Polygon) -> bool:
+    inside = False
+    for a, b in edges(polygon):
+        if (a.y > p.y) != (b.y > p.y):
+            crossing_x = a.x + (p.y - a.y) * (b.x - a.x) / (b.y - a.y)
+            if p.x < crossing_x:
+                inside = not inside
+    return inside
+
+
+def polygon_segment_collide(polygon: Polygon, a: Point, b: Point) -> bool:
+    return any(
+        segments_intersect(a, b, p, q) for p, q in edges(polygon)
+    ) or point_in_polygon(a, polygon)
+
+
+def polygon_circle_collide(polygon: Polygon, c: Circle) -> bool:
+    return any(
+        circle_segment_collide(c, p, q) for p, q in edges(polygon)
+    ) or point_in_polygon(c, polygon)
+
+
+def polygons_collide(a: Polygon, b: Polygon) -> bool:
+    crossing = any(
+        segments_intersect(p, q, r, s) for p, q in edges(a) for r, s in edges(b)
+    )
+    return crossing or point_in_polygon(a[0], b) or point_in_polygon(b[0], a)
+
+
+def polygon_rect_collide(polygon: Polygon, rect: Rect) -> bool:
+    return polygons_collide(polygon, rect_to_polygon(rect))
 ```
 
 </CodeGroup>

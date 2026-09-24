@@ -4,9 +4,14 @@ export type Point = { x: number; y: number };
 
 /**
  * Makes an SVG shape draggable in its SVG's own units, with the pointer or with the arrow keys
- * (Shift for bigger steps). `get` reads the shape's position and `set` moves it.
+ * (Shift for five times the step). `get` reads the shape's position and `set` moves it; shapes
+ * that snap to a grid should step one grid square.
  */
-export function draggable(get: () => Point, set: (point: Point) => void): Attachment<SVGElement> {
+export function draggable(
+	get: () => Point,
+	set: (point: Point) => void,
+	step = 6
+): Attachment<SVGElement> {
 	return (element) => {
 		const svg = element.ownerSVGElement!;
 		let offset: Point | null = null;
@@ -37,11 +42,11 @@ export function draggable(get: () => Point, set: (point: Point) => void): Attach
 			ArrowDown: { x: 0, y: 1 }
 		};
 		const key = (event: KeyboardEvent) => {
-			const step = keys[event.key];
-			if (!step) return;
-			const size = event.shiftKey ? 30 : 6;
+			const direction = keys[event.key];
+			if (!direction) return;
+			const size = event.shiftKey ? step * 5 : step;
 			const at = get();
-			set({ x: at.x + step.x * size, y: at.y + step.y * size });
+			set({ x: at.x + direction.x * size, y: at.y + direction.y * size });
 			event.preventDefault();
 		};
 
@@ -67,3 +72,9 @@ export function within(point: Point, width: number, height: number, margin = 0):
 		y: Math.min(height - margin, Math.max(margin, point.y))
 	};
 }
+
+/** Rounds a point to the nearest grid crossing, so figures can count in whole grid squares. */
+export const snap = (point: Point, step = 30): Point => ({
+	x: Math.round(point.x / step) * step,
+	y: Math.round(point.y / step) * step
+});

@@ -1,0 +1,248 @@
+---
+title: Concave polygons
+description: Why the separating axis theorem fails on polygons with dents, edge-based tests that work on any polygon, and the ups and downs of both approaches.
+part: 2D
+order: 9
+published: true
+---
+
+<script>
+  import CodeGroup from '$lib/components/CodeGroup.svelte';
+  import Complexity from '$lib/components/Complexity.svelte';
+  import ConcaveTest from '$lib/components/posts/geometry/ConcaveTest.svelte';
+</script>
+
+A **concave**, or non-convex, polygon has at least one dent: somewhere, a segment between two of its points leaves the shape. L-shapes, stars and the outline of a level's floor are all concave, and none of the tests in the last chapter can be trusted with them. As before, $n$ is the number of vertices of the polygon, and $m$ the number of vertices of the other shape.
+
+## Where the separating axis theorem breaks
+
+The theorem only holds for convex shapes. A concave polygon's shadow on any axis is exactly the shadow of its **convex outline**, the shape you'd get by stretching a rubber band around it, so a separating axis test can only ever see that outline. Push the square into the C's notch below: the two don't touch, but every shadow overlaps, and the separating axis test calls it a collision.
+
+<ConcaveTest against="polygon" compare />
+
+There are two ways out:
+
+1. **Split the concave polygon into convex pieces**, triangles for instance, and run the separating axis test on each piece. It keeps the speed and the push-out direction, at the cost of splitting shapes up first. Ear clipping, the simplest way to cut a polygon into triangles, takes $O(n^2)$ time, but it only has to run once per shape, not every frame.
+2. **Use tests that walk the polygon's edges.** They don't care about dents at all. The rest of this chapter builds those.
+
+## Point in polygon
+
+The side-of-every-edge test needs convexity as well. For any polygon, cast a **ray** from the point, straight to the right, and count the edges it crosses. Each crossing takes the ray from inside the polygon to outside, or back, and it always ends up outside, so an **odd** number of crossings means the point started inside. This is called **ray casting**, or the even–odd rule.
+
+For each edge, two questions. Does it cross the horizontal line through $P$ at all? Only if one end is above $P$ and the other isn't. And if so, is the crossing to the right of $P$? The edge from $A$ to $B$ crosses that line at
+
+$$
+x = x_{A} + (y_{P} - y_{A})\,\frac{x_{B} - x_{A}}{y_{B} - y_{A}}
+$$
+
+"Above" is a strict $>$, so an end exactly level with $P$ counts as below. That way, when the ray passes exactly through a vertex, the two edges that meet there are counted once between them, not twice.
+
+<ConcaveTest against="point" />
+
+<CodeGroup>
+
+```ts
+function pointInPolygon(p: Point, polygon: Polygon): boolean {
+	let inside = false;
+	for (const [a, b] of edges(polygon)) {
+		// Only edges with one end above p cross the horizontal line through it.
+		if (a.y > p.y !== b.y > p.y) {
+			// Where the edge crosses that line; the ray only counts crossings to p's right.
+			const crossingX = a.x + ((p.y - a.y) * (b.x - a.x)) / (b.y - a.y);
+			if (p.x < crossingX) inside = !inside;
+		}
+	}
+	return inside;
+}
+```
+
+```js
+function pointInPolygon(p, polygon) {
+	let inside = false;
+	for (const [a, b] of edges(polygon)) {
+		// Only edges with one end above p cross the horizontal line through it.
+		if (a.y > p.y !== b.y > p.y) {
+			// Where the edge crosses that line; the ray only counts crossings to p's right.
+			const crossingX = a.x + ((p.y - a.y) * (b.x - a.x)) / (b.y - a.y);
+			if (p.x < crossingX) inside = !inside;
+		}
+	}
+	return inside;
+}
+```
+
+```py
+def point_in_polygon(p: Point, polygon: Polygon) -> bool:
+    inside = False
+    for a, b in edges(polygon):
+        # Only edges with one end above p cross the horizontal line through it.
+        if (a.y > p.y) != (b.y > p.y):
+            # Where the edge crosses that line; the ray only counts crossings to p's right.
+            crossing_x = a.x + (p.y - a.y) * (b.x - a.x) / (b.y - a.y)
+            if p.x < crossing_x:
+                inside = not inside
+    return inside
+```
+
+</CodeGroup>
+
+<Complexity items={[{'name': 'pointInPolygon', 'time': 'O(n)', 'space': 'O(n)', 'note': 'the list of edges; walking the vertices by index needs only O(1) space'}]} />
+
+A point exactly on an edge can come out either way. When that matters, check the distance to the edges first.
+
+## Polygon vs line
+
+This one needs no change: the polygon vs line test from the last chapter only ever looked at which side of the line each vertex is on, and that works for any polygon.
+
+## Polygon vs line segment
+
+If the segment crosses any edge, they collide. If it crosses none, it's either entirely inside the polygon or entirely outside, and a point-in-polygon check on either end of it tells which.
+
+<ConcaveTest against="segment" />
+
+<CodeGroup>
+
+```ts
+function polygonSegmentCollide(polygon: Polygon, a: Point, b: Point): boolean {
+	return (
+		edges(polygon).some(([p, q]) => segmentsIntersect(a, b, p, q)) ||
+		pointInPolygon(a, polygon) // no edge crossed: all in or all out
+	);
+}
+```
+
+```js
+function polygonSegmentCollide(polygon, a, b) {
+	return (
+		edges(polygon).some(([p, q]) => segmentsIntersect(a, b, p, q)) ||
+		pointInPolygon(a, polygon) // no edge crossed: all in or all out
+	);
+}
+```
+
+```py
+def polygon_segment_collide(polygon: Polygon, a: Point, b: Point) -> bool:
+    return any(
+        segments_intersect(a, b, p, q) for p, q in edges(polygon)
+    ) or point_in_polygon(a, polygon)  # no edge crossed: all in or all out
+```
+
+</CodeGroup>
+
+<Complexity items={[{'name': 'polygonSegmentCollide', 'time': 'O(n)', 'space': 'O(n)', 'note': 'n segment tests, then one point-in-polygon check'}]} />
+
+## Polygon vs circle
+
+The same pattern: if the circle touches any edge, with the circle-vs-segment test, they collide. If it touches none, the circle is entirely inside or entirely outside, and its centre tells which.
+
+<ConcaveTest against="circle" />
+
+<CodeGroup>
+
+```ts
+function polygonCircleCollide(polygon: Polygon, c: Circle): boolean {
+	return (
+		edges(polygon).some(([p, q]) => circleSegmentCollide(c, p, q)) ||
+		pointInPolygon(c, polygon) // no edge touched: all in or all out
+	);
+}
+```
+
+```js
+function polygonCircleCollide(polygon, c) {
+	return (
+		edges(polygon).some(([p, q]) => circleSegmentCollide(c, p, q)) ||
+		pointInPolygon(c, polygon) // no edge touched: all in or all out
+	);
+}
+```
+
+```py
+def polygon_circle_collide(polygon: Polygon, c: Circle) -> bool:
+    return any(
+        circle_segment_collide(c, p, q) for p, q in edges(polygon)
+    ) or point_in_polygon(c, polygon)  # no edge touched: all in or all out
+```
+
+</CodeGroup>
+
+<Complexity items={[{'name': 'polygonCircleCollide', 'time': 'O(n)', 'space': 'O(n)', 'note': 'n circle-vs-segment tests, then one point-in-polygon check'}]} />
+
+## Polygon vs polygon and rectangle
+
+Two polygons collide when any edge of one crosses any edge of the other. When no edges cross, one can still sit entirely inside the other, so check one vertex of each against the other polygon. A rectangle, once more, is a polygon with four vertices.
+
+<ConcaveTest against="polygon" />
+
+<CodeGroup>
+
+```ts
+function polygonsCollide(a: Polygon, b: Polygon): boolean {
+	const crossing = edges(a).some(([p, q]) =>
+		edges(b).some(([r, s]) => segmentsIntersect(p, q, r, s))
+	);
+	// No edges cross: they're apart, unless one sits entirely inside the other.
+	return crossing || pointInPolygon(a[0], b) || pointInPolygon(b[0], a);
+}
+
+function polygonRectCollide(polygon: Polygon, rect: Rect): boolean {
+	return polygonsCollide(polygon, rectToPolygon(rect));
+}
+```
+
+```js
+function polygonsCollide(a, b) {
+	const crossing = edges(a).some(([p, q]) =>
+		edges(b).some(([r, s]) => segmentsIntersect(p, q, r, s))
+	);
+	// No edges cross: they're apart, unless one sits entirely inside the other.
+	return crossing || pointInPolygon(a[0], b) || pointInPolygon(b[0], a);
+}
+
+function polygonRectCollide(polygon, rect) {
+	return polygonsCollide(polygon, rectToPolygon(rect));
+}
+```
+
+```py
+def polygons_collide(a: Polygon, b: Polygon) -> bool:
+    crossing = any(
+        segments_intersect(p, q, r, s) for p, q in edges(a) for r, s in edges(b)
+    )
+    # No edges cross: they're apart, unless one sits entirely inside the other.
+    return crossing or point_in_polygon(a[0], b) or point_in_polygon(b[0], a)
+
+
+def polygon_rect_collide(polygon: Polygon, rect: Rect) -> bool:
+    return polygons_collide(polygon, rect_to_polygon(rect))
+```
+
+</CodeGroup>
+
+<Complexity items={[{'name': 'polygonsCollide', 'time': 'O(n · m)', 'space': 'O(n + m)', 'note': 'every edge of one against every edge of the other, then two point-in-polygon checks'}, {'name': 'polygonRectCollide', 'time': 'O(n)', 'space': 'O(n)', 'note': 'polygonsCollide with m = 4'}]} />
+
+## Which approach to use
+
+Both approaches answer the same question, and each is better at something:
+
+| | Separating axis theorem | Edge tests |
+| --- | --- | --- |
+| Works on | Convex shapes only. Concave ones have to be split into convex pieces first. | Any polygon, dents and all, as long as its edges don't cross each other. |
+| Time | $O((n + m)^2)$: for every edge normal of both shapes, a projection of every vertex. | $O(n \cdot m)$: every edge of one shape against every edge of the other, plus $O(n + m)$ for the point-in-polygon checks. |
+| Space | $O(n + m)$ for the axes. | $O(n + m)$ for the lists of edges. |
+| Quickest when | The shapes are apart: the first axis with a gap ends the test, and most pairs of things in a game are apart. | The shapes overlap: the first pair of crossing edges ends the test. Shapes that are apart cost the full check. |
+| One inside the other | Handled, no extra work. | Needs the extra point-in-polygon check. |
+| After a hit | The axis with the smallest overlap, and its size: which way, and how far, to push the shapes apart. | The points where the edges cross, but no direction to push them. |
+| Circles | One extra axis. | A circle-vs-segment test per edge. |
+| Easy to get wrong | Forgetting to normalise the axes once circles are involved. | Vertices exactly level with the ray, and points exactly on an edge. |
+
+In practice, the two often end up side by side. Physics engines first run a cheap bounding-box test to skip pairs that are obviously apart, then a convex test like the separating axis theorem, and store each concave shape as several convex pieces. For a game with a handful of concave shapes and no physics, the edge tests are simpler to get right, and quick enough.
+
+## What's next
+
+That covers every shape in Part I. Two things are left before the 2D part is complete:
+
+- **Collision response.** Knowing that two things touch is half the job; the other half is pushing them apart. The separating axis test can report the axis with the smallest overlap, which says which way, and the size of that overlap says how far.
+- **Fast objects.** A bullet can move far enough in one frame to skip straight through a thin wall without ever overlapping it. Testing the path it swept, instead of where it ends up, fixes that.
+
+After that, Part II takes all of this into 3D.

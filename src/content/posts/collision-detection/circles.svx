@@ -8,9 +8,47 @@ published: true
 
 <script>
   import CodeGroup from '$lib/components/CodeGroup.svelte';
+  import Complexity from '$lib/components/Complexity.svelte';
   import PointInCircle from '$lib/components/posts/geometry/PointInCircle.svelte';
   import CircleCircle from '$lib/components/posts/geometry/CircleCircle.svelte';
 </script>
+
+Every test in this chapter compares squared distances, with the squared distance function from the chapter on distance between two points:
+
+<CodeGroup>
+
+```ts
+type Point = { x: number; y: number };
+
+function distanceSquared(a: Point, b: Point): number {
+	return (b.x - a.x) ** 2 + (b.y - a.y) ** 2;
+}
+```
+
+```js
+function distanceSquared(a, b) {
+	return (b.x - a.x) ** 2 + (b.y - a.y) ** 2;
+}
+```
+
+```py
+import math
+from dataclasses import dataclass
+
+
+@dataclass
+class Point:
+    x: float
+    y: float
+
+
+def distance_squared(a: Point, b: Point) -> float:
+    return (b.x - a.x) ** 2 + (b.y - a.y) ** 2
+```
+
+</CodeGroup>
+
+<Complexity items={[{'name': 'distanceSquared', 'time': 'O(1)', 'space': 'O(1)'}]} />
 
 ## The equation of a circle
 
@@ -63,6 +101,8 @@ def point_in_circle(p: Point, c: Circle) -> bool:
 
 </CodeGroup>
 
+<Complexity items={[{'name': 'pointInCircle', 'time': 'O(1)', 'space': 'O(1)'}]} />
+
 A circle has an $x$ and a $y$ like a point, so the distance functions from the previous chapters take it as it is.
 
 ## Circle vs circle
@@ -97,5 +137,7 @@ def circles_collide(a: Circle, b: Circle) -> bool:
 ```
 
 </CodeGroup>
+
+<Complexity items={[{'name': 'circlesCollide', 'time': 'O(1)', 'space': 'O(1)'}]} />
 
 The circles on my home page run exactly this test.

@@ -8,7 +8,9 @@ published: true
 
 <script>
   import CodeGroup from '$lib/components/CodeGroup.svelte';
+  import Complexity from '$lib/components/Complexity.svelte';
   import DistanceDemo from '$lib/components/posts/DistanceDemo.svelte';
+  import SquaredCompare from '$lib/components/posts/geometry/SquaredCompare.svelte';
 </script>
 
 Most collision tests come down to one question: how far apart are two things?
@@ -45,6 +47,8 @@ def distance_on_line(x1: float, x2: float) -> float:
 ```
 
 </CodeGroup>
+
+<Complexity items={[{'name': 'distanceOnLine', 'time': 'O(1)', 'space': 'O(1)'}]} />
 
 ## In the plane
 
@@ -92,7 +96,32 @@ def distance(a: Point, b: Point) -> float:
 
 </CodeGroup>
 
-JavaScript's `Math.hypot(dx, dy)` and Python's `math.hypot(dx, dy)` do the same in one call.
+<Complexity items={[{'name': 'distance', 'time': 'O(1)', 'space': 'O(1)'}]} />
+
+JavaScript's `Math.hypot` and Python's `math.hypot` do the squaring, adding and square root for you: pass them the two differences and they return the distance. They're also careful with very large and very small numbers, where squaring them first could overflow or round down to zero.
+
+<CodeGroup>
+
+```ts
+function distance(a: Point, b: Point): number {
+	return Math.hypot(b.x - a.x, b.y - a.y);
+}
+```
+
+```js
+function distance(a, b) {
+	return Math.hypot(b.x - a.x, b.y - a.y);
+}
+```
+
+```py
+def distance(a: Point, b: Point) -> float:
+    return math.hypot(b.x - a.x, b.y - a.y)
+```
+
+</CodeGroup>
+
+<Complexity items={[{'name': 'distance', 'time': 'O(1)', 'space': 'O(1)'}]} />
 
 ## Skipping the square root
 
@@ -101,6 +130,10 @@ The square root is the slowest part of that function, and a collision test rarel
 $$
 d \le r \iff d^2 \le r^2
 $$
+
+Try it below. The point $P$ is inside the circle when its distance $d$ from the centre is at most the radius $r$. The gauges on the right compare $d$ with $r$, and $d^2$ with $r^2$. $d^2$ grows much faster than $d$, but it passes $r^2$ at exactly the moment $d$ passes $r$, so both comparisons always agree, and only one of them needs a square root.
+
+<SquaredCompare />
 
 <CodeGroup>
 
@@ -122,5 +155,7 @@ def distance_squared(a: Point, b: Point) -> float:
 ```
 
 </CodeGroup>
+
+<Complexity items={[{'name': 'distanceSquared', 'time': 'O(1)', 'space': 'O(1)'}]} />
 
 Every test in the following chapters compares squared distances with squared lengths, and never takes a root.

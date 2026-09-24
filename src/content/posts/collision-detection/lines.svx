@@ -1,6 +1,6 @@
 ---
 title: Lines
-description: The general equation of a line, the distance from a point to a line, and circle vs line.
+description: The general equation of a line, which side of a line a point is on, the distance from a point to a line, and circle vs line.
 part: 2D
 order: 6
 published: true
@@ -8,6 +8,9 @@ published: true
 
 <script>
   import CodeGroup from '$lib/components/CodeGroup.svelte';
+  import Complexity from '$lib/components/Complexity.svelte';
+  import LineEquation from '$lib/components/posts/geometry/LineEquation.svelte';
+  import PointLineDistance from '$lib/components/posts/geometry/PointLineDistance.svelte';
   import CircleLine from '$lib/components/posts/geometry/CircleLine.svelte';
 </script>
 
@@ -26,6 +29,10 @@ a = y_{2} - y_{1}, \quad b = x_{1} - x_{2}, \quad c = x_{2}y_{1} - x_{1}y_{2}
 $$
 
 The vector $(a, b)$ is the line's **normal vector**. It points straight out of the line, perpendicular to it.
+
+Drag the two points below and watch the coefficients follow. Whenever the line isn't vertical, the slope form can be read straight off them, $k = -\frac{a}{b}$ and $q = -\frac{c}{b}$. Now line the points up vertically: $b$ becomes $0$, the slope form has nothing to divide by, and $ax + by + c = 0$ carries on as if nothing happened.
+
+<LineEquation />
 
 <CodeGroup>
 
@@ -58,39 +65,74 @@ def line_through(p1: Point, p2: Point) -> Line:
 
 </CodeGroup>
 
+<Complexity items={[{'name': 'lineThrough', 'time': 'O(1)', 'space': 'O(1)'}]} />
+
+## Which side of a line a point is on
+
+Put any point $(x_{0}, y_{0})$ into the left-hand side of the equation. For a point on the line, you get $0$, which is what the equation says. For a point off the line, you get a number whose **sign tells you which side of the line the point is on**: positive on the side the normal vector $(a, b)$ points to, negative on the other. Every chapter from here on leans on this one number.
+
+<CodeGroup>
+
+```ts
+// ax + by + c for the point: 0 on the line, and its sign says which side.
+function side(p: Point, line: Line): number {
+	return line.a * p.x + line.b * p.y + line.c;
+}
+```
+
+```js
+// ax + by + c for the point: 0 on the line, and its sign says which side.
+function side(p, line) {
+	return line.a * p.x + line.b * p.y + line.c;
+}
+```
+
+```py
+def side(p: Point, line: Line) -> float:
+    """ax + by + c for the point: 0 on the line, and its sign says which side."""
+    return line.a * p.x + line.b * p.y + line.c
+```
+
+</CodeGroup>
+
+<Complexity items={[{'name': 'side', 'time': 'O(1)', 'space': 'O(1)'}]} />
+
+The sign is useful on its own, too: it tells you which side of a wall the player is on.
+
 ## Distance from a point to a line
 
-Put any point $(x_{0}, y_{0})$ into the left-hand side of the equation. For a point on the line, you get $0$. For a point off the line, you get a number whose sign tells you which side of the line the point is on, and whose size grows with the distance, multiplied by the length of the normal vector, $\sqrt{a^2 + b^2}$. Divide that length out and you have the distance:
+The size of that number grows with the distance from the line, multiplied by the length of the normal vector, $\sqrt{a^2 + b^2}$. Divide that length out and you have the distance:
 
 $$
 d = \frac{|ax_{0} + by_{0} + c|}{\sqrt{a^2 + b^2}}
 $$
 
+Drag $P$ across the line and watch the sign flip, and the distance shrink to $0$ on the line itself.
+
+<PointLineDistance />
+
 <CodeGroup>
 
 ```ts
 function distanceToLine(p: Point, line: Line): number {
-	const value = line.a * p.x + line.b * p.y + line.c;
-	return Math.abs(value) / Math.hypot(line.a, line.b);
+	return Math.abs(side(p, line)) / Math.hypot(line.a, line.b);
 }
 ```
 
 ```js
 function distanceToLine(p, line) {
-	const value = line.a * p.x + line.b * p.y + line.c;
-	return Math.abs(value) / Math.hypot(line.a, line.b);
+	return Math.abs(side(p, line)) / Math.hypot(line.a, line.b);
 }
 ```
 
 ```py
 def distance_to_line(p: Point, line: Line) -> float:
-    value = line.a * p.x + line.b * p.y + line.c
-    return abs(value) / math.hypot(line.a, line.b)
+    return abs(side(p, line)) / math.hypot(line.a, line.b)
 ```
 
 </CodeGroup>
 
-The sign is useful on its own, too: it tells you which side of a wall the player is on.
+<Complexity items={[{'name': 'distanceToLine', 'time': 'O(1)', 'space': 'O(1)'}]} />
 
 ## Circle vs line
 
@@ -102,24 +144,23 @@ A circle touches a line when its centre is at most $r$ away from it. With the sq
 
 ```ts
 function circleLineCollide(c: Circle, line: Line): boolean {
-	const value = line.a * c.x + line.b * c.y + line.c;
-	return value ** 2 <= c.r ** 2 * (line.a ** 2 + line.b ** 2);
+	return side(c, line) ** 2 <= c.r ** 2 * (line.a ** 2 + line.b ** 2);
 }
 ```
 
 ```js
 function circleLineCollide(c, line) {
-	const value = line.a * c.x + line.b * c.y + line.c;
-	return value ** 2 <= c.r ** 2 * (line.a ** 2 + line.b ** 2);
+	return side(c, line) ** 2 <= c.r ** 2 * (line.a ** 2 + line.b ** 2);
 }
 ```
 
 ```py
 def circle_line_collide(c: Circle, line: Line) -> bool:
-    value = line.a * c.x + line.b * c.y + line.c
-    return value ** 2 <= c.r ** 2 * (line.a ** 2 + line.b ** 2)
+    return side(c, line) ** 2 <= c.r ** 2 * (line.a ** 2 + line.b ** 2)
 ```
 
 </CodeGroup>
+
+<Complexity items={[{'name': 'circleLineCollide', 'time': 'O(1)', 'space': 'O(1)'}]} />
 
 This line never ends. Walls and platforms do, which is what the next chapter is about.
