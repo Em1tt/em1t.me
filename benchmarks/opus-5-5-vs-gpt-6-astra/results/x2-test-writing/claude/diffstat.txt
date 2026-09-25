@@ -1,0 +1,7 @@
+ test/compare.test.js        | 208 +++++++++++++++++++++
+ test/max-satisfying.test.js |  66 +++++++
+ test/parse.test.js          | 231 +++++++++++++++++++++++
+ test/satisfies.test.js      | 433 ++++++++++++++++++++++++++++++++++++++++++++
+ test/semver.test.js         |   7 -
+ test/support/semver.js      |  47 +++++
+ 6 files changed, 985 insertions(+), 7 deletions(-)

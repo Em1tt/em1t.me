@@ -1,0 +1,59 @@
+{
+  "passed": 12,
+  "total": 12,
+  "results": [
+    {
+      "name": "sample.log matches sample-expected.json",
+      "ok": true
+    },
+    {
+      "name": "edge-case log: requests",
+      "ok": true
+    },
+    {
+      "name": "edge-case log: malformed",
+      "ok": true
+    },
+    {
+      "name": "edge-case log: uniqueIps",
+      "ok": true
+    },
+    {
+      "name": "edge-case log: status",
+      "ok": true
+    },
+    {
+      "name": "edge-case log: bytes",
+      "ok": true
+    },
+    {
+      "name": "edge-case log: topPaths",
+      "ok": true
+    },
+    {
+      "name": "edge-case log: durationMs",
+      "ok": true
+    },
+    {
+      "name": "edge-case log: hourly",
+      "ok": true
+    },
+    {
+      "name": "edge-case log: slowest",
+      "ok": true
+    },
+    {
+      "name": "2,000,000 lines: every field correct",
+      "ok": true
+    },
+    {
+      "name": "2,000,000 lines within 30 seconds",
+      "ok": true
+    }
+  ],
+  "seconds": {
+    "sample": 0.054522,
+    "medium": 0.0835977,
+    "big": 0.5762728
+  }
+}

@@ -10,6 +10,8 @@ const gitignorePath = path.resolve(import.meta.dirname, '.gitignore');
 
 export default defineConfig(
 	includeIgnoreFile(gitignorePath),
+	// Published benchmark kits: models' code and outputs, kept exactly as they were.
+	{ ignores: ['benchmarks/'] },
 	js.configs.recommended,
 	ts.configs.recommended,
 	svelte.configs.recommended,

@@ -1,0 +1,20 @@
+{
+  "task": "f1-data-table",
+  "model": "codex",
+  "started": "2026-09-25T11:06:35.765Z",
+  "seconds": 492.651,
+  "exitCode": 0,
+  "timedOut": false,
+  "usage": {
+    "input": 471975,
+    "cacheRead": 429568,
+    "output": 13257,
+    "reasoning": 1123,
+    "turns": 1,
+    "commands": 12
+  },
+  "score": {
+    "passed": 21,
+    "total": 21
+  }
+}

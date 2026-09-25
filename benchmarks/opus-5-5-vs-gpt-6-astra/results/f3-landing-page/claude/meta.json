@@ -1,0 +1,25 @@
+{
+  "task": "f3-landing-page",
+  "model": "claude",
+  "started": "2026-09-25T12:04:18.371Z",
+  "seconds": 3042.976,
+  "exitCode": 0,
+  "timedOut": false,
+  "usage": {
+    "input": 160,
+    "cacheRead": 19723381,
+    "cacheWrite": 310393,
+    "output": 247468,
+    "turns": 95,
+    "apiSeconds": 2310.342,
+    "costUsd": 11.378851200000005,
+    "models": [
+      "claude-haiku-4-5-20251001",
+      "claude-opus-5-5"
+    ]
+  },
+  "score": {
+    "passed": 16,
+    "total": 16
+  }
+}

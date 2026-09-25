@@ -1,0 +1,25 @@
+{
+  "task": "b1-link-api",
+  "model": "claude",
+  "started": "2026-09-25T13:13:53.333Z",
+  "seconds": 2045.049,
+  "exitCode": 0,
+  "timedOut": false,
+  "usage": {
+    "input": 4,
+    "cacheRead": 199987,
+    "cacheWrite": 3868,
+    "output": 6787,
+    "turns": 1,
+    "apiSeconds": 2109.57,
+    "costUsd": 8.0445684,
+    "models": [
+      "claude-haiku-4-5-20251001",
+      "claude-opus-5-5"
+    ]
+  },
+  "score": {
+    "passed": 18,
+    "total": 18
+  }
+}

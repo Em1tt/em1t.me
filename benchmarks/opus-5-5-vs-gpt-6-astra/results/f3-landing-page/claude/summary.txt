@@ -1,0 +1,24 @@
+The Tidepool landing page is built, and `dist/` is up to date from the final `npm run build`. My own browser tests pass: 187 passed and 3 were skipped on purpose (a touch-screen test that only runs on the phone emulations).
+
+**What's there**
+- **Stack:** plain HTML, CSS and a small script, with no framework. `npm run build` is a Node script that needs no packages, so it works even before `npm install`. It produces `dist/index.html` plus asset files with content hashes in their names. It stops with an error if the page points at a missing file or at another server.
+- **Design:** warm sand, teal, coral and mustard colours. Headings use Fraunces, a free font that ships with the site (61 kB); body text uses the system font. All illustrations are inline SVG or CSS:
+  - a phone showing a shared list sorted by aisle, with "Mustard: 2 at home" flagged, sitting in a tide pool;
+  - one drawing per feature;
+  - a grocery bag in the closing section.
+- **Other sections I added:** a customer quote, a closing download section and a "get the app" dialog. The copy from TASK.md is used word for word, including the straight apostrophes.
+- **Behaviour:** the price elements, billing toggle, FAQ buttons and mobile menu all use the text and attributes TASK.md asks for. Without JavaScript, the menu links and FAQ answers are simply shown.
+
+**How I checked it**
+- The test suite in `tests/` runs against the built `dist/` in Chromium, Firefox, WebKit and emulated Pixel 7 and iPhone 13 phones.
+- axe-core found no violations of any severity at 360, 390, 768 and 1280 px.
+- There's no sideways scrolling from 320 to 1920 px, including with the menu and every FAQ answer open.
+- The page makes no requests to other servers and logs no console errors.
+- The HTML passes the html-validate checker.
+- I also served `dist/` with Python's plain `http.server` to confirm it doesn't depend on my own preview server.
+
+**Judgement calls you might want to review**
+- **"Get Tidepool free" is a `<button>`, not a link.** TASK.md calls it a button and gives it no link target, so it opens the download dialog. A hidden test that looks for it as a link would miss it.
+- **Plan features are shown as checklists.** The text is still exactly "1 list, 2 people" and so on, but the commas are visually hidden and the first letter of each item is capitalised on screen ("Recipe import").
+
+I didn't commit anything to git. The README has the commands (`build`, `dev`, `preview`, `test`) and notes on the structure.

@@ -1,0 +1,111 @@
+{
+  "passed": 20,
+  "total": 20,
+  "results": [
+    {
+      "name": "M01: numeric pre-release identifiers compared as strings",
+      "ok": true,
+      "detail": "caught by compare > pre-releases > orders the README example; compare > pre-releases > compares numeric identifiers as numbers"
+    },
+    {
+      "name": "M02: a pre-release ranks above the release",
+      "ok": true,
+      "detail": "caught by compare > pre-release versus release > puts 1.0.0-alpha below 1.0.0; compare > pre-release versus release > puts any pre-release below the same version without one"
+    },
+    {
+      "name": "M03: the longer pre-release ranks lower",
+      "ok": true,
+      "detail": "caught by compare > result > is exactly -1 or 1 however far apart the versions are; compare > result"
+    },
+    {
+      "name": "M04: numeric identifiers rank above alphanumeric ones",
+      "ok": true,
+      "detail": "caught by compare > pre-release versus release > only looks at pre-releases when major, minor and patch are equal; compare > pre-release versus release"
+    },
+    {
+      "name": "M05: leading zeros allowed in the major version",
+      "ok": true,
+      "detail": "caught by compare > input > throws a TypeError if either version is invalid; compare > input > names the invalid version in the error"
+    },
+    {
+      "name": "M06: the patch number is optional",
+      "ok": true,
+      "detail": "caught by compare > input > throws a TypeError if either version is invalid; compare > input"
+    },
+    {
+      "name": "M07: ^0.2.3 allows 0.x.x up to 1.0.0",
+      "ok": true,
+      "detail": "caught by satisfies > caret ranges > ^0.2.3 is >=0.2.3 <0.3.0; satisfies > caret ranges > keeps the left-most non-zero part for other versions too"
+    },
+    {
+      "name": "M08: ^0.0.3 allows up to 0.1.0",
+      "ok": true,
+      "detail": "caught by satisfies > caret ranges > ^0.0.3 is >=0.0.3 <0.0.4; satisfies > caret ranges > keeps the left-most non-zero part for other versions too"
+    },
+    {
+      "name": "M09: ~1.2.3 allows up to 2.0.0",
+      "ok": true,
+      "detail": "caught by maxSatisfying > returns the highest version in the list that satisfies the range; maxSatisfying"
+    },
+    {
+      "name": "M10: >= behaves like >",
+      "ok": true,
+      "detail": "caught by maxSatisfying > orders pre-releases like compare(); maxSatisfying"
+    },
+    {
+      "name": "M11: < behaves like <=",
+      "ok": true,
+      "detail": "caught by maxSatisfying > returns the highest version in the list that satisfies the range; maxSatisfying"
+    },
+    {
+      "name": "M12: 1.2.x allows up to 2.0.0",
+      "ok": true,
+      "detail": "caught by satisfies > x-ranges and partial versions > 1.2.x is >=1.2.0 <1.3.0; satisfies > x-ranges and partial versions > 1.2.X is >=1.2.0 <1.3.0"
+    },
+    {
+      "name": "M13: >1.2 excludes 1.3.0",
+      "ok": true,
+      "detail": "caught by satisfies > a partial version after an operator covers its whole span > >1.2 means >=1.3.0; satisfies > a partial version after an operator covers its whole span > works the same with only a major version"
+    },
+    {
+      "name": "M14: only the first || alternative counts",
+      "ok": true,
+      "detail": "caught by satisfies > || between sets > needs one of the sets to match; satisfies > || between sets > works without spaces around ||"
+    },
+    {
+      "name": "M15: one comparator in a set is enough",
+      "ok": true,
+      "detail": "caught by maxSatisfying > returns the highest version in the list that satisfies the range; maxSatisfying > returns null if no version satisfies the range"
+    },
+    {
+      "name": "M16: pre-releases satisfy any range",
+      "ok": true,
+      "detail": "caught by maxSatisfying > returns null if no version satisfies the range; maxSatisfying > orders pre-releases like compare()"
+    },
+    {
+      "name": "M17: pre-releases match a pre-release comparator on any version",
+      "ok": true,
+      "detail": "caught by maxSatisfying > orders pre-releases like compare(); maxSatisfying"
+    },
+    {
+      "name": "M18: maxSatisfying returns the lowest match",
+      "ok": true,
+      "detail": "caught by maxSatisfying > returns the highest version in the list that satisfies the range; maxSatisfying > finds the highest version wherever it is in the list"
+    },
+    {
+      "name": "M19: build metadata is rejected",
+      "ok": true,
+      "detail": "caught by compare > build metadata > treats 1.0.0+a and 1.0.0+b as equal; compare > build metadata > is ignored"
+    },
+    {
+      "name": "M20: numeric pre-release identifiers stay strings",
+      "ok": true,
+      "detail": "caught by compare > pre-releases > orders the README example; compare > pre-releases > compares numeric identifiers as numbers"
+    }
+  ],
+  "ownTests": {
+    "pass": 142,
+    "fail": 0,
+    "failing": []
+  }
+}

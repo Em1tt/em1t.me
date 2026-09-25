@@ -1,0 +1,12 @@
+[
+  {
+    "order": "A=claude, B=codex",
+    "pick": "claude",
+    "text": "A: Page A has a consistent teal-and-cream palette, bold serif headings, matching illustrations and a pricing section that's easy to scan, and on a phone it stacks cleanly with readable text; B looks more refined but uses tiny, faint small print and has decorations that sit on top of content (the grocery bag over the app card, the star over the last heading on mobile)."
+  },
+  {
+    "order": "A=codex, B=claude",
+    "pick": "claude",
+    "text": "B: Its bold teal-and-cream colours, crisp phone mockup, matching cards and illustrations, and mix of light and dark sections give it a clearer hierarchy and more polish, and its larger text and roomy tap targets work well on a phone, while A's elegant magazine-style design is let down by tiny faint text, a crowded hero image and a star icon that runs into its last heading on mobile."
+  }
+]

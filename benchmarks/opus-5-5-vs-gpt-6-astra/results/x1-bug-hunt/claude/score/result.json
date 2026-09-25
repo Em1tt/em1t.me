@@ -1,0 +1,62 @@
+{
+  "passed": 13,
+  "total": 13,
+  "results": [
+    {
+      "name": "bug 1: amounts parse to the exact cent",
+      "ok": true
+    },
+    {
+      "name": "bug 2: coupons are valid on their last day",
+      "ok": true
+    },
+    {
+      "name": "bug 3: tax is charged after the discount",
+      "ok": true
+    },
+    {
+      "name": "bug 4: CSV doubles quotes inside quoted fields",
+      "ok": true
+    },
+    {
+      "name": "bug 5: negative amounts read -$5.00",
+      "ok": true
+    },
+    {
+      "name": "bug 6: an invoice with no lines",
+      "ok": true
+    },
+    {
+      "name": "bug 7: due dates across daylight saving time",
+      "ok": true
+    },
+    {
+      "name": "bug 7: addDays is right in other time zones",
+      "ok": true
+    },
+    {
+      "name": "regression: invalid amounts still throw",
+      "ok": true
+    },
+    {
+      "name": "regression: positive amounts and currencies",
+      "ok": true
+    },
+    {
+      "name": "regression: tax rates and rounding",
+      "ok": true
+    },
+    {
+      "name": "regression: invoices, coupons and due dates",
+      "ok": true
+    },
+    {
+      "name": "regression: the public API is unchanged",
+      "ok": true
+    }
+  ],
+  "ownTests": {
+    "pass": 20,
+    "fail": 0
+  }
+}

@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#eef1f8" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0b0f1a" />
+    <meta name="description" content="Create your account in less than a minute." />
+    <title>Create your account</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='11' fill='%234f46e5'/%3E%3Cpath d='M10 17q2.5-3 5 0t5 0 5 0 5 0M10 24q2.5-3 5 0t5 0 5 0 5 0' fill='none' stroke='white' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E"
+    />
+    <!-- inject:styles -->
+  </head>
+  <body>
+    <main class="page">
+      <div class="card">
+        <form class="form" id="signup-form" method="post" novalidate aria-labelledby="signup-title">
+          <header class="form-header">
+            <svg class="logo" viewBox="0 0 40 40" width="44" height="44" aria-hidden="true" focusable="false">
+              <defs>
+                <linearGradient id="logo-gradient" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="#6366f1" />
+                  <stop offset="1" stop-color="#0ea5e9" />
+                </linearGradient>
+              </defs>
+              <rect width="40" height="40" rx="11" fill="url(#logo-gradient)" />
+              <path
+                d="M10 17q2.5-3 5 0t5 0 5 0 5 0"
+                fill="none"
+                stroke="#fff"
+                stroke-opacity="0.6"
+                stroke-width="3"
+                stroke-linecap="round"
+              />
+              <path d="M10 24q2.5-3 5 0t5 0 5 0 5 0" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" />
+            </svg>
+            <h1 id="signup-title">Create your account</h1>
+            <p class="lead">It takes less than a minute. All fields are required.</p>
+          </header>
+
+          <div class="field">
+            <label for="username">Username</label>
+            <p class="hint" id="username-hint">
+              3–20 characters: letters, numbers and underscores, beginning with a letter.
+            </p>
+            <input
+              class="control"
+              id="username"
+              name="username"
+              type="text"
+              autocomplete="username"
+              autocapitalize="none"
+              autocorrect="off"
+              spellcheck="false"
+              aria-required="true"
+              aria-describedby="username-hint"
+            />
+            <p class="error" id="username-error" data-testid="error-username"></p>
+          </div>
+
+          <div class="field">
+            <label for="email">Email</label>
+            <input
+              class="control"
+              id="email"
+              name="email"
+              type="email"
+              autocomplete="email"
+              autocapitalize="none"
+              autocorrect="off"
+              spellcheck="false"
+              aria-required="true"
+            />
+            <p class="error" id="email-error" data-testid="error-email"></p>
+          </div>
+
+          <div class="field">
+            <label for="password">Password</label>
+            <p class="hint" id="password-hint">
+              At least 10 characters, with uppercase and lowercase letters, a number and a symbol.
+            </p>
+            <input
+              class="control"
+              id="password"
+              name="password"
+              type="password"
+              autocomplete="new-password"
+              passwordrules="minlength: 10; required: lower; required: upper; required: digit; required: special;"
+              aria-required="true"
+              aria-describedby="password-hint"
+            />
+            <div class="strength" id="password-strength" data-level="0" aria-live="polite" aria-atomic="true">
+              <span class="strength-bar" aria-hidden="true"><span></span><span></span><span></span><span></span></span>
+              <p class="strength-text">
+                <span class="visually-hidden">Password strength:</span>
+                <span data-testid="strength"></span>
+              </p>
+            </div>
+            <p class="error" id="password-error" data-testid="error-password"></p>
+          </div>
+
+          <div class="field">
+            <label for="confirm">Confirm password</label>
+            <input
+              class="control"
+              id="confirm"
+              name="confirm"
+              type="password"
+              autocomplete="new-password"
+              aria-required="true"
+            />
+            <p class="error" id="confirm-error" data-testid="error-confirm"></p>
+          </div>
+
+          <div class="field">
+            <label for="birthDate">Date of birth</label>
+            <p class="hint" id="birthDate-hint">You need to be 16 or older to sign up.</p>
+            <input
+              class="control is-empty"
+              id="birthDate"
+              name="birthDate"
+              type="date"
+              autocomplete="bday"
+              aria-required="true"
+              aria-describedby="birthDate-hint"
+            />
+            <p class="error" id="birthDate-error" data-testid="error-birthDate"></p>
+          </div>
+
+          <div class="field">
+            <label for="country">Country</label>
+            <select class="control" id="country" name="country" autocomplete="country" aria-required="true">
+              <option value="">Choose a country</option>
+              <!-- inject:country-options -->
+            </select>
+            <p class="error" id="country-error" data-testid="error-country"></p>
+          </div>
+
+          <div class="field">
+            <div class="checkbox">
+              <input id="terms" name="terms" type="checkbox" aria-required="true" />
+              <label for="terms">I accept the terms</label>
+            </div>
+            <p class="error" id="terms-error" data-testid="error-terms"></p>
+          </div>
+
+          <button class="button" type="submit" data-testid="submit">Create account</button>
+        </form>
+      </div>
+
+      <p class="footnote">This is a demo: nothing you enter leaves your browser.</p>
+    </main>
+
+    <template id="success-template">
+      <section class="success" data-testid="success" aria-labelledby="success-title">
+        <div class="success-badge" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="28" height="28" focusable="false">
+            <path
+              d="m5 12.5 4.5 4.5L19 7.5"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </div>
+        <h1 class="success-title" id="success-title" tabindex="-1" data-success-title></h1>
+        <p class="lead">Your account is ready. This is what would be sent to the server (no password included):</p>
+        <figure class="payload">
+          <figcaption>Sign-up data</figcaption>
+          <pre data-testid="payload"></pre>
+        </figure>
+        <button class="button button-secondary" type="button" data-start-over>Start over</button>
+      </section>
+    </template>
+
+    <!-- inject:script -->
+  </body>
+</html>

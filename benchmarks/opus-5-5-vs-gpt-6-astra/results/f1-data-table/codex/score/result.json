@@ -1,0 +1,91 @@
+{
+  "passed": 21,
+  "total": 21,
+  "results": [
+    {
+      "name": "first page: ids 1–20, count, page info, buttons",
+      "ok": true
+    },
+    {
+      "name": "columns: th data-key order and header text",
+      "ok": true
+    },
+    {
+      "name": "cell formatting of the first three rows",
+      "ok": true
+    },
+    {
+      "name": "search is case-insensitive and trimmed",
+      "ok": true
+    },
+    {
+      "name": "search matches names with accents and email/location",
+      "ok": true
+    },
+    {
+      "name": "department options: All departments, then sorted",
+      "ok": true
+    },
+    {
+      "name": "department filter combined with search",
+      "ok": true
+    },
+    {
+      "name": "salary sort: ascending, descending, then off",
+      "ok": true
+    },
+    {
+      "name": "name sort uses localeCompare, ties by id",
+      "ok": true
+    },
+    {
+      "name": "start date sort descending",
+      "ok": true
+    },
+    {
+      "name": "one sorted column at a time; aria-sort none elsewhere",
+      "ok": true
+    },
+    {
+      "name": "pagination: next, prev, last page, disabled states",
+      "ok": true
+    },
+    {
+      "name": "sorting and searching go back to page 1",
+      "ok": true
+    },
+    {
+      "name": "empty state",
+      "ok": true
+    },
+    {
+      "name": "empty element hidden when there are results",
+      "ok": true
+    },
+    {
+      "name": "URL reflects the state",
+      "ok": true
+    },
+    {
+      "name": "URL restores the state on load",
+      "ok": true
+    },
+    {
+      "name": "default view has no query string",
+      "ok": true
+    },
+    {
+      "name": "page past the end shows the last page",
+      "ok": true
+    },
+    {
+      "name": "search has an accessible label; table has a caption",
+      "ok": true
+    },
+    {
+      "name": "no sideways page scroll at 390 px",
+      "ok": true
+    }
+  ],
+  "pageErrors": []
+}

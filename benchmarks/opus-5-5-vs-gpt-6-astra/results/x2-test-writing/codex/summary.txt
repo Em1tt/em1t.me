@@ -1,0 +1,3 @@
+Added comprehensive tests for parsing, comparison, ranges, prereleases, invalid inputs, and maximum selection.
+
+All 55 tests pass with `npm test`. Coverage reaches 100% of lines and functions. `src/semver.js` remains unchanged.

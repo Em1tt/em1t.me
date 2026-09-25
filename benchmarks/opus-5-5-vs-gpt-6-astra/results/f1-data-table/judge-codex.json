@@ -1,0 +1,12 @@
+[
+  {
+    "order": "A=claude, B=codex",
+    "pick": "codex",
+    "text": "B: Its clearer hierarchy, cohesive colours, refined spacing, and neatly stacked mobile controls create a more polished, readable design."
+  },
+  {
+    "order": "A=codex, B=claude",
+    "pick": "codex",
+    "text": "A: Its clearer hierarchy, softer colours, generous spacing, and cohesive details feel more polished, with a well-organised mobile layout."
+  }
+]

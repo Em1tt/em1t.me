@@ -1,0 +1,12 @@
+[
+  {
+    "order": "A=claude, B=codex",
+    "pick": "codex",
+    "text": "B: Page B looks far more polished and distinctive, with a serif-and-sans type pairing, a warm, consistent colour palette, a custom illustration and careful details like the strength meter, show-password icons and side-by-side date and country fields, and it adapts well to a phone even though some helper text is very small and the faded artwork crowds the headline on mobile; Page A is clean and easy to read but looks like a generic dark-mode template."
+  },
+  {
+    "order": "A=codex, B=claude",
+    "pick": "codex",
+    "text": "A: Page A has a strong visual identity, with a serif display headline, a coordinated lavender and plum palette, a custom illustration and careful details like the password strength bar and the arrow on the button, and on a phone it shrinks the brand panel into a short header above a well-spaced form; page B is clean and works on a phone but looks like a generic dark-mode template, although A's small, light-grey helper text is harder to read."
+  }
+]

@@ -1,0 +1,1 @@
+2026-09-25T14:56:11.048772Z ERROR codex_core::tools::router: error=live agent path `/root/tests` not found

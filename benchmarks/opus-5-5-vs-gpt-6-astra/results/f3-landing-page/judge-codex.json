@@ -1,0 +1,12 @@
+[
+  {
+    "order": "A=claude, B=codex",
+    "pick": "codex",
+    "text": "B: Its refined typography, cohesive muted palette, and generous spacing create a more polished visual identity, with balanced layouts and clear hierarchy on both desktop and mobile."
+  },
+  {
+    "order": "A=codex, B=claude",
+    "pick": "claude",
+    "text": "B: Stronger colour contrast, clearer typographic hierarchy, and well-spaced cards make the page feel polished and easier to scan on both desktop and mobile."
+  }
+]

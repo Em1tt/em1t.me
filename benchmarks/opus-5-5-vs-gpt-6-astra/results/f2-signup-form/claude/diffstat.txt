@@ -1,0 +1,17 @@
+ .gitignore                    |   4 +
+ README.md                     |  48 ++++
+ dist/index.html               | 192 ++++++++++++++
+ package-lock.json             | 548 ++++++++++++++++++++++++++++++++++++++++
+ package.json                  |  21 ++
+ playwright.config.js          |  30 +++
+ scripts/build.mjs             |  82 ++++++
+ scripts/serve.mjs             |  51 ++++
+ src/index.html                | 183 ++++++++++++++
+ src/main.js                   | 164 ++++++++++++
+ src/styles.css                | 568 ++++++++++++++++++++++++++++++++++++++++++
+ src/validation.js             | 204 +++++++++++++++
+ tests/e2e/fixtures.js         |  94 +++++++
+ tests/e2e/submit.spec.js      | 181 ++++++++++++++
+ tests/e2e/validation.spec.js  | 346 +++++++++++++++++++++++++
+ tests/unit/validation.test.js | 277 ++++++++++++++++++++
+ 16 files changed, 2993 insertions(+)

@@ -1,0 +1,17 @@
+The sign-up page is built and `dist/index.html` is up to date. It's a single self-contained file, so it works from any plain static server at `/`. All tests pass: 100 unit tests, plus 44 browser tests run in Chromium, Firefox, WebKit and a 390 px mobile viewport (180 runs). I also served `dist/` with Python's `http.server` and ran through the whole form: no errors, no failed requests, no sideways scroll.
+
+**What I built**
+- **No framework.** `npm run build` uses esbuild to bundle the JS and CSS into `dist/index.html`. The taken usernames are bundled in, and the country options are written into the page from `countries.json` at build time.
+- **Everything in the spec**, with the exact ids, test ids, texts and attributes: the per-field rules and messages, when errors appear, `aria-invalid` and `aria-describedby`, the strength meter, focus moving to the first invalid field, the success view with the JSON payload, and `?today=`.
+- **Design:** a centered card with hints under the labels and a colored strength bar. It has light and dark themes and works at 390 px and 320 px. Text colors pass the WCAG AA contrast check in both themes.
+
+**One bug found and fixed:** leaving a field by clicking the submit button or the checkbox showed that field's error mid-click. The error pushed the control down before the mouse button came up, so the click was lost. Errors caused by a mouse click now wait until the button is released. Tests cover this, and they fail when the fix is taken out.
+
+**Decisions the spec left open**
+- **Length:** counted in characters (Unicode code points), so an emoji counts as one character.
+- **Password letters and digits:** these count in any script, so "é" is a lowercase letter. A symbol is anything else, including a space.
+- **Payload JSON:** pretty-printed. A test that compares it to compact JSON as a string, rather than parsing it, would fail.
+- **Invalid `?today=` value:** the page falls back to the local date.
+- **Extras beyond the spec:** a "Start over" button on the success view and a one-line demo note under the form.
+
+`README.md` explains the build, tests and these decisions. `npm test` runs everything and `npm run preview` serves `dist/`. Nothing is committed; all changes are in the working tree.

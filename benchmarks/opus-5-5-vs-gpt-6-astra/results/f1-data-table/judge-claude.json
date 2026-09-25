@@ -1,0 +1,12 @@
+[
+  {
+    "order": "A=claude, B=codex",
+    "pick": "codex",
+    "text": "B: B has a more polished, consistent look (branded header, stat cards, initial avatars, soft tinted department pills, location icons and roomy spacing) and on a phone it rearranges neatly into a 2×2 grid of stat cards with stacked controls, while A is a clean but generic dark table whose phone view is just a clipped name-and-email slice, though A does have sharper text contrast and right-aligned salaries."
+  },
+  {
+    "order": "A=codex, B=claude",
+    "pick": "codex",
+    "text": "I've compared all four screenshots, including close-up crops of both tables. Here's the verdict:\n\nA: Page A looks more polished and hangs together better, with a warm sage-and-cream palette, a clear type hierarchy, summary stat cards, initial avatars and small icons that make it feel like a finished product, and on a phone it rearranges neatly into two-by-two cards with full-width filters, while B is a clean, easy-to-read dark table with tighter rows and right-aligned salaries but has little hierarchy or character."
+  }
+]

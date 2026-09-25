@@ -1,0 +1,26 @@
+{
+  "task": "x2-test-writing",
+  "model": "claude",
+  "started": "2026-09-25T16:14:57.290Z",
+  "seconds": 3060.102,
+  "exitCode": 0,
+  "timedOut": false,
+  "limitedAttempts": 0,
+  "usage": {
+    "input": 60,
+    "cacheRead": 5064080,
+    "cacheWrite": 214966,
+    "output": 319294,
+    "turns": 36,
+    "apiSeconds": 2799.628,
+    "costUsd": 9.119695000000004,
+    "models": [
+      "claude-haiku-4-5-20251001",
+      "claude-opus-5-5"
+    ]
+  },
+  "score": {
+    "passed": 20,
+    "total": 20
+  }
+}

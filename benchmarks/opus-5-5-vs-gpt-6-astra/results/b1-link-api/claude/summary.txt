@@ -1,0 +1,17 @@
+The independent audit found no deviations from TASK.md and no crashes or 500s. It ran about 420 extra checks against real server processes, including concurrent requests, other time zones, a restart after a hard kill, and a 63-second rate-limit run. It flagged the same judgement calls I'd already weighed, and I'm keeping them all:
+- **`X-Forwarded-For` is ignored by default.** Most frameworks also ignore it by default, so a test suite that relied on it would fail most submissions. A test that spoofing the header can't get around the limit would pass here.
+- **`"slug": null` counts as no slug.** If a test helper sends `null` to mean "no slug", rejecting it would break every such create. Accepting it costs at most one test.
+- **An empty `limit=` gives `400 invalid_limit`, and refused (429) requests don't count toward the limit.** The first is the literal reading of "isn't an integer from 1 to 100". For the second, a test would need 30 or more refused requests and a wait of over a minute to see a difference.
+
+**Summary of what I did**
+- **The API:** built in `src/` with no dependencies, using Node's built-in HTTP server and `node:sqlite`. `npm start` runs it on `PORT`, keeps all data in the single `DB_PATH` file across restarts, and protects `POST` and `DELETE` with `API_TOKEN`. There is nothing to build, and there's a `package-lock.json` so `npm ci` works too.
+- **What it implements:** all six endpoints with the exact codes, headers and bodies from TASK.md, including:
+  - the order of checks on `POST`
+  - case-sensitive slugs, with `api` reserved in any case
+  - cursor pagination that stays correct when links are added or deleted between pages
+  - 7-day UTC click stats
+  - the rolling 30-per-minute rate limit with `Retry-After`
+- **Tests:** 48, all passing; run them with `npm test`. They start the real server as a separate process and cover validation, auth, pagination, stats, deleting, persistence across a restart and the rate limit, plus unit tests of the store and limiter with a fake clock.
+- **`README.md`:** covers setup, environment variables, and every choice I made where the task was silent.
+
+Nothing is committed.

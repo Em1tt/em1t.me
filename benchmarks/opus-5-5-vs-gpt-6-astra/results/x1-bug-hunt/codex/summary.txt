@@ -1,0 +1,3 @@
+Fixed all seven reported bugs while preserving the public API. Added regression tests for money handling, coupon validity, discounted tax, CSV escaping, empty invoices, and daylight-saving date arithmetic.
+
+`npm test` passes all 26 tests.

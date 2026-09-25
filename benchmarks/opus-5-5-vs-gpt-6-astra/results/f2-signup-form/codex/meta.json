@@ -1,0 +1,20 @@
+{
+  "task": "f2-signup-form",
+  "model": "codex",
+  "started": "2026-09-25T11:15:24.155Z",
+  "seconds": 592.913,
+  "exitCode": 0,
+  "timedOut": false,
+  "usage": {
+    "input": 694610,
+    "cacheRead": 619264,
+    "output": 16327,
+    "reasoning": 2309,
+    "turns": 1,
+    "commands": 16
+  },
+  "score": {
+    "passed": 17,
+    "total": 17
+  }
+}

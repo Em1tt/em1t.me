@@ -1,0 +1,78 @@
+{
+  "passed": 18,
+  "total": 18,
+  "results": [
+    {
+      "name": "create with a slug: 201, the link, JSON",
+      "ok": true
+    },
+    {
+      "name": "create without a slug: 7-character generated slug",
+      "ok": true
+    },
+    {
+      "name": "authentication: missing or wrong token",
+      "ok": true
+    },
+    {
+      "name": "invalid URLs",
+      "ok": true
+    },
+    {
+      "name": "invalid slugs, reserved api",
+      "ok": true
+    },
+    {
+      "name": "slug taken: 409, and slugs are case-sensitive",
+      "ok": true
+    },
+    {
+      "name": "bad JSON bodies",
+      "ok": true
+    },
+    {
+      "name": "get a link; unknown slug is 404",
+      "ok": true
+    },
+    {
+      "name": "following redirects with 302 and counts clicks",
+      "ok": true
+    },
+    {
+      "name": "stats: seven UTC days, oldest first, zero-filled",
+      "ok": true
+    },
+    {
+      "name": "listing: newest first, cursor pagination with limit=2",
+      "ok": true
+    },
+    {
+      "name": "listing: default limit 20 and item shape",
+      "ok": true
+    },
+    {
+      "name": "listing: invalid limits",
+      "ok": true
+    },
+    {
+      "name": "delete: 204, then gone everywhere",
+      "ok": true
+    },
+    {
+      "name": "unknown routes are 404 JSON",
+      "ok": true
+    },
+    {
+      "name": "data survives a restart with the same DB_PATH",
+      "ok": true
+    },
+    {
+      "name": "rate limit: 30 POSTs a minute, then 429 with Retry-After",
+      "ok": true
+    },
+    {
+      "name": "rate limit comes before authentication",
+      "ok": true
+    }
+  ]
+}

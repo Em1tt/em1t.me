@@ -1,0 +1,6 @@
+ test/invalid-ranges.test.js    |  42 +++++++++
+ test/max-satisfying.test.js    | 100 +++++++++++++++++++++
+ test/parse-compare.test.js     | 169 +++++++++++++++++++++++++++++++++++
+ test/prerelease-ranges.test.js | 134 ++++++++++++++++++++++++++++
+ test/ranges.test.js            | 197 +++++++++++++++++++++++++++++++++++++++++
+ 5 files changed, 642 insertions(+)

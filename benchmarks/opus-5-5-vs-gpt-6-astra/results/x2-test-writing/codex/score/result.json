@@ -1,0 +1,111 @@
+{
+  "passed": 20,
+  "total": 20,
+  "results": [
+    {
+      "name": "M01: numeric pre-release identifiers compared as strings",
+      "ok": true,
+      "detail": "caught by maxSatisfying returns the selected string exactly as supplied; maxSatisfying orders eligible prereleases by identifiers"
+    },
+    {
+      "name": "M02: a pre-release ranks above the release",
+      "ok": true,
+      "detail": "caught by maxSatisfying returns the selected string exactly as supplied; maxSatisfying excludes prereleases unless a matching set permits their core version"
+    },
+    {
+      "name": "M03: the longer pre-release ranks lower",
+      "ok": true,
+      "detail": "caught by maxSatisfying orders eligible prereleases by identifiers; compare implements every step of the documented prerelease ordering"
+    },
+    {
+      "name": "M04: numeric identifiers rank above alphanumeric ones",
+      "ok": true,
+      "detail": "caught by maxSatisfying orders eligible prereleases by identifiers; compare implements every step of the documented prerelease ordering"
+    },
+    {
+      "name": "M05: leading zeros allowed in the major version",
+      "ok": true,
+      "detail": "caught by invalid versions return false for valid ranges; maxSatisfying returns null when there is no eligible version"
+    },
+    {
+      "name": "M06: the patch number is optional",
+      "ok": true,
+      "detail": "caught by invalid versions return false for valid ranges; maxSatisfying returns null when there is no eligible version"
+    },
+    {
+      "name": "M07: ^0.2.3 allows 0.x.x up to 1.0.0",
+      "ok": true,
+      "detail": "caught by maxSatisfying filters by the range before selecting its maximum; ^0.2.3 preserves the left-most nonzero component and both boundaries"
+    },
+    {
+      "name": "M08: ^0.0.3 allows up to 0.1.0",
+      "ok": true,
+      "detail": "caught by maxSatisfying filters by the range before selecting its maximum; ^0.0.3 preserves the left-most nonzero component and both boundaries"
+    },
+    {
+      "name": "M09: ~1.2.3 allows up to 2.0.0",
+      "ok": true,
+      "detail": "caught by maxSatisfying filters by the range before selecting its maximum; expanded range boundaries still use version precedence when another comparator admits prereleases"
+    },
+    {
+      "name": "M10: >= behaves like >",
+      "ok": true,
+      "detail": "caught by maxSatisfying filters by the range before selecting its maximum; a prerelease bound admits only prereleases with the same complete core version"
+    },
+    {
+      "name": "M11: < behaves like <=",
+      "ok": true,
+      "detail": "caught by maxSatisfying filters by the range before selecting its maximum; maxSatisfying excludes prereleases unless a matching set permits their core version"
+    },
+    {
+      "name": "M12: 1.2.x allows up to 2.0.0",
+      "ok": true,
+      "detail": "caught by maxSatisfying filters by the range before selecting its maximum; 0.0, 0.0.x, 0.0.* cover the entire partial-version span"
+    },
+    {
+      "name": "M13: >1.2 excludes 1.3.0",
+      "ok": true,
+      "detail": "caught by maxSatisfying filters by the range before selecting its maximum; relational operators on a partial version compare against its entire span"
+    },
+    {
+      "name": "M14: only the first || alternative counts",
+      "ok": true,
+      "detail": "caught by malformed range comparators throw TypeError; invalid comparators are rejected throughout a compound range"
+    },
+    {
+      "name": "M15: one comparator in a set is enough",
+      "ok": true,
+      "detail": "caught by maxSatisfying returns null when there is no eligible version; maxSatisfying filters by the range before selecting its maximum"
+    },
+    {
+      "name": "M16: pre-releases satisfy any range",
+      "ok": true,
+      "detail": "caught by maxSatisfying returns null when there is no eligible version; maxSatisfying excludes prereleases unless a matching set permits their core version"
+    },
+    {
+      "name": "M17: pre-releases match a pre-release comparator on any version",
+      "ok": true,
+      "detail": "caught by maxSatisfying excludes prereleases unless a matching set permits their core version; a prerelease bound admits only prereleases with the same complete core version"
+    },
+    {
+      "name": "M18: maxSatisfying returns the lowest match",
+      "ok": true,
+      "detail": "caught by maxSatisfying accepts a single matching version and skips invalid entries; maxSatisfying chooses the numeric maximum regardless of input order"
+    },
+    {
+      "name": "M19: build metadata is rejected",
+      "ok": true,
+      "detail": "caught by maxSatisfying returns the selected string exactly as supplied; parse returns exactly the numeric components and typed prerelease identifiers"
+    },
+    {
+      "name": "M20: numeric pre-release identifiers stay strings",
+      "ok": true,
+      "detail": "caught by maxSatisfying returns the selected string exactly as supplied; maxSatisfying excludes prereleases unless a matching set permits their core version"
+    }
+  ],
+  "ownTests": {
+    "pass": 55,
+    "fail": 0,
+    "failing": []
+  }
+}

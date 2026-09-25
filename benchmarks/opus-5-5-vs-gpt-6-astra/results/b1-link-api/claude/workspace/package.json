@@ -1,0 +1,15 @@
+{
+  "name": "link-shortener-api",
+  "version": "1.0.0",
+  "description": "HTTP API for a link shortener, backed by a single SQLite file",
+  "private": true,
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node --test test/*.test.js"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}

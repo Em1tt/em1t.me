@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="description" content="Search, sort and browse everyone in the company." />
+    <title>Employee directory</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%233451d1'/%3E%3Cpath d='M9 11h14M9 16h14M9 21h9' stroke='white' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E"
+    />
+    <script type="module" src="/src/main.ts"></script>
+  </head>
+  <body>
+    <div class="page">
+      <header class="page-header">
+        <h1 class="page-header__title">Employee directory</h1>
+        <p class="page-header__summary" id="directory-summary"></p>
+      </header>
+
+      <main class="card">
+        <div class="toolbar" role="search" aria-label="Employees">
+          <div class="field field--search">
+            <label class="field__label" for="search">Search</label>
+            <div class="field__control">
+              <svg class="field__icon field__icon--start" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                <circle cx="8.5" cy="8.5" r="5.5" />
+                <path d="m12.75 12.75 4 4" />
+              </svg>
+              <input
+                id="search"
+                class="input"
+                type="text"
+                data-testid="search"
+                placeholder="Name, email, role or location"
+                autocomplete="off"
+                spellcheck="false"
+                enterkeyhint="search"
+              />
+            </div>
+          </div>
+          <div class="field field--department">
+            <label class="field__label" for="department">Department</label>
+            <div class="field__control">
+              <select id="department" class="select" data-testid="department" autocomplete="off">
+                <option value="">All departments</option>
+              </select>
+              <svg class="field__icon field__icon--end" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                <path d="m6 8 4 4 4-4" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-scroll" id="table-scroll" role="region" aria-labelledby="table-caption">
+          <table class="table" id="employee-table">
+            <caption class="visually-hidden" id="table-caption">Employees</caption>
+          </table>
+        </div>
+
+        <div class="empty-state" id="empty-state" hidden>
+          <svg class="empty-state__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <circle cx="10.5" cy="10.5" r="6.5" />
+            <path d="m15.5 15.5 5 5M8 10.5h5" />
+          </svg>
+          <p class="empty-state__message" data-testid="empty">No employees match your filters.</p>
+          <button type="button" class="button" id="clear-filters">Clear filters</button>
+        </div>
+
+        <footer class="pagination">
+          <p class="pagination__count" id="result-count" data-testid="count" role="status"></p>
+          <div class="pagination__controls">
+            <span class="pagination__page" id="page-info" data-testid="page-info"></span>
+            <button type="button" class="button" id="prev-page" data-testid="prev">
+              <svg class="button__icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                <path d="m12 5-5 5 5 5" />
+              </svg>
+              Previous
+            </button>
+            <button type="button" class="button" id="next-page" data-testid="next">
+              Next
+              <svg class="button__icon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                <path d="m8 5 5 5-5 5" />
+              </svg>
+            </button>
+          </div>
+        </footer>
+      </main>
+    </div>
+    <noscript>
+      <p class="noscript">The employee directory needs JavaScript to run.</p>
+    </noscript>
+  </body>
+</html>

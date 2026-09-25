@@ -1,0 +1,23 @@
+I've implemented the queue in `src/queue.ts` and written a test suite in `test/queue.test.ts`. `npm test` passes all 47 tests in about a quarter of a second, and repeated runs gave the same result. There are no dependencies and `package.json` is unchanged. I haven't committed anything.
+
+**How it works**
+- Waiting tasks are kept in a priority queue ordered by priority, then by the order they were added. Cancelling a waiting task removes it directly.
+- Each attempt gets its own `AbortController` and, if there's a timeout, its own timer. Only the first outcome of an attempt counts, so anything a timed-out or cancelled task does later is ignored.
+- The queue's counts, ids and free slots are updated before a task's promise settles. The next task starts in the same call whenever a slot frees (`add`, `resume`, `cancel`, a timeout, a finished task).
+
+**Choices the spec doesn't cover:**
+- **Unhandled rejections:** when a task is cancelled and nobody awaits its promise, that rejection is not reported as unhandled. Failures and timeouts behave like normal promises, so they are still reported if ignored.
+- **Zero retry delay:** a delay of 0 retries straight away rather than waiting for a timer. This also matters for tests that fake timers with `node:test`'s mock timers.
+- **Very long timeouts:** Node fires any timer longer than about 24.8 days after 1 ms. So `timeout: Infinity` would otherwise time every task out immediately; the queue waits these out in steps instead.
+- **Extra input checks:**
+  - Invalid `retries` or `timeout` throws a `RangeError`.
+  - A non-function task or `retryDelay` throws a `TypeError`, as does a priority that isn't a number or is `NaN`.
+  - `retries: Infinity` is allowed.
+  - If `retryDelay` itself throws, the task's promise rejects with that error.
+
+**Checks beyond the test suite:**
+- The code passes a strict TypeScript type-check that also rejects anything Node can't strip.
+- I deliberately broke the queue in 38 different ways, one at a time; the tests caught every one.
+- A randomized stress test with fake timers passed 200 random runs. At every simulated millisecond it compared the queue against the spec's rules.
+
+The type-check setup and both extra checks live in a scratch folder, not in the project.

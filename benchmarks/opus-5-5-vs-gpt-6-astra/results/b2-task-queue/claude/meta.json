@@ -1,0 +1,26 @@
+{
+  "task": "b2-task-queue",
+  "model": "claude",
+  "started": "2026-09-25T13:48:01.864Z",
+  "seconds": 2515.368,
+  "exitCode": 0,
+  "timedOut": false,
+  "limitedAttempts": 0,
+  "usage": {
+    "input": 100,
+    "cacheRead": 10098986,
+    "cacheWrite": 264645,
+    "output": 229586,
+    "turns": 70,
+    "apiSeconds": 2041.708,
+    "costUsd": 8.730108199999997,
+    "models": [
+      "claude-haiku-4-5-20251001",
+      "claude-opus-5-5"
+    ]
+  },
+  "score": {
+    "passed": 25,
+    "total": 25
+  }
+}

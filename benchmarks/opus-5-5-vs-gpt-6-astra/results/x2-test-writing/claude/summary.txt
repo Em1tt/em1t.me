@@ -1,0 +1,18 @@
+I've written the tests: 116 of them, all passing on the unchanged code via `npm test`. When I ran mutation testing against them, every mutant that changes behaviour was caught.
+
+**What's in `test/`:**
+- `parse.test.js`, `compare.test.js`, `satisfies.test.js` and `max-satisfying.test.js`, organised by the README's sections. They check every README example plus the edge cases around them: boundary versions for each range type, every allowed character and number position, numeric vs alphanumeric pre-release identifiers, and the pre-release rules for `^`, `~`, `<=` and `||`.
+- `support/semver.js` is a small wrapper around the library that gives each call a CPU-time limit. Without it, a bug that makes `compare()` loop forever would hang the whole run instead of failing. With it, that mutant fails in about 2 s. The limit counts CPU time rather than elapsed time, so a busy machine can't trip it: 48 full runs in parallel all passed.
+- `node --test` runs every `.js` file under `test/`, so the wrapper also shows up in the output as one extra passing entry. That's why the total reads 117.
+- I removed the starter `semver.test.js`; its one test is kept word for word in `parse.test.js`.
+
+**How I checked them:**
+- **Stryker (standard automated mutants):** 378 of 385 caught. The other 7 can't be caught by any test, because the change makes no difference to behaviour. For example, `a < b` → `a <= b` right after an `a === b` check, or dropping a `trim()` whose effect `filter(Boolean)` already covers.
+- **119 bugs I wrote by hand to match the README:** all caught. They included things like "`^0.x` treated like `^1.x`", "pre-releases satisfy `*`", "`>1.2` means `>1.2.0`" and "numeric identifiers compared as strings".
+- I installed the tooling in a temporary folder and deleted it afterwards. `src/semver.js` and `package.json` are unchanged, and nothing is committed.
+
+A few tests check behaviour the README doesn't specify, and each has a comment saying so. They fix the current behaviour in place, so they'd need updating if that behaviour were changed on purpose:
+- error messages name the invalid input;
+- `1.x.3` is read as `1.x`;
+- `maxSatisfying` returns the first of several equal versions;
+- an invalid range throws even when the version is invalid too.

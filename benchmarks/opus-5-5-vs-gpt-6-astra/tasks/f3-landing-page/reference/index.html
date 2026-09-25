@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tidepool</title>
+<style>
+	body { font: 16px system-ui, sans-serif; margin: 0; color: #111; background: #fff; }
+	header, main, footer { padding: 16px; }
+	nav ul { list-style: none; display: flex; gap: 16px; padding: 0; margin: 0; }
+	nav a { color: #0b4f6c; }
+	#menu { display: none; }
+	@media (max-width: 767px) {
+		#menu { display: inline-block; }
+		nav ul { display: none; }
+		nav ul.open { display: flex; flex-direction: column; }
+	}
+	.plans { display: flex; flex-wrap: wrap; gap: 16px; }
+	a.button { background: #0b4f6c; color: #fff; padding: 8px 12px; display: inline-block; }
+</style>
+</head>
+<body>
+<header>
+	<strong>Tidepool</strong>
+	<nav aria-label="Main">
+		<button id="menu" data-testid="menu-button" aria-expanded="false" aria-controls="links">Menu</button>
+		<ul id="links">
+			<li><a href="#features">Features</a></li>
+			<li><a href="#pricing">Pricing</a></li>
+			<li><a href="#faq">FAQ</a></li>
+		</ul>
+	</nav>
+</header>
+<main>
+	<h1>Groceries, sorted together.</h1>
+	<p>Tidepool keeps one shopping list for the whole household, in sync on every phone, so nobody buys the third jar of mustard.</p>
+	<a class="button" href="#pricing">Get Tidepool free</a> <a href="#pricing">See pricing</a>
+	<section id="features">
+		<h2>Features</h2>
+		<h3>Lists that sync instantly</h3><p>Add milk on the bus, and it's on your partner's list before they reach the checkout.</p>
+		<h3>Aisle-by-aisle order</h3><p>Tidepool learns your store's layout and sorts the list the way you walk it.</p>
+		<h3>Recipes to list in one tap</h3><p>Paste a recipe link and the ingredients land on the list, minus what you already have.</p>
+	</section>
+	<section id="pricing">
+		<h2>Pricing</h2>
+		<label><input type="checkbox" data-testid="billing-toggle" /> Bill yearly (2 months free)</label>
+		<div class="plans">
+			<div><h3>Free</h3><p data-testid="price-free" data-month="0"></p><p>1 list, 2 people</p></div>
+			<div><h3>Family</h3><p>Most popular</p><p data-testid="price-family" data-month="4"></p><p>Unlimited lists, 6 people, recipe import</p></div>
+			<div><h3>Plus</h3><p data-testid="price-plus" data-month="9"></p><p>Everything in Family, store layouts, 12 people, priority support</p></div>
+		</div>
+	</section>
+	<section id="faq">
+		<h2>FAQ</h2>
+		<h3><button aria-expanded="false" aria-controls="a1">Does everyone need an account?</button></h3><p id="a1" hidden>Yes, each person signs in with an email address or a phone number. Invites take a few seconds.</p>
+		<h3><button aria-expanded="false" aria-controls="a2">Does it work offline?</button></h3><p id="a2" hidden>Yes. Changes made offline sync as soon as you're back online.</p>
+		<h3><button aria-expanded="false" aria-controls="a3">Can I cancel any time?</button></h3><p id="a3" hidden>Yes. Your lists stay free on the Free plan after you cancel.</p>
+		<h3><button aria-expanded="false" aria-controls="a4">Which stores does it know?</button></h3><p id="a4" hidden>Store layouts cover 4,000 supermarkets in Europe and North America, and grow every week.</p>
+	</section>
+</main>
+<footer>© 2026 Tidepool · <a href="#">Privacy</a> <a href="#">Terms</a> <a href="#">Contact</a></footer>
+<script>
+	const toggle = document.querySelector('[data-testid="billing-toggle"]');
+	const render = () => document.querySelectorAll('[data-month]').forEach((p) => (p.textContent = toggle.checked ? `$${p.dataset.month * 10}/yr` : `$${p.dataset.month}/mo`));
+	toggle.addEventListener('change', render);
+	render();
+	document.querySelectorAll('#faq button').forEach((b) => b.addEventListener('click', () => {
+		const open = b.getAttribute('aria-expanded') === 'true';
+		b.setAttribute('aria-expanded', String(!open));
+		document.getElementById(b.getAttribute('aria-controls')).hidden = open;
+	}));
+	const menu = document.getElementById('menu');
+	menu.addEventListener('click', () => {
+		const open = menu.getAttribute('aria-expanded') === 'true';
+		menu.setAttribute('aria-expanded', String(!open));
+		document.getElementById('links').classList.toggle('open', !open);
+	});
+</script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+ .gitignore                                       |    4 +
+ README.md                                        |   58 +
+ dist/assets/Fraunces-OFL.txt                     |   93 ++
+ dist/assets/fraunces-latin-soft.9fc3a8586b.woff2 |  Bin 0 -> 62432 bytes
+ dist/assets/main.9c2ff2a373.js                   |  123 ++
+ dist/assets/styles.0bb8f871d6.css                |    1 +
+ dist/favicon.svg                                 |    6 +
+ dist/index.html                                  |    1 +
+ package-lock.json                                |   87 +
+ package.json                                     |   20 +
+ playwright.config.js                             |   29 +
+ scripts/build.mjs                                |  128 ++
+ scripts/serve.mjs                                |   48 +
+ src/favicon.svg                                  |    6 +
+ src/fonts/Fraunces-OFL.txt                       |   93 ++
+ src/fonts/fraunces-latin-soft.woff2              |  Bin 0 -> 62432 bytes
+ src/index.html                                   |  572 +++++++
+ src/main.js                                      |  123 ++
+ src/styles.css                                   | 1915 ++++++++++++++++++++++
+ tests/landing.spec.js                            |  372 +++++
+ 20 files changed, 3679 insertions(+)

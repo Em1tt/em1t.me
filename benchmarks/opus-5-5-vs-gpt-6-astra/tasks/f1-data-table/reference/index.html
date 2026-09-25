@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Employees</title>
+<style>
+	body { font: 14px system-ui, sans-serif; margin: 16px; }
+	.wrap { overflow-x: auto; }
+	table { border-collapse: collapse; }
+	th, td { padding: 4px 8px; border-bottom: 1px solid #ddd; text-align: left; white-space: nowrap; }
+	[hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<label for="q">Search</label> <input id="q" data-testid="search" />
+<select data-testid="department"><option value="">All departments</option></select>
+<p data-testid="count"></p>
+<div class="wrap">
+<table>
+	<caption>Employees</caption>
+	<thead><tr></tr></thead>
+	<tbody></tbody>
+</table>
+</div>
+<p data-testid="empty" hidden>No employees match your filters.</p>
+<button data-testid="prev">Previous</button> <span data-testid="page-info"></span> <button data-testid="next">Next</button>
+<script type="module">
+const COLS = [['name', 'Name'], ['email', 'Email'], ['department', 'Department'], ['role', 'Role'], ['salary', 'Salary'], ['startDate', 'Start date'], ['location', 'Location']];
+const KEYS = COLS.map(([k]) => k);
+const money = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+const day = (s) => new Date(s).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+const data = await (await fetch('employees.json')).json();
+const depts = [...new Set(data.map((e) => e.department))].sort();
+const $ = (s) => document.querySelector(s);
+for (const d of depts) $('[data-testid="department"]').append(new Option(d, d));
+const head = $('thead tr');
+for (const [k, t] of COLS) {
+	const th = document.createElement('th');
+	th.dataset.key = k;
+	const b = document.createElement('button');
+	b.textContent = t;
+	b.onclick = () => {
+		if (state.sort !== k) Object.assign(state, { sort: k, dir: 'asc' });
+		else if (state.dir === 'asc') state.dir = 'desc';
+		else Object.assign(state, { sort: null, dir: 'asc' });
+		state.page = 1;
+		render();
+	};
+	th.append(b);
+	head.append(th);
+}
+const p = new URLSearchParams(location.search);
+const state = { q: p.get('q') ?? '', dept: depts.includes(p.get('dept')) ? p.get('dept') : '', sort: KEYS.includes(p.get('sort')) ? p.get('sort') : null, dir: p.get('dir') === 'desc' ? 'desc' : 'asc', page: Math.max(1, parseInt(p.get('page')) || 1) };
+$('[data-testid="search"]').value = state.q;
+$('[data-testid="department"]').value = state.dept;
+$('[data-testid="search"]').oninput = (e) => { state.q = e.target.value; state.page = 1; render(); };
+$('[data-testid="department"]').onchange = (e) => { state.dept = e.target.value; state.page = 1; render(); };
+$('[data-testid="prev"]').onclick = () => { state.page--; render(); };
+$('[data-testid="next"]').onclick = () => { state.page++; render(); };
+function render() {
+	const q = state.q.trim().toLowerCase();
+	let rows = data.filter((e) => (!q || ['name', 'email', 'department', 'role', 'location'].some((k) => e[k].toLowerCase().includes(q))) && (!state.dept || e.department === state.dept));
+	if (state.sort) {
+		const s = state.sort, sign = state.dir === 'desc' ? -1 : 1;
+		const cmp = (a, b) => s === 'salary' ? a.salary - b.salary : s === 'startDate' ? a.startDate.localeCompare(b.startDate) : a[s].localeCompare(b[s], 'en');
+		rows = [...rows].sort((a, b) => sign * cmp(a, b) || a.id - b.id);
+	}
+	const pages = Math.max(1, Math.ceil(rows.length / 20));
+	state.page = Math.min(Math.max(1, state.page), pages);
+	const shown = rows.slice((state.page - 1) * 20, state.page * 20);
+	$('tbody').replaceChildren(...shown.map((e) => {
+		const tr = document.createElement('tr');
+		tr.dataset.id = e.id;
+		for (const v of [e.name, e.email, e.department, e.role, money.format(e.salary), day(e.startDate), e.location]) {
+			const td = document.createElement('td');
+			td.textContent = v;
+			tr.append(td);
+		}
+		return tr;
+	}));
+	for (const th of document.querySelectorAll('th')) th.setAttribute('aria-sort', th.dataset.key === state.sort ? (state.dir === 'asc' ? 'ascending' : 'descending') : 'none');
+	$('[data-testid="count"]').textContent = rows.length ? `Showing ${(state.page - 1) * 20 + 1}–${(state.page - 1) * 20 + shown.length} of ${rows.length}` : 'Showing 0 of 0';
+	$('[data-testid="page-info"]').textContent = `Page ${state.page} of ${pages}`;
+	$('[data-testid="prev"]').disabled = state.page <= 1;
+	$('[data-testid="next"]').disabled = state.page >= pages;
+	$('[data-testid="empty"]').hidden = rows.length > 0;
+	const out = new URLSearchParams();
+	if (state.q) out.set('q', state.q);
+	if (state.dept) out.set('dept', state.dept);
+	if (state.sort) { out.set('sort', state.sort); out.set('dir', state.dir); }
+	if (state.page > 1) out.set('page', state.page);
+	history.replaceState(null, '', out.size ? `?${out}` : location.pathname);
+}
+render();
+</script>
+</body>
+</html>
