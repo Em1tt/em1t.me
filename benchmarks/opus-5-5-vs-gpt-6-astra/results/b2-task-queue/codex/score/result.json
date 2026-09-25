@@ -1,0 +1,106 @@
+{
+  "passed": 25,
+  "total": 25,
+  "results": [
+    {
+      "name": "resolves with the task result",
+      "ok": true
+    },
+    {
+      "name": "never runs more than `concurrency` tasks at once",
+      "ok": true
+    },
+    {
+      "name": "starts a task before add returns when a slot is free",
+      "ok": true
+    },
+    {
+      "name": "size and running",
+      "ok": true
+    },
+    {
+      "name": "priority: highest first",
+      "ok": true
+    },
+    {
+      "name": "equal priorities run in the order added",
+      "ok": true
+    },
+    {
+      "name": "retries until success",
+      "ok": true
+    },
+    {
+      "name": "rejects with the last error when retries run out",
+      "ok": true
+    },
+    {
+      "name": "no retries by default",
+      "ok": true
+    },
+    {
+      "name": "retryDelay gets the attempt number and is waited",
+      "ok": true
+    },
+    {
+      "name": "a task keeps its slot while waiting to retry",
+      "ok": true
+    },
+    {
+      "name": "each attempt gets a fresh signal",
+      "ok": true
+    },
+    {
+      "name": "timeout: rejects with TimeoutError and aborts the signal",
+      "ok": true
+    },
+    {
+      "name": "a timed-out task frees its slot",
+      "ok": true
+    },
+    {
+      "name": "timeouts are retried like failures",
+      "ok": true
+    },
+    {
+      "name": "cancel a waiting task",
+      "ok": true
+    },
+    {
+      "name": "cancel a running task: aborts, rejects at once, frees the slot",
+      "ok": true
+    },
+    {
+      "name": "cancel during a retry wait stops further attempts",
+      "ok": true
+    },
+    {
+      "name": "cancel unknown or finished ids returns false",
+      "ok": true
+    },
+    {
+      "name": "duplicate ids throw; finished ids can be reused",
+      "ok": true
+    },
+    {
+      "name": "pause and resume",
+      "ok": true
+    },
+    {
+      "name": "pause lets running tasks finish",
+      "ok": true
+    },
+    {
+      "name": "onIdle: at once when idle, after work and failures, not while paused",
+      "ok": true
+    },
+    {
+      "name": "a synchronous throw rejects the promise, add does not throw",
+      "ok": true
+    },
+    {
+      "name": "invalid concurrency throws RangeError",
+      "ok": true
+    }
+  ]
+}

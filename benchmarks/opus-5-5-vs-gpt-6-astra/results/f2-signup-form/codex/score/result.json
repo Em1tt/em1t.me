@@ -1,0 +1,75 @@
+{
+  "passed": 17,
+  "total": 17,
+  "results": [
+    {
+      "name": "fields in order, each with a label; country options; submit",
+      "ok": true
+    },
+    {
+      "name": "no errors before anything is touched",
+      "ok": true
+    },
+    {
+      "name": "no error while typing, before the field loses focus",
+      "ok": true
+    },
+    {
+      "name": "username rules in order, live after blur",
+      "ok": true
+    },
+    {
+      "name": "email rules",
+      "ok": true
+    },
+    {
+      "name": "password rules",
+      "ok": true
+    },
+    {
+      "name": "password strength meter",
+      "ok": true
+    },
+    {
+      "name": "confirm password, and it follows password changes",
+      "ok": true
+    },
+    {
+      "name": "date of birth with ?today=2026-09-25",
+      "ok": true
+    },
+    {
+      "name": "date of birth uses the real date without ?today",
+      "ok": true
+    },
+    {
+      "name": "country and terms",
+      "ok": true
+    },
+    {
+      "name": "submit shows every error and focuses the first invalid field",
+      "ok": true
+    },
+    {
+      "name": "focus moves to the next invalid field on the next submit",
+      "ok": true
+    },
+    {
+      "name": "aria-invalid and aria-describedby follow the error",
+      "ok": true
+    },
+    {
+      "name": "valid submit shows the success message and payload",
+      "ok": true
+    },
+    {
+      "name": "taken usernames ignore case both ways",
+      "ok": true
+    },
+    {
+      "name": "no sideways page scroll at 390 px",
+      "ok": true
+    }
+  ],
+  "pageErrors": []
+}

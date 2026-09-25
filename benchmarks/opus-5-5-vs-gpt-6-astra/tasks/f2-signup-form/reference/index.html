@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sign up</title>
+<style>body { font: 15px system-ui; margin: 16px; } form > div { margin: 8px 0; } .err { color: #b00; }</style>
+</head>
+<body>
+<form novalidate>
+	<div><label for="username">Username</label> <input id="username" aria-describedby="e-username" /> <span class="err" id="e-username" data-testid="error-username"></span></div>
+	<div><label for="email">Email</label> <input id="email" type="email" /> <span class="err" id="e-email" data-testid="error-email"></span></div>
+	<div><label for="password">Password</label> <input id="password" type="password" /> <span data-testid="strength"></span> <span class="err" id="e-password" data-testid="error-password"></span></div>
+	<div><label for="confirm">Confirm password</label> <input id="confirm" type="password" /> <span class="err" id="e-confirm" data-testid="error-confirm"></span></div>
+	<div><label for="birthDate">Date of birth</label> <input id="birthDate" type="date" /> <span class="err" id="e-birthDate" data-testid="error-birthDate"></span></div>
+	<div><label for="country">Country</label> <select id="country"><option value="">Choose a country</option></select> <span class="err" id="e-country" data-testid="error-country"></span></div>
+	<div><input id="terms" type="checkbox" /> <label for="terms">I accept the terms</label> <span class="err" id="e-terms" data-testid="error-terms"></span></div>
+	<button data-testid="submit">Sign up</button>
+</form>
+<script type="module">
+const countries = await (await fetch('countries.json')).json();
+const taken = (await (await fetch('taken-usernames.json')).json()).map((u) => u.toLowerCase());
+for (const c of countries) document.getElementById('country').append(new Option(c.name, c.code));
+const IDS = ['username', 'email', 'password', 'confirm', 'birthDate', 'country', 'terms'];
+const el = (id) => document.getElementById(id);
+const touched = new Set();
+const p = new URLSearchParams(location.search).get('today');
+const now = new Date();
+const pad = (n) => String(n).padStart(2, '0');
+const today = /^\d{4}-\d{2}-\d{2}$/.test(p ?? '') ? p : `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+const emailOk = (e) => {
+	if (/\s/.test(e) || e.split('@').length !== 2) return false;
+	const [local, domain] = e.split('@');
+	const labels = domain.split('.');
+	return local.length > 0 && labels.length >= 2 && labels.every((l) => l.length > 0) && /^[A-Za-z]{2,}$/.test(labels.at(-1));
+};
+const classes = (s) => [/[a-z]/.test(s), /[A-Z]/.test(s), /\d/.test(s), /[^A-Za-z0-9]/.test(s)];
+function message(id) {
+	const v = el(id).value;
+	if (id === 'username') {
+		if (!v) return 'Choose a username.';
+		if (v.length < 3 || v.length > 20) return 'Use 3–20 characters.';
+		if (!/^[A-Za-z][A-Za-z0-9_]*$/.test(v)) return 'Start with a letter, then use letters, numbers or underscores.';
+		if (taken.includes(v.toLowerCase())) return 'That username is taken.';
+	}
+	if (id === 'email') {
+		const e = v.trim();
+		if (!e) return 'Enter your email.';
+		if (!emailOk(e)) return 'Enter a valid email address.';
+	}
+	if (id === 'password') {
+		if (!v) return 'Enter a password.';
+		if (v.length < 10) return 'Use at least 10 characters.';
+		if (!classes(v).every(Boolean)) return 'Add a lowercase letter, an uppercase letter, a number and a symbol.';
+		const u = el('username').value;
+		if (u.length >= 3 && v.toLowerCase().includes(u.toLowerCase())) return "Don't include your username.";
+	}
+	if (id === 'confirm') {
+		if (!v) return 'Confirm your password.';
+		if (v !== el('password').value) return "Passwords don't match.";
+	}
+	if (id === 'birthDate') {
+		if (!v) return 'Enter your date of birth.';
+		if (v > today) return 'That date is in the future.';
+		const [y, m, d] = v.split('-').map(Number);
+		const [ty, tm, td] = today.split('-').map(Number);
+		const age = ty - y - (tm < m || (tm === m && td < d) ? 1 : 0);
+		if (age < 16) return 'You must be at least 16.';
+	}
+	if (id === 'country' && !v) return 'Choose your country.';
+	if (id === 'terms' && !el('terms').checked) return 'Accept the terms to continue.';
+	return '';
+}
+function show() {
+	for (const id of IDS) {
+		const m = touched.has(id) ? message(id) : '';
+		document.querySelector(`[data-testid="error-${id}"]`).textContent = m;
+		el(id).setAttribute('aria-describedby', `e-${id}`);
+		if (m) el(id).setAttribute('aria-invalid', 'true');
+		else el(id).removeAttribute('aria-invalid');
+	}
+	const v = el('password').value;
+	const score = [v.length >= 10, ...classes(v)].filter(Boolean).length;
+	document.querySelector('[data-testid="strength"]').textContent = !v ? '' : score <= 2 ? 'Weak' : score === 3 ? 'Fair' : score === 4 ? 'Strong' : 'Very strong';
+}
+for (const id of IDS) {
+	el(id).addEventListener('blur', () => { touched.add(id); show(); });
+	el(id).addEventListener('input', show);
+	el(id).addEventListener('change', show);
+}
+document.querySelector('form').addEventListener('submit', (e) => {
+	e.preventDefault();
+	IDS.forEach((id) => touched.add(id));
+	show();
+	const bad = IDS.find((id) => message(id));
+	if (bad) return el(bad).focus();
+	const success = document.createElement('div');
+	success.dataset.testid = 'success';
+	success.innerHTML = `<p></p><pre data-testid="payload"></pre>`;
+	success.querySelector('p').textContent = `Welcome, ${el('username').value}!`;
+	success.querySelector('pre').textContent = JSON.stringify({ username: el('username').value, email: el('email').value.trim().toLowerCase(), birthDate: el('birthDate').value, country: el('country').value });
+	document.querySelector('form').replaceWith(success);
+});
+show();
+</script>
+</body>
+</html>

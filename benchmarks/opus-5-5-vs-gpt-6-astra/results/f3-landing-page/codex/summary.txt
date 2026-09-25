@@ -1,0 +1,3 @@
+Completed the Tidepool landing page with custom illustrations, bundled fonts, responsive layouts, working pricing toggle, FAQ, mobile navigation, and a grocery-list demo.
+
+`dist/` is built and ready to serve. Browser tests pass, including zero accessibility violations on desktop and mobile and no external resource requests.

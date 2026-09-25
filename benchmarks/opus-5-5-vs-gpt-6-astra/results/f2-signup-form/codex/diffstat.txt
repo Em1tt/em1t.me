@@ -1,0 +1,27 @@
+ .gitignore                                         |    5 +
+ README.md                                          |   33 +
+ dist/assets/dm-sans-latin-400-normal-BwCSEQnW.woff |  Bin 0 -> 18356 bytes
+ .../assets/dm-sans-latin-400-normal-CW0RaeGs.woff2 |  Bin 0 -> 14200 bytes
+ .../assets/dm-sans-latin-500-normal-B9HHJjqV.woff2 |  Bin 0 -> 14304 bytes
+ dist/assets/dm-sans-latin-500-normal-Dr3UlScf.woff |  Bin 0 -> 18520 bytes
+ .../assets/dm-sans-latin-600-normal-Aqo67rzb.woff2 |  Bin 0 -> 14144 bytes
+ dist/assets/dm-sans-latin-600-normal-BmdmIIQ2.woff |  Bin 0 -> 18320 bytes
+ dist/assets/index-C21IcRX-.css                     |    1 +
+ dist/assets/index-CISyPbZr.js                      |    1 +
+ ...nstrument-serif-latin-400-italic-DKMiL14s.woff2 |  Bin 0 -> 22128 bytes
+ ...instrument-serif-latin-400-italic-u__WvvIK.woff |  Bin 0 -> 19264 bytes
+ ...instrument-serif-latin-400-normal-BVbkICAY.woff |  Bin 0 -> 18336 bytes
+ ...nstrument-serif-latin-400-normal-DnYpCC2O.woff2 |  Bin 0 -> 21032 bytes
+ dist/favicon.svg                                   |    1 +
+ dist/index.html                                    |  115 ++
+ index.html                                         |  114 ++
+ main.js                                            |   91 ++
+ package-lock.json                                  | 1232 ++++++++++++++++++++
+ package.json                                       |   20 +
+ playwright.config.mjs                              |   21 +
+ public/favicon.svg                                 |    1 +
+ scripts/static-server.mjs                          |   20 +
+ styles.css                                         |  171 +++
+ tests/signup.spec.mjs                              |  298 +++++
+ validation.mjs                                     |  108 ++
+ 26 files changed, 2232 insertions(+)

@@ -1,0 +1,72 @@
+{
+  "passed": 15,
+  "total": 16,
+  "results": [
+    {
+      "name": "one h1 with the headline",
+      "ok": true
+    },
+    {
+      "name": "hero copy and calls to action",
+      "ok": false,
+      "detail": "false"
+    },
+    {
+      "name": "nav links to the three sections, which exist",
+      "ok": true
+    },
+    {
+      "name": "features section has the three features",
+      "ok": true
+    },
+    {
+      "name": "monthly prices by default, Most popular label",
+      "ok": true
+    },
+    {
+      "name": "billing toggle switches to yearly and back",
+      "ok": true
+    },
+    {
+      "name": "toggle is labelled",
+      "ok": true
+    },
+    {
+      "name": "FAQ: four questions, all collapsed",
+      "ok": true
+    },
+    {
+      "name": "FAQ: a question opens and closes its answer",
+      "ok": true
+    },
+    {
+      "name": "desktop: nav links shown, menu button not",
+      "ok": true
+    },
+    {
+      "name": "footer",
+      "ok": true
+    },
+    {
+      "name": "no requests to other servers",
+      "ok": true
+    },
+    {
+      "name": "axe: no serious or critical violations at 1280 px",
+      "ok": true
+    },
+    {
+      "name": "mobile: links hidden until the menu button opens them",
+      "ok": true
+    },
+    {
+      "name": "axe: no serious or critical violations at 390 px",
+      "ok": true
+    },
+    {
+      "name": "no sideways scroll at 360, 768 and 1280 px",
+      "ok": true
+    }
+  ],
+  "pageErrors": []
+}

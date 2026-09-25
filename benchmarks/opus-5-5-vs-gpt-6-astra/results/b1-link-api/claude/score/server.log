@@ -1,0 +1,10 @@
+
+> link-shortener-api@1.0.0 start
+> node src/server.js
+
+Link shortener listening on port 64695 (database: C:\Users\marci\AppData\Local\Temp\bench-b1-A7yVPF\links.db)
+
+> link-shortener-api@1.0.0 start
+> node src/server.js
+
+Link shortener listening on port 64695 (database: C:\Users\marci\AppData\Local\Temp\bench-b1-A7yVPF\links.db)

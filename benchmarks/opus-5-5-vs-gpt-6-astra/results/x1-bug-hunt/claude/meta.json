@@ -1,0 +1,26 @@
+{
+  "task": "x1-bug-hunt",
+  "model": "claude",
+  "started": "2026-09-25T15:21:17.680Z",
+  "seconds": 567.635,
+  "exitCode": 0,
+  "timedOut": false,
+  "limitedAttempts": 0,
+  "usage": {
+    "input": 36,
+    "cacheRead": 1369973,
+    "cacheWrite": 85043,
+    "output": 64227,
+    "turns": 31,
+    "apiSeconds": 559.281,
+    "costUsd": 2.2400536,
+    "models": [
+      "claude-haiku-4-5-20251001",
+      "claude-opus-5-5"
+    ]
+  },
+  "score": {
+    "passed": 13,
+    "total": 13
+  }
+}

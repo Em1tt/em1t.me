@@ -1,0 +1,5 @@
+Implemented `analyze.mjs` with streaming parsing and all required JSON statistics.
+
+All 10 tests pass, including the exact sample output. A 2,000,000-line, 200 MB benchmark completed in 2.8 seconds.
+
+Run with `node analyze.mjs <path-to-log-file>`.

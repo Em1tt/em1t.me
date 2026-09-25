@@ -1,0 +1,1 @@
+The reviewer agent is still checking the app against TASK.md. When its report comes in, I'll address any findings, rebuild `dist/`, and run the full checks.

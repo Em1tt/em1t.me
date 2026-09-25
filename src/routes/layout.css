@@ -1,5 +1,7 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/typography';
+/* The published benchmark kits hold the models' own pages; their class names aren't the site's. */
+@source not '../../benchmarks';
 
 .google-sans-500 {
 	font-family: 'Google Sans', sans-serif;

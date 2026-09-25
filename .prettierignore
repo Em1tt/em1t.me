@@ -7,3 +7,6 @@ bun.lockb
 
 # Miscellaneous
 /static/
+
+# Published benchmark kits, kept exactly as they were
+/benchmarks/

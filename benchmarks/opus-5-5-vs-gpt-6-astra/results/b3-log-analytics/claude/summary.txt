@@ -1,0 +1,35 @@
+I wrote `analyze.mjs`, which takes about 0.7 s on a 2,000,000-line (180 MB) log I generated, well under the 30 s limit. Its output for `sample.log` matches `sample-expected.json`, and it has no dependencies.
+
+**How it works**
+- It reads the file in 16 MB chunks and checks each line byte by byte, without building a string per line. The checker accepts exactly the lines the task's regex accepts.
+- If the client IP or request target contains non-ASCII bytes, that line is decoded as UTF-8 and tested with the task's regex itself, so both routes give the same answer.
+- Counting distinct IPs and paths uses hash tables built directly on the raw bytes.
+- Percentiles use the nearest-rank method with whole-number arithmetic. I checked it gives the same answer as `Math.ceil(p/100*n)` for every n up to 20 million.
+- Ties are ordered with JavaScript's `<`, as the task requires.
+
+**Testing**
+- I wrote a separate, simple version that just applies the regex and follows the task text literally. It also reproduces `sample-expected.json`, so I used it as the yardstick.
+- **Random tests:** 700 generated logs full of awkward input all gave identical output from both versions. They included bad UTF-8, non-ASCII paths, unusual whitespace, very large numbers, every kind of broken line, mixed line endings, and missing final newlines. To make lines cross chunk boundaries, I also ran copies of the program that read 1, 7 or 64 bytes at a time.
+- **Hand-checked cases (all pass):**
+  - an empty file
+  - the 99/100/101-request cutoff for `slowest`
+  - tie-breaking in `topPaths` and `slowest`
+  - status buckets
+  - hourly keys
+- **Worst-case speed:**
+
+| Log | Time |
+|---|---|
+| 2M lines, every path and IP unique | 1.5 s |
+| 2M lines needing UTF-8 decoding | 2.9 s |
+| 2M malformed lines | 0.2 s |
+| A single 150 MB line | about 1 s |
+
+Peak memory is 177–240 MB.
+
+**Decisions where the spec is unclear**
+- A `\r` in the middle of a line counts as part of the line, which makes the line malformed.
+- A file ending in a bare `\r` has that `\r` treated as a line ending. The sample has neither case, so this probably won't matter.
+- With no argument the program exits with code 2; if the file can't be opened it exits with code 1.
+
+`analyze.mjs` is the only file I added to the folder, and I haven't committed it. The test scripts are in my scratchpad directory.

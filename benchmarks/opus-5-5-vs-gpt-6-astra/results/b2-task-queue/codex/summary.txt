@@ -1,0 +1,3 @@
+Implemented `src/queue.ts` with concurrency limits, priorities, retries, timeouts, cancellation, pause/resume, and idle tracking.
+
+Added comprehensive tests, including cancellation stress cases. All 20 tests pass with `npm test` on Node.js 24. No dependencies added.

@@ -1,0 +1,21 @@
+{
+  "task": "x1-bug-hunt",
+  "model": "codex",
+  "started": "2026-09-25T15:30:47.631Z",
+  "seconds": 121.991,
+  "exitCode": 0,
+  "timedOut": false,
+  "limitedAttempts": 0,
+  "usage": {
+    "input": 173326,
+    "cacheRead": 151424,
+    "output": 3317,
+    "reasoning": 648,
+    "turns": 1,
+    "commands": 8
+  },
+  "score": {
+    "passed": 13,
+    "total": 13
+  }
+}

@@ -1,0 +1,12 @@
+[
+  {
+    "order": "A=claude, B=codex",
+    "pick": "codex",
+    "text": "B: Its expressive typography, cohesive pastel palette, balanced spacing, and thoughtfully adapted mobile layout feel more polished and distinctive."
+  },
+  {
+    "order": "A=codex, B=claude",
+    "pick": "codex",
+    "text": "A: Its distinctive typography, cohesive pastel palette, and thoughtful spacing feel more polished, with a desktop layout that adapts elegantly to mobile."
+  }
+]

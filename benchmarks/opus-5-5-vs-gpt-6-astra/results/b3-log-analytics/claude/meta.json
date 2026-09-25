@@ -1,0 +1,26 @@
+{
+  "task": "b3-log-analytics",
+  "model": "claude",
+  "started": "2026-09-25T15:03:05.799Z",
+  "seconds": 1089.609,
+  "exitCode": 0,
+  "timedOut": false,
+  "limitedAttempts": 0,
+  "usage": {
+    "input": 66,
+    "cacheRead": 4048012,
+    "cacheWrite": 148917,
+    "output": 114886,
+    "turns": 37,
+    "apiSeconds": 1045.486,
+    "costUsd": 4.299953399999998,
+    "models": [
+      "claude-haiku-4-5-20251001",
+      "claude-opus-5-5"
+    ]
+  },
+  "score": {
+    "passed": 12,
+    "total": 12
+  }
+}

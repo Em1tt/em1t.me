@@ -1,0 +1,21 @@
+I fixed all 7 bugs in `ISSUE.md`, and `npm test` passes (20 tests: the 7 original plus 13 new ones). `src/index.js` still exports the same 9 functions with the same arguments and return values. The only difference is that `createInvoice` now treats a missing `lines` as an empty list.
+
+**What caused each bug:**
+
+| # | Report | Cause and fix |
+|---|---|---|
+| 1 | $19.99 billed as $19.98 | `parseAmount` did `Math.floor(parseFloat(text) * 100)`, and in floating point 19.99 × 100 is 1998.999…. It now builds the cents from the digits of the text. In the old code, 9,175 of the amounts between -$1,000.00 and $1,000.00 came out wrong; now none do. The inputs it accepts and rejects haven't changed. |
+| 2 | Coupon not applied on its last day | `isCouponValid` compared with `<` where it needed `<=`. The end date now counts, as the README says. |
+| 3 | VAT charged on the full price | Tax was worked out on the subtotal before the discount. It now uses `subtotal - discount`. |
+| 4 | `12" pipe` breaks the CSV | Quotes inside a quoted field weren't doubled. The field is now written as `"12"" pipe"`. |
+| 5 | `$-5.00` | The minus sign was placed after the currency symbol. It now reads `-$5.00`, in the CSV export too. |
+| 6 | Empty invoice crashes | Adding up an empty list of lines threw an error. The total now starts from 0, and `lines` defaults to `[]` when it's left out. |
+| 7 | Due date a day early | `addDays` read the date as midnight UTC but added the days in local time. When the clocks change in between, the result lands an hour earlier, on the previous day. This happens in both Europe and the US. It now adds the days in UTC. |
+
+**Tests:** I added tests to the existing files and two new ones, `test/discounts.test.js` and `test/due-date.test.js`. I ran the new tests against the original code: each bug has at least one test that fails there, and the 7 original tests still pass.
+
+The due-date tests switch the process through five time zones, so they catch bug 7 even on a machine set to UTC. They're in a separate file because on Windows the time zone can't be fully reset after the test changes it.
+
+One small behaviour change: `parseAmount("-0.00")` now returns `0` instead of `-0`, because strict test comparisons treat `-0` and `0` as different.
+
+I haven't committed anything; the changes are in the working tree.

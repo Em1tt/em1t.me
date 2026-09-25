@@ -1,0 +1,21 @@
+{
+  "task": "x2-test-writing",
+  "model": "codex",
+  "started": "2026-09-25T19:55:59.228Z",
+  "seconds": 292.668,
+  "exitCode": 0,
+  "timedOut": false,
+  "limitedAttempts": 0,
+  "usage": {
+    "input": 366349,
+    "cacheRead": 321408,
+    "output": 5982,
+    "reasoning": 534,
+    "turns": 1,
+    "commands": 11
+  },
+  "score": {
+    "passed": 20,
+    "total": 20
+  }
+}

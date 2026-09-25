@@ -1,0 +1,25 @@
+{
+  "task": "f2-signup-form",
+  "model": "claude",
+  "started": "2026-09-25T11:25:59.879Z",
+  "seconds": 2258.052,
+  "exitCode": 0,
+  "timedOut": false,
+  "usage": {
+    "input": 112,
+    "cacheRead": 10831327,
+    "cacheWrite": 260766,
+    "output": 209974,
+    "turns": 75,
+    "apiSeconds": 1904.905,
+    "costUsd": 8.4533524,
+    "models": [
+      "claude-haiku-4-5-20251001",
+      "claude-opus-5-5"
+    ]
+  },
+  "score": {
+    "passed": 17,
+    "total": 17
+  }
+}

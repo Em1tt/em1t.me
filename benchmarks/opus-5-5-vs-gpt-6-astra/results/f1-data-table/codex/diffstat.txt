@@ -1,0 +1,17 @@
+ .gitignore                     |    4 +
+ README.md                      |   26 +
+ dist/assets/index-CiRaiLWP.css |    1 +
+ dist/assets/index-DwlO_7-_.js  |   46 ++
+ dist/favicon.svg               |    1 +
+ dist/index.html                |   16 +
+ index.html                     |   15 +
+ package-lock.json              | 1210 ++++++++++++++++++++++++++++++++++++++++
+ package.json                   |   16 +
+ playwright.config.js           |   19 +
+ public/favicon.svg             |    1 +
+ src/directory.js               |   93 +++
+ src/main.js                    |  158 ++++++
+ src/style.css                  |  117 ++++
+ tests/directory.spec.js        |  257 +++++++++
+ tests/serve.mjs                |   22 +
+ 16 files changed, 2002 insertions(+)

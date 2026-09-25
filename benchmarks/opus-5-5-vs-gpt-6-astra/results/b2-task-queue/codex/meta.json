@@ -1,0 +1,21 @@
+{
+  "task": "b2-task-queue",
+  "model": "codex",
+  "started": "2026-09-25T14:54:00.580Z",
+  "seconds": 328.457,
+  "exitCode": 0,
+  "timedOut": false,
+  "limitedAttempts": 0,
+  "usage": {
+    "input": 391908,
+    "cacheRead": 371328,
+    "output": 7115,
+    "reasoning": 2902,
+    "turns": 1,
+    "commands": 11
+  },
+  "score": {
+    "passed": 25,
+    "total": 25
+  }
+}

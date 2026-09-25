@@ -1,0 +1,9 @@
+ src/csv.js             |  2 +-
+ src/discounts.js       |  2 +-
+ src/invoice.js         |  6 ++--
+ src/money.js           |  5 +--
+ test/csv.test.js       | 28 +++++++++++++++++
+ test/discounts.test.js | 25 +++++++++++++++
+ test/invoice.test.js   | 84 +++++++++++++++++++++++++++++++++++++++++++++++++-
+ test/money.test.js     | 19 ++++++++++++
+ 8 files changed, 163 insertions(+), 8 deletions(-)

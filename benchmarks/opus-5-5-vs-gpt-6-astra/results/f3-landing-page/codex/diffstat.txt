@@ -1,0 +1,21 @@
+ .gitignore                                         |    3 +
+ README.md                                          |   35 +
+ .../dm-sans-latin-standard-normal-Bf69Tn_J.woff2   |  Bin 0 -> 62724 bytes
+ .../fraunces-latin-full-italic-D2JnYqd-.woff2      |  Bin 0 -> 149720 bytes
+ .../fraunces-latin-full-normal-CFFu7zhK.woff2      |  Bin 0 -> 121016 bytes
+ dist/assets/index-DL3XvPZl.css                     |    1 +
+ dist/assets/index-DMKPTg2_.js                      |    1 +
+ dist/favicon.svg                                   |    1 +
+ dist/index.html                                    |  936 ++++++++
+ dist/licenses/dm-sans.txt                          |   93 +
+ dist/licenses/fraunces.txt                         |   93 +
+ index.html                                         |  935 ++++++++
+ package-lock.json                                  |  880 +++++++
+ package.json                                       |   21 +
+ public/favicon.svg                                 |    1 +
+ public/licenses/dm-sans.txt                        |   93 +
+ public/licenses/fraunces.txt                       |   93 +
+ src/main.js                                        |  183 ++
+ src/style.css                                      | 2466 ++++++++++++++++++++
+ tests/check.mjs                                    |  237 ++
+ 20 files changed, 6072 insertions(+)

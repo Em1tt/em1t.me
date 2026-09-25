@@ -1,0 +1,25 @@
+{
+  "task": "f1-data-table",
+  "model": "claude",
+  "started": "2026-09-25T10:20:36.693Z",
+  "seconds": 2723.532,
+  "exitCode": 0,
+  "timedOut": false,
+  "usage": {
+    "input": 128,
+    "cacheRead": 10427011,
+    "cacheWrite": 227260,
+    "output": 174030,
+    "turns": 82,
+    "apiSeconds": 2020.341,
+    "costUsd": 9.3153448,
+    "models": [
+      "claude-haiku-4-5-20251001",
+      "claude-opus-5-5"
+    ]
+  },
+  "score": {
+    "passed": 21,
+    "total": 21
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "task": "b1-link-api",
+  "model": "codex",
+  "started": "2026-09-25T13:11:53.759Z",
+  "seconds": 86.829,
+  "exitCode": 1,
+  "timedOut": false,
+  "usage": {
+    "input": 0,
+    "cacheRead": 0,
+    "output": 0,
+    "reasoning": 0,
+    "turns": 0,
+    "commands": 5
+  },
+  "score": {
+    "passed": 0,
+    "total": 18,
+    "note": "server did not start"
+  }
+}

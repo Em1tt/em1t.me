@@ -1,0 +1,633 @@
+[
+  {
+    "task": "b1-link-api",
+    "model": "claude",
+    "minutes": 34.1,
+    "timedOut": false,
+    "limitedAttempts": 0,
+    "passed": 18,
+    "total": 18,
+    "failed": [],
+    "input": 7353380,
+    "cached": 7043502,
+    "output": 226163,
+    "reasoning": 158651,
+    "helpers": {
+      "claude-haiku-4-5-20251001": {
+        "input": 29851,
+        "output": 237
+      }
+    },
+    "subagents": 1,
+    "subagentDetails": [
+      {
+        "description": "Audit API against TASK.md spec",
+        "type": "general-purpose"
+      }
+    ],
+    "turns": 44,
+    "toolCalls": 42,
+    "tools": {
+      "Bash": 15,
+      "Write": 11,
+      "Edit": 6,
+      "PowerShell": 4,
+      "Read": 2,
+      "Agent": 1,
+      "ToolSearch": 2,
+      "WebFetch": 1
+    }
+  },
+  {
+    "task": "b1-link-api",
+    "model": "codex",
+    "minutes": 6.9,
+    "timedOut": false,
+    "limitedAttempts": 0,
+    "passed": 18,
+    "total": 18,
+    "failed": [],
+    "input": 1186773,
+    "cached": 1101440,
+    "output": 22707,
+    "reasoning": 8260,
+    "mainAgent": {
+      "input": 594830,
+      "output": 8925
+    },
+    "subagents": 2,
+    "subagentDetails": [
+      {
+        "name": "McClintock",
+        "path": "/root/api_tests",
+        "model": "gpt-6-astra",
+        "effort": "ultra",
+        "input": 352233,
+        "output": 10836
+      },
+      {
+        "name": "Russell",
+        "path": "/root/spec_review",
+        "model": "gpt-6-astra",
+        "effort": "ultra",
+        "input": 239710,
+        "output": 2946
+      }
+    ],
+    "turns": 1,
+    "messages": 5,
+    "toolCalls": 18,
+    "tools": {
+      "command": 16,
+      "fileChange": 2,
+      "webSearch": 0,
+      "mcp": 0
+    }
+  },
+  {
+    "task": "b2-task-queue",
+    "model": "claude",
+    "minutes": 41.9,
+    "timedOut": false,
+    "limitedAttempts": 0,
+    "passed": 25,
+    "total": 25,
+    "failed": [],
+    "input": 10363731,
+    "cached": 10098986,
+    "output": 229586,
+    "reasoning": 178795,
+    "helpers": {
+      "claude-haiku-4-5-20251001": {
+        "input": 966,
+        "output": 13
+      }
+    },
+    "subagents": 0,
+    "subagentDetails": [],
+    "turns": 70,
+    "toolCalls": 69,
+    "tools": {
+      "Bash": 35,
+      "Write": 5,
+      "ToolSearch": 1,
+      "TaskStop": 1,
+      "Edit": 19,
+      "Read": 7,
+      "Grep": 1
+    }
+  },
+  {
+    "task": "b2-task-queue",
+    "model": "codex",
+    "minutes": 5.5,
+    "timedOut": false,
+    "limitedAttempts": 0,
+    "passed": 25,
+    "total": 25,
+    "failed": [],
+    "input": 976630,
+    "cached": 880768,
+    "output": 18518,
+    "reasoning": 5965,
+    "mainAgent": {
+      "input": 391908,
+      "output": 7115
+    },
+    "subagents": 2,
+    "subagentDetails": [
+      {
+        "name": "Rawls",
+        "path": "/root/queue_tests",
+        "model": "gpt-6-astra",
+        "effort": "ultra",
+        "input": 253399,
+        "output": 8049
+      },
+      {
+        "name": "Bernoulli",
+        "path": "/root/review_design",
+        "model": "gpt-6-astra",
+        "effort": "ultra",
+        "input": 331323,
+        "output": 3354
+      }
+    ],
+    "turns": 1,
+    "messages": 5,
+    "toolCalls": 13,
+    "tools": {
+      "command": 11,
+      "fileChange": 2,
+      "webSearch": 0,
+      "mcp": 0
+    }
+  },
+  {
+    "task": "b3-log-analytics",
+    "model": "claude",
+    "minutes": 18.2,
+    "timedOut": false,
+    "limitedAttempts": 0,
+    "passed": 12,
+    "total": 12,
+    "failed": [],
+    "input": 4196995,
+    "cached": 4048012,
+    "output": 114886,
+    "reasoning": 77713,
+    "helpers": {
+      "claude-haiku-4-5-20251001": {
+        "input": 966,
+        "output": 13
+      }
+    },
+    "subagents": 0,
+    "subagentDetails": [],
+    "turns": 37,
+    "toolCalls": 36,
+    "tools": {
+      "Bash": 25,
+      "Write": 6,
+      "Edit": 4,
+      "Read": 1
+    }
+  },
+  {
+    "task": "b3-log-analytics",
+    "model": "codex",
+    "minutes": 3.5,
+    "timedOut": false,
+    "limitedAttempts": 0,
+    "passed": 12,
+    "total": 12,
+    "failed": [],
+    "input": 529933,
+    "cached": 487936,
+    "output": 9838,
+    "reasoning": 2307,
+    "mainAgent": {
+      "input": 293117,
+      "output": 4211
+    },
+    "subagents": 1,
+    "subagentDetails": [
+      {
+        "name": "Fermat",
+        "path": "/root/review_requirements",
+        "model": "gpt-6-astra",
+        "effort": "ultra",
+        "input": 236816,
+        "output": 5627
+      }
+    ],
+    "turns": 1,
+    "messages": 4,
+    "toolCalls": 12,
+    "tools": {
+      "command": 11,
+      "fileChange": 1,
+      "webSearch": 0,
+      "mcp": 0
+    }
+  },
+  {
+    "task": "f1-data-table",
+    "model": "claude",
+    "minutes": 45.4,
+    "timedOut": false,
+    "limitedAttempts": 0,
+    "passed": 21,
+    "total": 21,
+    "failed": [],
+    "input": 12333791,
+    "cached": 11979324,
+    "output": 223225,
+    "reasoning": 144013,
+    "helpers": {
+      "claude-haiku-4-5-20251001": {
+        "input": 966,
+        "output": 13
+      }
+    },
+    "subagents": 1,
+    "subagentDetails": [
+      {
+        "description": "Independent spec compliance review",
+        "type": "general-purpose"
+      }
+    ],
+    "turns": 82,
+    "toolCalls": 81,
+    "tools": {
+      "Bash": 38,
+      "Write": 24,
+      "Edit": 4,
+      "Read": 10,
+      "ToolSearch": 1,
+      "TaskStop": 1,
+      "Agent": 1,
+      "ScheduleWakeup": 2
+    }
+  },
+  {
+    "task": "f1-data-table",
+    "model": "codex",
+    "minutes": 8.2,
+    "timedOut": false,
+    "limitedAttempts": 0,
+    "passed": 21,
+    "total": 21,
+    "failed": [],
+    "input": 836861,
+    "cached": 755200,
+    "output": 21813,
+    "reasoning": 2759,
+    "mainAgent": {
+      "input": 471975,
+      "output": 13257
+    },
+    "subagents": 2,
+    "subagentDetails": [
+      {
+        "name": "Zeno",
+        "path": "/root/directory_logic",
+        "model": "gpt-6-astra",
+        "effort": "ultra",
+        "input": 214188,
+        "output": 2790
+      },
+      {
+        "name": "Maxwell",
+        "path": "/root/browser_checks",
+        "model": "gpt-6-astra",
+        "effort": "ultra",
+        "input": 150698,
+        "output": 5766
+      }
+    ],
+    "turns": 1,
+    "messages": 5,
+    "toolCalls": 16,
+    "tools": {
+      "command": 12,
+      "fileChange": 4,
+      "webSearch": 0,
+      "mcp": 0
+    }
+  },
+  {
+    "task": "f2-signup-form",
+    "model": "claude",
+    "minutes": 37.6,
+    "timedOut": false,
+    "limitedAttempts": 0,
+    "passed": 17,
+    "total": 17,
+    "failed": [],
+    "input": 11092205,
+    "cached": 10831327,
+    "output": 209974,
+    "reasoning": 155345,
+    "helpers": {
+      "claude-haiku-4-5-20251001": {
+        "input": 966,
+        "output": 13
+      }
+    },
+    "subagents": 0,
+    "subagentDetails": [],
+    "turns": 75,
+    "toolCalls": 69,
+    "tools": {
+      "Bash": 30,
+      "Write": 12,
+      "Edit": 11,
+      "Read": 16
+    }
+  },
+  {
+    "task": "f2-signup-form",
+    "model": "codex",
+    "minutes": 9.9,
+    "timedOut": false,
+    "limitedAttempts": 0,
+    "passed": 17,
+    "total": 17,
+    "failed": [],
+    "input": 1032340,
+    "cached": 892288,
+    "output": 25638,
+    "reasoning": 3749,
+    "mainAgent": {
+      "input": 694610,
+      "output": 16327
+    },
+    "subagents": 2,
+    "subagentDetails": [
+      {
+        "name": "Halley",
+        "path": "/root/validation",
+        "model": "gpt-6-astra",
+        "effort": "ultra",
+        "input": 222207,
+        "output": 4134
+      },
+      {
+        "name": "Nash",
+        "path": "/root/browser_tests",
+        "model": "gpt-6-astra",
+        "effort": "ultra",
+        "input": 115523,
+        "output": 5177
+      }
+    ],
+    "turns": 1,
+    "messages": 5,
+    "toolCalls": 21,
+    "tools": {
+      "command": 16,
+      "fileChange": 5,
+      "webSearch": 0,
+      "mcp": 0
+    }
+  },
+  {
+    "task": "f3-landing-page",
+    "model": "claude",
+    "minutes": 50.7,
+    "timedOut": false,
+    "limitedAttempts": 0,
+    "passed": 16,
+    "total": 16,
+    "failed": [],
+    "firstScore": 16,
+    "input": 20033934,
+    "cached": 19723381,
+    "output": 247468,
+    "reasoning": 171412,
+    "helpers": {
+      "claude-haiku-4-5-20251001": {
+        "input": 966,
+        "output": 13
+      }
+    },
+    "subagents": 0,
+    "subagentDetails": [],
+    "turns": 95,
+    "toolCalls": 90,
+    "tools": {
+      "Bash": 47,
+      "Write": 8,
+      "Edit": 3,
+      "Read": 32
+    }
+  },
+  {
+    "task": "f3-landing-page",
+    "model": "codex",
+    "minutes": 16.3,
+    "timedOut": false,
+    "limitedAttempts": 0,
+    "passed": 16,
+    "total": 16,
+    "failed": [],
+    "firstScore": 15,
+    "input": 1287552,
+    "cached": 1180160,
+    "output": 30691,
+    "reasoning": 3693,
+    "mainAgent": {
+      "input": 934989,
+      "output": 27506
+    },
+    "subagents": 1,
+    "subagentDetails": [
+      {
+        "name": "Fermat",
+        "path": "/root/grocery_illustration",
+        "model": "gpt-6-astra",
+        "effort": "ultra",
+        "input": 352563,
+        "output": 3185
+      }
+    ],
+    "turns": 1,
+    "messages": 6,
+    "toolCalls": 27,
+    "tools": {
+      "command": 18,
+      "fileChange": 9,
+      "webSearch": 0,
+      "mcp": 0
+    }
+  },
+  {
+    "task": "x1-bug-hunt",
+    "model": "claude",
+    "minutes": 9.5,
+    "timedOut": false,
+    "limitedAttempts": 0,
+    "passed": 13,
+    "total": 13,
+    "failed": [],
+    "input": 1455052,
+    "cached": 1369973,
+    "output": 64227,
+    "reasoning": 47408,
+    "helpers": {
+      "claude-haiku-4-5-20251001": {
+        "input": 966,
+        "output": 13
+      }
+    },
+    "subagents": 0,
+    "subagentDetails": [],
+    "turns": 31,
+    "toolCalls": 30,
+    "tools": {
+      "Bash": 13,
+      "Edit": 12,
+      "Read": 3,
+      "Write": 2
+    }
+  },
+  {
+    "task": "x1-bug-hunt",
+    "model": "codex",
+    "minutes": 2,
+    "timedOut": false,
+    "limitedAttempts": 0,
+    "passed": 13,
+    "total": 13,
+    "failed": [],
+    "input": 423366,
+    "cached": 359936,
+    "output": 6536,
+    "reasoning": 1159,
+    "mainAgent": {
+      "input": 173326,
+      "output": 3317
+    },
+    "subagents": 3,
+    "subagentDetails": [
+      {
+        "name": "Harvey",
+        "path": "/root/csv_fix",
+        "model": "gpt-6-astra",
+        "effort": "ultra",
+        "input": 108063,
+        "output": 1434
+      },
+      {
+        "name": "Plato",
+        "path": "/root/money_fix",
+        "model": "gpt-6-astra",
+        "effort": "ultra",
+        "input": 78581,
+        "output": 1109
+      },
+      {
+        "name": "Kierkegaard",
+        "path": "/root/coupon_fix",
+        "model": "gpt-6-astra",
+        "effort": "ultra",
+        "input": 63396,
+        "output": 676
+      }
+    ],
+    "turns": 1,
+    "messages": 3,
+    "toolCalls": 9,
+    "tools": {
+      "command": 8,
+      "fileChange": 1,
+      "webSearch": 0,
+      "mcp": 0
+    }
+  },
+  {
+    "task": "x2-test-writing",
+    "model": "claude",
+    "minutes": 51,
+    "timedOut": false,
+    "limitedAttempts": 0,
+    "passed": 20,
+    "total": 20,
+    "failed": [],
+    "input": 5279106,
+    "cached": 5064080,
+    "output": 319294,
+    "reasoning": 281331,
+    "helpers": {
+      "claude-haiku-4-5-20251001": {
+        "input": 966,
+        "output": 13
+      }
+    },
+    "subagents": 0,
+    "subagentDetails": [],
+    "turns": 36,
+    "toolCalls": 34,
+    "tools": {
+      "Bash": 17,
+      "Read": 1,
+      "Write": 7,
+      "Edit": 9
+    }
+  },
+  {
+    "task": "x2-test-writing",
+    "model": "codex",
+    "minutes": 4.9,
+    "timedOut": false,
+    "limitedAttempts": 0,
+    "passed": 20,
+    "total": 20,
+    "failed": [],
+    "input": 868462,
+    "cached": 756864,
+    "output": 20374,
+    "reasoning": 3118,
+    "mainAgent": {
+      "input": 366349,
+      "output": 5982
+    },
+    "subagents": 3,
+    "subagentDetails": [
+      {
+        "name": "Kuhn",
+        "path": "/root/parse_compare_tests",
+        "model": "gpt-6-astra",
+        "effort": "ultra",
+        "input": 232685,
+        "output": 5854
+      },
+      {
+        "name": "Plato",
+        "path": "/root/ranges_tests",
+        "model": "gpt-6-astra",
+        "effort": "ultra",
+        "input": 158465,
+        "output": 5656
+      },
+      {
+        "name": "Arendt",
+        "path": "/root/max_tests",
+        "model": "gpt-6-astra",
+        "effort": "ultra",
+        "input": 110963,
+        "output": 2882
+      }
+    ],
+    "turns": 1,
+    "messages": 4,
+    "toolCalls": 14,
+    "tools": {
+      "command": 11,
+      "fileChange": 3,
+      "webSearch": 0,
+      "mcp": 0
+    }
+  }
+]

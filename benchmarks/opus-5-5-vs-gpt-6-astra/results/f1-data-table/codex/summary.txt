@@ -1,0 +1,3 @@
+Built the employee directory with search, department filtering, sorting, pagination, shareable URLs, and responsive styling. Added CSV export.
+
+`dist/` is built and ready for static hosting. All 18 browser tests pass, including mobile layout checks.

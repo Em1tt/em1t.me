@@ -1,0 +1,37 @@
+12:20 start f1-data-table claude
+f1-data-table claude: 21/21 in 45.4 min
+13:06 start f1-data-table codex
+f1-data-table codex: 21/21 in 8.2 min
+13:15 start f2-signup-form codex
+f2-signup-form codex: 17/17 in 9.9 min
+13:25 start f2-signup-form claude
+f2-signup-form claude: 17/17 in 37.6 min
+14:04 start f3-landing-page claude
+f3-landing-page claude: 16/16 in 50.7 min
+14:55 start f3-landing-page codex
+f3-landing-page codex: 15/16 in 16.3 min
+15:11 start b1-link-api codex
+b1-link-api codex: 0/18 in 1.4 min
+15:13 start b1-link-api claude
+b1-link-api claude: 18/18 in 34.1 min
+15:48 start b2-task-queue claude
+b2-task-queue claude: 25/25 in 41.9 min
+16:29 start b2-task-queue codex
+b2-task-queue codex: 25/25 in 5.5 min
+16:59 start b3-log-analytics codex
+b3-log-analytics codex: 12/12 in 3.5 min
+17:03 start b3-log-analytics claude
+b3-log-analytics claude: 12/12 in 18.2 min
+17:21 start x1-bug-hunt claude
+x1-bug-hunt claude: 13/13 in 9.5 min
+17:30 start x1-bug-hunt codex
+x1-bug-hunt codex: 13/13 in 2.0 min
+17:32 start x2-test-writing codex
+18:14 queue reordered: Claude's X2 now, then Codex X2 and the B1 rerun after the Codex limit ends
+18:14 start x2-test-writing claude
+x2-test-writing claude: 20/20 in 51.0 min
+19:06 start x2-test-writing codex
+x2-test-writing codex: 20/20 in 4.9 min
+22:01 start b1-link-api codex
+b1-link-api codex: 18/18 in 6.9 min
+22:08 ALL DONE
