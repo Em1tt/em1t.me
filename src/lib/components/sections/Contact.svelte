@@ -8,7 +8,7 @@
 
 <section
 	id="contact"
-	class="relative isolate min-h-dvh w-full cursor-crosshair touch-pan-y snap-start overflow-hidden bg-[#05030f] px-4 text-slate-200 md:px-10 lg:px-20"
+	class="relative isolate min-h-dvh w-full cursor-crosshair touch-pan-y overflow-hidden bg-[#05030f] px-4 text-slate-200 md:px-10 lg:px-20"
 >
 	<Torch art={CONTACT_VARIANT === 'sentence' ? '/bg4.png' : '/blackhole.png'} />
 	<div

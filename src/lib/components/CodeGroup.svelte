@@ -57,6 +57,7 @@
 	}
 	.code-tabs button {
 		padding: 0.6em 0.95em;
+		min-height: 44px;
 		border-right: 1px solid rgb(148 163 184 / 0.2);
 		font-family: 'Google Sans Code', monospace;
 		font-size: 12px;

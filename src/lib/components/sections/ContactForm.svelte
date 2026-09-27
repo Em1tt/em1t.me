@@ -33,7 +33,7 @@
 		<fieldset class="flex flex-wrap gap-1.5">
 			<legend class="mb-1.5 {label}">What are you looking for?</legend>
 			{#each projectTypes as type, i (type.value)}
-				<label class="relative">
+				<label class="relative inline-flex">
 					<input
 						type="radio"
 						name="project_type"
@@ -43,7 +43,7 @@
 						class="peer absolute inset-0 m-0 cursor-pointer opacity-0"
 					/>
 					<span
-						class="google-sans-code-500 inline-block border border-slate-400/20 bg-[#05030f] px-[0.9em] py-[0.62em] text-[13px] leading-none text-slate-300 peer-checked:border-[#a91a06] peer-checked:bg-[#a91a06] peer-checked:text-white peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[#ff5640]"
+						class="google-sans-code-500 inline-flex min-h-11 items-center border border-slate-400/20 bg-[#05030f] px-[0.9em] py-[0.62em] text-[13px] leading-none text-slate-300 peer-checked:border-[#a91a06] peer-checked:bg-[#a91a06] peer-checked:text-white peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[#ff5640] sm:min-h-0"
 						>{type.label}</span
 					>
 				</label>
@@ -84,7 +84,7 @@
 			<button
 				type="submit"
 				disabled={status.kind === 'sending'}
-				class="google-sans-500 cursor-pointer bg-[#a91a06] px-[1em] py-[0.62em] text-[clamp(15px,1.05vw,18px)] text-white transition-colors hover:bg-[#ff5640] hover:text-[#05030f] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff5640] disabled:cursor-wait disabled:opacity-70 motion-reduce:transition-none"
+				class="google-sans-500 inline-flex min-h-11 cursor-pointer items-center gap-[0.4em] bg-[#a91a06] px-[1em] py-[0.62em] text-[clamp(15px,1.05vw,18px)] text-white transition-colors hover:bg-[#ff5640] hover:text-[#05030f] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff5640] disabled:cursor-wait disabled:opacity-70 motion-reduce:transition-none"
 			>
 				Send message <span aria-hidden="true">→</span>
 			</button>
@@ -108,7 +108,7 @@
 			<!-- eslint-disable svelte/no-navigation-without-resolve -- contactLinks are all mailto: or https: URLs -->
 			<a
 				href={link.href}
-				class="google-sans-code-400 bg-[#05030f] px-[0.8em] py-[0.7em] text-sm leading-none text-slate-300 transition-colors hover:bg-[#a91a06] hover:text-white motion-reduce:transition-none"
+				class="google-sans-code-400 flex min-h-11 items-center bg-[#05030f] px-[0.8em] py-[0.7em] text-sm leading-none text-slate-300 transition-colors hover:bg-[#a91a06] hover:text-white motion-reduce:transition-none lg:min-h-0"
 				>{link.label}</a
 			>
 			<!-- eslint-enable svelte/no-navigation-without-resolve -->

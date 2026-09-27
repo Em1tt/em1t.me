@@ -70,7 +70,7 @@
 		<button
 			type="submit"
 			disabled={status.kind === 'sending'}
-			class="google-sans-500 cursor-pointer bg-[#a91a06] px-[1em] py-[0.62em] text-[clamp(15px,1.05vw,18px)] text-white transition-colors hover:bg-[#ff5640] hover:text-[#05030f] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff5640] disabled:cursor-wait disabled:opacity-70 motion-reduce:transition-none"
+			class="google-sans-500 inline-flex min-h-11 cursor-pointer items-center gap-[0.4em] bg-[#a91a06] px-[1em] py-[0.62em] text-[clamp(15px,1.05vw,18px)] text-white transition-colors hover:bg-[#ff5640] hover:text-[#05030f] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff5640] disabled:cursor-wait disabled:opacity-70 motion-reduce:transition-none"
 		>
 			Send it <span aria-hidden="true">→</span>
 		</button>
@@ -90,7 +90,7 @@
 			<!-- eslint-disable svelte/no-navigation-without-resolve -- contactLinks are all mailto: or https: URLs -->
 			<a
 				href={link.href}
-				class="google-sans-code-400 bg-[#05030f] px-[0.8em] py-[0.7em] text-sm leading-none text-slate-300 transition-colors hover:bg-[#a91a06] hover:text-white motion-reduce:transition-none"
+				class="google-sans-code-400 inline-flex min-h-11 items-center bg-[#05030f] px-[0.8em] py-[0.7em] text-sm leading-none text-slate-300 transition-colors hover:bg-[#a91a06] hover:text-white motion-reduce:transition-none"
 				>{link.short === 'Email' ? link.label : link.short}</a
 			>
 			<!-- eslint-enable svelte/no-navigation-without-resolve -->

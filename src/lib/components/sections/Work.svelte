@@ -3,9 +3,8 @@
 	import SectionLabel from '$lib/components/SectionLabel.svelte';
 	import { caseStudies, projects, type Project } from '$lib/projects';
 
-	// Newest first: the lead gets the big plate, the other four sit beside it, two by two.
-	// On wide screens the section is exactly one screen tall and the plates shrink to fit it:
-	// with mandatory snapping, a section even a little taller than the screen eats a wheel tick.
+	// Newest first: the lead gets the big plate, the other four sit beside it, two by two, and
+	// one under the other on a phone, where half a screen's width makes a cover unreadable.
 	const [lead, ...rest] = caseStudies;
 	const others = projects.filter((project) => !project.caseStudy);
 </script>
@@ -60,10 +59,7 @@
 	</figure>
 {/snippet}
 
-<section
-	id="work"
-	class="min-h-dvh w-full snap-start bg-[#05030f] px-4 text-slate-200 md:px-10 lg:px-20"
->
+<section id="work" class="min-h-dvh w-full bg-[#05030f] px-4 text-slate-200 md:px-10 lg:px-20">
 	<div
 		class="mx-auto grid min-h-dvh w-full max-w-7xl grid-cols-1 gap-y-4 py-[clamp(24px,6vh,72px)] lg:h-dvh lg:grid-rows-[auto_minmax(0,1fr)_auto]"
 	>
@@ -80,13 +76,13 @@
 			</p>
 		</div>
 		<!-- The plates take the lead's natural 3:2 height, or the whole row when that is shorter. -->
-		<div class="lg:[container-type:size]">
+		<div class="lg:[container-type:size] lg:grid lg:items-center">
 			<div
 				class="grid gap-x-[clamp(20px,2.4vw,40px)] gap-y-[clamp(14px,2vh,24px)] lg:h-[min(100cqh,calc((100cqw-clamp(20px,2.4vw,40px))*7/18+1.75rem))] lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:grid-rows-[minmax(0,1fr)]"
 			>
 				{@render plate(lead, true)}
 				<div
-					class="grid grid-cols-2 gap-x-[clamp(12px,1.4vw,20px)] gap-y-[clamp(14px,2vh,24px)] lg:grid-rows-[minmax(0,1fr)_auto_clamp(14px,2vh,24px)_minmax(0,1fr)_auto] lg:gap-y-0"
+					class="grid gap-x-[clamp(12px,1.4vw,20px)] gap-y-[clamp(14px,2vh,24px)] min-[560px]:grid-cols-2 lg:grid-rows-[minmax(0,1fr)_auto_clamp(14px,2vh,24px)_minmax(0,1fr)_auto] lg:gap-y-0"
 				>
 					{#each rest as project (project.slug)}
 						{@render plate(project, false)}
@@ -95,7 +91,7 @@
 			</div>
 		</div>
 		<p
-			class="flex flex-wrap items-baseline gap-x-4.5 gap-y-1.5 border-t border-slate-400/20 pt-3.5 text-[clamp(16px,1.2vw,20px)]"
+			class="flex flex-wrap items-baseline gap-x-4.5 gap-y-1 border-t border-slate-400/20 pt-3.5 text-[clamp(16px,1.2vw,20px)]"
 		>
 			<span class="google-sans-code-500 mr-1.5 text-xs tracking-[0.08em] text-slate-400 uppercase"
 				>Also</span
@@ -105,14 +101,14 @@
 					<!-- eslint-disable svelte/no-navigation-without-resolve -- external repository links -->
 					<a
 						href={project.href}
-						class="google-sans-400 text-slate-300 underline decoration-slate-600 underline-offset-4 hover:text-white hover:decoration-[#ff5640]"
+						class="google-sans-400 py-2.5 text-slate-300 underline decoration-slate-600 underline-offset-4 hover:text-white hover:decoration-[#ff5640] sm:py-1.5"
 						>{project.name}<i class="google-sans-code-400 ml-1.5 text-xs text-slate-500 not-italic"
 							>{project.short}</i
 						></a
 					>
 					<!-- eslint-enable svelte/no-navigation-without-resolve -->
 				{:else}
-					<span class="google-sans-400 text-slate-300"
+					<span class="google-sans-400 py-2.5 text-slate-300 sm:py-1.5"
 						>{project.name}<i class="google-sans-code-400 ml-1.5 text-xs text-slate-500 not-italic"
 							>{project.short}</i
 						></span

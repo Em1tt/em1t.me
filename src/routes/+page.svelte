@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import type { Attachment } from 'svelte/attachments';
 	import Seo from '$lib/components/Seo.svelte';
 	import Contact from '$lib/components/sections/Contact.svelte';
@@ -7,12 +6,9 @@
 	import Work from '$lib/components/sections/Work.svelte';
 	import Writing from '$lib/components/sections/Writing.svelte';
 	import { SITE } from '$lib/site';
-	import { pageByWheel } from '$lib/wheelPaging';
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
-
-	onMount(() => pageByWheel());
 
 	const person = {
 		'@type': 'Person',
@@ -67,7 +63,7 @@
 	jsonLd={structured}
 />
 
-<div class="relative grid h-dvh w-full snap-start place-items-center">
+<div class="relative grid h-dvh w-full place-items-center">
 	<div class="absolute top-4 left-4">
 		<img src="/E1.svg" alt="" width="32" />
 	</div>
@@ -81,7 +77,7 @@
 		<a
 			href="#about"
 			aria-label="Scroll down"
-			class="animate-pulse duration-100 hover:scale-120 hover:animate-none"
+			class="grid size-12 animate-pulse place-items-center duration-100 hover:scale-120 hover:animate-none"
 		>
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
@@ -109,7 +105,7 @@
 </video>
 <section
 	id="about"
-	class="min-h-dvh w-full snap-start bg-[#05030f] bg-[url('/img2.png')] bg-cover bg-center bg-no-repeat px-4 text-slate-200 md:px-10 lg:px-20"
+	class="min-h-dvh w-full bg-[#05030f] bg-[url('/img2.png')] bg-cover bg-center bg-no-repeat px-4 text-slate-200 md:px-10 lg:px-20"
 >
 	<div
 		class="mx-auto grid min-h-dvh w-full max-w-7xl grid-cols-1 grid-rows-[minmax(0,1fr)_auto] gap-x-10 gap-y-7 py-[clamp(24px,6vh,72px)] md:grid-cols-[minmax(0,1fr)_auto] lg:grid-rows-[minmax(0,1fr)]"
@@ -145,13 +141,13 @@
 			<div class="mt-1 flex flex-wrap gap-2.5">
 				<a
 					href="#contact"
-					class="google-sans-500 bg-[#a91a06] px-[1em] py-[0.62em] text-[clamp(15px,1.05vw,18px)] text-white transition-colors hover:bg-[#ff5640] hover:text-[#05030f] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff5640] motion-reduce:transition-none"
+					class="google-sans-500 inline-flex min-h-11 items-center gap-[0.4em] bg-[#a91a06] px-[1em] py-[0.62em] text-[clamp(15px,1.05vw,18px)] text-white transition-colors hover:bg-[#ff5640] hover:text-[#05030f] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff5640] motion-reduce:transition-none"
 				>
 					Contact me <span aria-hidden="true">→</span>
 				</a>
 				<a
 					href="#what-i-do"
-					class="google-sans-500 bg-[#05030f] px-[1em] py-[0.62em] text-[clamp(15px,1.05vw,18px)] text-slate-200 transition-colors hover:bg-[#ff5640] hover:text-[#05030f] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff5640] motion-reduce:transition-none"
+					class="google-sans-500 inline-flex min-h-11 items-center bg-[#05030f] px-[1em] py-[0.62em] text-[clamp(15px,1.05vw,18px)] text-slate-200 transition-colors hover:bg-[#ff5640] hover:text-[#05030f] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ff5640] motion-reduce:transition-none"
 				>
 					Learn more
 				</a>
