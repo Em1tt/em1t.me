@@ -1,6 +1,7 @@
 <script lang="ts">
 	import 'katex/dist/katex.min.css';
 	import '../post.css';
+	import { onMount } from 'svelte';
 	import { resolve } from '$app/paths';
 	import BookContents from '$lib/components/BookContents.svelte';
 	import Comments from '$lib/components/Comments.svelte';
@@ -28,6 +29,17 @@
 
 	let article: HTMLElement;
 	let sections = $state<{ id: string; text: string; sub: boolean }[]>([]);
+	// The column is a sidebar from lg up. Below that it sits on top of the post, where a long
+	// contents list is a wall between the reader and the first paragraph, so there it folds away.
+	let contents = $state(false);
+
+	onMount(() => {
+		const wide = matchMedia('(min-width: 1024px)');
+		const sync = () => (contents = wide.matches);
+		sync();
+		wide.addEventListener('change', sync);
+		return () => wide.removeEventListener('change', sync);
+	});
 
 	// Build the contents list from the rendered headings (rehype-slug gives them ids).
 	$effect(() => {
@@ -58,7 +70,7 @@
 	>
 		<a
 			href={resolve('/blog')}
-			class="google-sans-code-500 absolute top-[clamp(24px,6vh,72px)] left-4 bg-[#05030f] px-[0.75em] py-[0.6em] text-xs leading-none tracking-widest text-slate-300 uppercase hover:bg-[#a91a06] hover:text-white md:left-10 lg:left-20"
+			class="google-sans-code-500 absolute top-[clamp(24px,6vh,72px)] left-4 inline-flex min-h-11 items-center bg-[#05030f] px-[0.75em] py-[0.6em] text-xs leading-none tracking-widest text-slate-300 uppercase hover:bg-[#a91a06] hover:text-white md:left-10 md:min-h-0 lg:left-20"
 			>← Blog</a
 		>
 		<SectionLabel
@@ -116,29 +128,44 @@
 				</dd>
 			</dl>
 			{#if sections.length}
-				<nav aria-label="Sections">
-					<p class="mb-2 text-[11px] tracking-[0.08em] text-slate-400 uppercase">Sections</p>
-					<ul class="grid gap-1.5">
-						{#each sections as section (section.id)}
-							<li class={section.sub ? 'pl-3' : ''}>
-								<!-- eslint-disable svelte/no-navigation-without-resolve -- in-page heading anchors -->
+				<details class="group" bind:open={contents}>
+					<summary
+						class="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 border-b border-slate-400/20 text-[11px] tracking-[0.08em] text-slate-400 uppercase lg:hidden [&::-webkit-details-marker]:hidden"
+					>
+						Sections
+						<span
+							class="text-[#ff5640] transition-transform group-open:rotate-180 motion-reduce:transition-none"
+							aria-hidden="true">▾</span
+						>
+					</summary>
+					<nav aria-label="Sections" class="pt-3 lg:pt-0">
+						<p class="mb-2 hidden text-[11px] tracking-[0.08em] text-slate-400 uppercase lg:block">
+							Sections
+						</p>
+						<ul class="grid gap-1.5">
+							{#each sections as section (section.id)}
+								<li class={section.sub ? 'pl-3' : ''}>
+									<!-- eslint-disable svelte/no-navigation-without-resolve -- in-page heading anchors -->
+									<a
+										href="#{section.id}"
+										class="flex min-h-11 items-center leading-snug lg:block lg:min-h-0 {section.sub
+											? 'text-slate-500'
+											: 'text-slate-300'} hover:text-[#ff5640]">{section.text}</a
+									>
+									<!-- eslint-enable svelte/no-navigation-without-resolve -->
+								</li>
+							{/each}
+							<li>
+								<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- in-page anchor -->
 								<a
-									href="#{section.id}"
-									class="leading-snug {section.sub
-										? 'text-slate-500'
-										: 'text-slate-300'} hover:text-[#ff5640]">{section.text}</a
+									href="#comments"
+									class="flex min-h-11 items-center leading-snug text-slate-300 hover:text-[#ff5640] lg:block lg:min-h-0"
+									>Comments</a
 								>
-								<!-- eslint-enable svelte/no-navigation-without-resolve -->
 							</li>
-						{/each}
-						<li>
-							<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -- in-page anchor -->
-							<a href="#comments" class="leading-snug text-slate-300 hover:text-[#ff5640]"
-								>Comments</a
-							>
-						</li>
-					</ul>
-				</nav>
+						</ul>
+					</nav>
+				</details>
 			{/if}
 		</aside>
 		<div class="min-w-0">

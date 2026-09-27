@@ -22,7 +22,7 @@
 	>
 		<a
 			href="{resolve('/')}#blog"
-			class="google-sans-code-500 absolute top-[clamp(24px,6vh,72px)] left-4 bg-[#05030f] px-[0.75em] py-[0.6em] text-xs leading-none tracking-widest text-slate-300 uppercase hover:bg-[#a91a06] hover:text-white md:left-10 lg:left-20"
+			class="google-sans-code-500 absolute top-[clamp(24px,6vh,72px)] left-4 inline-flex min-h-11 items-center bg-[#05030f] px-[0.75em] py-[0.6em] text-xs leading-none tracking-widest text-slate-300 uppercase hover:bg-[#a91a06] hover:text-white md:left-10 md:min-h-0 lg:left-20"
 			>← em1t.me</a
 		>
 		<SectionLabel>Blog</SectionLabel>

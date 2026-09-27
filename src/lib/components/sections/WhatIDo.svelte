@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Dissolve from '$lib/components/Dissolve.svelte';
 	import SectionLabel from '$lib/components/SectionLabel.svelte';
 
 	const credits = [
@@ -30,14 +31,21 @@
 
 <section
 	id="what-i-do"
-	class="grid min-h-dvh w-full snap-start bg-[#05030f] text-slate-200 md:grid-cols-[minmax(0,26fr)_minmax(0,74fr)]"
+	class="grid min-h-dvh w-full bg-[#05030f] text-slate-200 md:grid-cols-[minmax(0,26fr)_minmax(0,74fr)]"
 >
-	<div class="relative min-h-56 bg-[url('/bg4.png')] bg-cover bg-[40%_50%] bg-no-repeat">
-		<div class="absolute top-[clamp(24px,6vh,72px)] left-4 md:left-[clamp(16px,2.4vw,40px)]">
+	<!-- The print runs out of dots toward its bottom edge, so it flows into the work below it
+	     rather than stopping on a line. -->
+	<div
+		class="relative min-h-44 bg-[url('/bg4.png')] bg-cover bg-[40%_50%] bg-no-repeat sm:min-h-56"
+	>
+		<Dissolve />
+		<div
+			class="absolute top-[clamp(20px,6vh,72px)] left-4 z-1 md:top-[clamp(24px,6vh,72px)] md:left-[clamp(16px,2.4vw,40px)]"
+		>
 			<SectionLabel>What I do</SectionLabel>
 		</div>
 		<p
-			class="google-sans-500 absolute bottom-6 left-4 text-[clamp(20px,2vw,34px)] leading-[1.2] md:bottom-[clamp(24px,6vh,72px)] md:left-[clamp(16px,2.4vw,40px)] md:rotate-180 md:[writing-mode:vertical-rl]"
+			class="google-sans-500 absolute bottom-5 left-4 z-1 text-[clamp(18px,2vw,34px)] leading-[1.2] md:bottom-[clamp(24px,6vh,72px)] md:left-[clamp(16px,2.4vw,40px)] md:rotate-180 md:[writing-mode:vertical-rl]"
 		>
 			<span
 				class="bg-[#05030f] box-decoration-clone px-[0.42em] py-[0.16em] md:px-[0.16em] md:py-[0.42em]"
@@ -53,13 +61,15 @@
 		>
 			I design and build for the web, then try to break it.
 		</h2>
+		<!-- Side by side from md up. Below that each credit is one block, or the row gap would space
+		     a role as far from its own name as from the next one. -->
 		<dl
-			class="grid gap-x-7 gap-y-[clamp(6px,1.3vh,14px)] md:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]"
+			class="grid gap-x-7 gap-y-[clamp(14px,2vh,20px)] md:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] md:gap-y-[clamp(6px,1.3vh,14px)]"
 		>
 			{#each credits as credit (credit.name)}
-				<div class="contents">
+				<div class="md:contents">
 					<dt
-						class="google-sans-code-500 pt-2.5 text-[11px] leading-snug tracking-[0.08em] text-slate-400 uppercase md:pt-[0.72em] md:text-right"
+						class="google-sans-code-500 text-[11px] leading-snug tracking-[0.08em] text-slate-400 uppercase md:pt-[0.72em] md:text-right"
 					>
 						{credit.role}
 					</dt>

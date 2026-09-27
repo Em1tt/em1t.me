@@ -13,6 +13,13 @@
 		const stage = canvas.parentElement!;
 		const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+		// Where the big sphere sits when nothing is dragging it. On a wide stage it lies under the
+		// right of the copy; on a phone the stage is a band of its own, so it comes to the middle.
+		const home = (width: number, height: number) => ({
+			x: width * (width < 700 ? 0.5 : 0.7),
+			y: height * 0.46
+		});
+
 		let view: ReturnType<typeof fitCanvas> | undefined;
 		let ground: HTMLCanvasElement | undefined;
 		let bodies: { x: number; y: number; r: number }[] = [];
@@ -34,9 +41,10 @@
 			const m = Math.min(width, height);
 			const first = !bodies.length;
 			if (first) {
+				const rest = home(width, height);
 				bodies = [
-					{ x: width * 0.7, y: height * 0.46, r: 0 },
-					{ x: width * 0.5, y: height * 0.7, r: 0 }
+					{ ...rest, r: 0 },
+					{ x: rest.x - m * 0.2, y: height * 0.7, r: 0 }
 				];
 			}
 			bodies[0].r = m * 0.2;
@@ -78,9 +86,10 @@
 			if (!running) return;
 			if (dragging < 0 && performance.now() - lastTouch > 3000 && view) {
 				const { width, height } = view;
+				const rest = home(width, height);
 				const [a, b] = bodies;
-				a.x += (width * 0.7 - a.x) * 0.02;
-				a.y += (height * 0.46 - a.y) * 0.02;
+				a.x += (rest.x - a.x) * 0.02;
+				a.y += (rest.y - a.y) * 0.02;
 				const angle = now / 2300;
 				const orbit = (a.r + b.r) * (1.02 + 0.32 * Math.sin(now / 1700));
 				b.x = a.x + Math.cos(angle) * orbit;

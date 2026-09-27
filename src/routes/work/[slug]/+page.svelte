@@ -38,7 +38,7 @@
 	>
 		<a
 			href="{resolve('/')}#work"
-			class="google-sans-code-500 absolute top-[clamp(24px,6vh,72px)] left-4 bg-[#05030f] px-[0.75em] py-[0.6em] text-xs leading-none tracking-widest text-slate-300 uppercase hover:bg-[#a91a06] hover:text-white md:left-10 lg:left-20"
+			class="google-sans-code-500 absolute top-[clamp(24px,6vh,72px)] left-4 inline-flex min-h-11 items-center bg-[#05030f] px-[0.75em] py-[0.6em] text-xs leading-none tracking-widest text-slate-300 uppercase hover:bg-[#a91a06] hover:text-white md:left-10 md:min-h-0 lg:left-20"
 			>← em1t.me</a
 		>
 		{#if data.project.logo}
@@ -51,7 +51,7 @@
 		<div class="flex flex-col items-start gap-3.5 self-end lg:order-1">
 			<SectionLabel>Case study · {data.position} of {data.total}</SectionLabel>
 			<h1
-				class="google-sans-700 mt-[0.1em] text-[clamp(56px,8vw,150px)] leading-[0.98] tracking-[-0.05em]"
+				class="google-sans-700 mt-[0.1em] text-[clamp(40px,8vw,150px)] leading-[0.98] tracking-[-0.05em]"
 			>
 				<span class="bg-[#05030f] box-decoration-clone px-[0.1em] pb-[0.04em]"
 					>{data.project.name}</span
@@ -82,7 +82,7 @@
 						<!-- eslint-disable svelte/no-navigation-without-resolve -- external repository link -->
 						<a
 							href={value}
-							class="underline decoration-slate-600 underline-offset-4 hover:text-white hover:decoration-[#ff5640]"
+							class="inline-block py-1.5 underline decoration-slate-600 underline-offset-4 hover:text-white hover:decoration-[#ff5640] md:py-0"
 							>{value.replace('https://', '')}</a
 						>
 						<!-- eslint-enable svelte/no-navigation-without-resolve -->

@@ -64,17 +64,11 @@
 	white-space: nowrap;
 }
 
+/* Nothing locks to the home sections: they are a screen tall each, and the page scrolls freely
+   past them. The only glide left is app.html's scroll-smooth, for the in-page links. */
 @media (prefers-reduced-motion: reduce) {
 	html {
 		scroll-behavior: auto;
-	}
-}
-
-/* Home sections lock to the screen only on desktops: a mouse or trackpad, and a window big enough
-   for every section to fit. Phones and tablets scroll freely. Keep in step with src/lib/wheelPaging.ts. */
-@media (min-width: 1024px) and (min-height: 641px) and (pointer: fine) {
-	html {
-		scroll-snap-type: y mandatory;
 	}
 }
 
@@ -102,6 +96,7 @@ figure.code {
 }
 .code-copy {
 	padding: 0 0.95em;
+	min-height: 44px;
 	border-left: 1px solid rgb(148 163 184 / 0.2);
 	font: inherit;
 	letter-spacing: 0.08em;
