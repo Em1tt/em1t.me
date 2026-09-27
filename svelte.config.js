@@ -41,7 +41,14 @@ const em1tTheme = {
 			settings: { foreground: '#94a3b8' }
 		},
 		{ scope: ['entity.name.tag', 'meta.tag'], settings: { foreground: '#ff5640' } },
-		{ scope: ['entity.other.attribute-name'], settings: { foreground: '#ffa261' } }
+		{ scope: ['entity.other.attribute-name'], settings: { foreground: '#ffa261' } },
+		// Diffs: added lines in the comment green, removed ones in the accent red.
+		{ scope: ['markup.inserted'], settings: { foreground: '#9fd18b' } },
+		{ scope: ['markup.deleted'], settings: { foreground: '#ff5640' } },
+		{
+			scope: ['meta.diff', 'meta.diff.header', 'meta.diff.range'],
+			settings: { foreground: '#94a3b8' }
+		}
 	]
 };
 
@@ -55,7 +62,8 @@ const langs = [
 	'json',
 	'python',
 	'jsx',
-	'tsx'
+	'tsx',
+	'diff'
 ];
 const highlighter = await createHighlighter({ themes: [em1tTheme], langs });
 
@@ -73,6 +81,7 @@ const labels = {
 	json: 'JSON',
 	jsx: 'JSX',
 	tsx: 'TSX',
+	diff: 'Diff',
 	text: 'Text'
 };
 
