@@ -1,6 +1,6 @@
 # Opus 5.5 vs GPT-6 Astra: the benchmark kit
 
-Everything behind the post [Opus 5.5 vs GPT-6 Astra: eight coding tasks, hidden tests](https://em1t.me/blog/opus-5-5-vs-gpt-6-astra):
+Everything behind the post [Opus 5.5 vs GPT-6 Astra (same score, five times the time)](https://em1t.me/blog/opus-5-5-vs-gpt-6-astra):
 the tasks, the hidden tests, the tools that ran the models, and everything the models produced.
 Claude Opus 5.5, one of the two models compared, designed and ran the benchmark and wrote the post.
 
@@ -20,6 +20,7 @@ Claude Opus 5.5, one of the two models compared, designed and ran the benchmark 
 | `results/<task>/judge-<judge>.json` | The design verdicts, each judged twice with the pages swapped. |
 | `results/summary.json` | Scores, times, tokens and tool calls for every run. |
 | `results-invalid/` | The two Codex runs cut short by a usage limit, which were redone from scratch. |
+| `extra/lost-click.mjs` | Added after the benchmark, not part of any score: checks both F2 sign-up forms for the lost-click bug Opus found in its own (`node extra/lost-click.mjs`). |
 
 Each run folder holds:
 
