@@ -33,12 +33,15 @@
 	id="what-i-do"
 	class="grid min-h-dvh w-full bg-[#05030f] text-slate-200 md:grid-cols-[minmax(0,26fr)_minmax(0,74fr)]"
 >
-	<!-- The print runs out of dots toward its bottom edge, so it flows into the work below it
-	     rather than stopping on a line. -->
-	<div
-		class="relative min-h-44 bg-[url('/bg4.png')] bg-cover bg-[40%_50%] bg-no-repeat sm:min-h-56"
-	>
-		<Dissolve />
+	<!-- The print is its own layer so it can hang below the section, and it comes apart over the
+	     work below rather than stopping on a line. Keep bg-[40%_50%] and Dissolve's position in
+	     step, or the dissolve's grid slides off the dots it is painting over. -->
+	<div class="relative min-h-44 sm:min-h-56">
+		<div
+			class="absolute inset-x-0 top-0 bottom-0 bg-[url('/bg4.png')] bg-cover bg-[40%_50%] bg-no-repeat md:-bottom-[clamp(150px,22vh,280px)]"
+		>
+			<Dissolve art="/bg4.png" position={0.4} />
+		</div>
 		<div
 			class="absolute top-[clamp(20px,6vh,72px)] left-4 z-1 md:top-[clamp(24px,6vh,72px)] md:left-[clamp(16px,2.4vw,40px)]"
 		>

@@ -60,8 +60,9 @@
 {/snippet}
 
 <section id="work" class="min-h-dvh w-full bg-[#05030f] px-4 text-slate-200 md:px-10 lg:px-20">
+	<!-- Positioned, so it paints over the print hanging down out of the section above. -->
 	<div
-		class="mx-auto grid min-h-dvh w-full max-w-7xl grid-cols-1 gap-y-4 py-[clamp(24px,6vh,72px)] lg:h-dvh lg:grid-rows-[auto_minmax(0,1fr)_auto]"
+		class="relative mx-auto grid min-h-dvh w-full max-w-7xl grid-cols-1 gap-y-4 py-[clamp(24px,6vh,72px)] lg:h-dvh lg:grid-rows-[auto_minmax(0,1fr)_auto]"
 	>
 		<div class="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2.5">
 			<SectionLabel>Selected work</SectionLabel>
